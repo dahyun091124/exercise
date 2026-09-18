@@ -112,6 +112,20 @@ st.markdown("""
         color: white !important;
         border: none !important;
     }
+
+    /* 차트 영역 검은색 배경 문제 보정 CSS */
+    div[data-testid="stVegaLiteChart"] {
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 10px !important;
+        border: 1px solid #e0e0e0 !important;
+    }
+    div[data-testid="stVegaLiteChart"] svg {
+        background-color: #ffffff !important;
+    }
+    div[data-testid="stVegaLiteChart"] text {
+        fill: #111111 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -394,7 +408,7 @@ elif st.session_state['page'] == 'admin':
             df_counts.columns = ['상품명', '판매 수량']
             df_counts = df_counts.set_index('상품명')
             
-            # 기본 내장 막대 차트
+            # 기본 내장 막대 차트 (흰색 배경 CSS가 적용됨)
             st.bar_chart(df_counts, color="#03C75A")
             
             # 요약 지표
