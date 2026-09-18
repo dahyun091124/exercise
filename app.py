@@ -440,7 +440,7 @@ else:
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
             with st.form("c2c_add_form"):
                 st.markdown("#### 📝 상품 정보 입력")
-                c_title = st.text_input("상품명", placeholder="예: [C2C] 폴리모프 악력 스트레처")
+                c_title = st.text_input("상품명", placeholder="예: 폴리모프 악력 스트레처")
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
@@ -451,7 +451,7 @@ else:
                 c_components = st.text_input("구성품", placeholder="예: 수제 폴리모프 성형 기구 1개")
                 c_feature = st.text_input("핵심 가치", placeholder="예: 맞춤형 그립감 제공")
                 
-                c_submit = st.form_submit_button("🚀 마켓에 등록하기", type="primary", use_container_width=True)
+                c_submit = st.form_submit_button("마켓에 등록하기", type="primary", use_container_width=True)
                 
                 if c_submit:
                     if c_title and c_seller and c_desc_title:
