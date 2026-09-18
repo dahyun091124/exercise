@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 import pandas as pd
-import plotly.express as px
 
 # 페이지 기본 설정
 st.set_page_config(
@@ -391,28 +390,12 @@ elif st.session_state['page'] == 'admin':
             for order in st.session_state['orders']:
                 all_items.extend(order['items'])
             
-            item_counts = pd.Series(all_items).value_counts().reset_index()
-            item_counts.columns = ['상품명', '판매 수량']
+            df_counts = pd.Series(all_items).value_counts().reset_index()
+            df_counts.columns = ['상품명', '판매 수량']
+            df_counts = df_counts.set_index('상품명')
             
-            # Plotly 커스텀 화이트 테마 차트 렌더링
-            fig = px.bar(
-                item_counts, 
-                x='상품명', 
-                y='판매 수량',
-                text='판매 수량',
-                color_discrete_sequence=['#03C75A']
-            )
-            fig.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='#f8f9fa',
-                font=dict(color='#111111', family='Pretendard, sans-serif'),
-                xaxis=dict(title=dict(font=dict(color='#111111', size=14)), showgrid=False),
-                yaxis=dict(title=dict(font=dict(color='#111111', size=14)), gridcolor='#e0e0e0', dtick=1),
-                margin=dict(l=20, r=20, t=30, b=20)
-            )
-            fig.update_traces(textposition='outside', marker_line_color='#03C75A', marker_line_width=1.5)
-            
-            st.plotly_chart(fig, use_container_width=True)
+            # 기본 내장 막대 차트
+            st.bar_chart(df_counts, color="#03C75A")
             
             # 요약 지표
             col_stat1, col_stat2 = st.columns(2)
