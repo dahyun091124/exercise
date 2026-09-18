@@ -8,19 +8,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS (파일 업로더 완벽 화이트 톤 적용)
+# 스마트스토어 감성 커스텀 CSS (업로드 영역 다크모드 완벽 타파)
 st.markdown("""
 <style>
-    .stApp {
+    /* 전체 배경 및 기본 폰트 색상 강제 */
+    .stApp, body, html {
         background-color: #ffffff !important;
+        color: #111111 !important;
     }
     
-    h1, h2, h3, h4, h5, h6, p, div, span, label {
+    h1, h2, h3, h4, h5, h6, p, div, span, label, strong {
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
     
-    /* 입력창 및 폼 테마 강제 수정 */
+    /* 입력창 테마 강제 수정 */
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] > input,
     textarea {
@@ -30,34 +32,51 @@ st.markdown("""
         border-radius: 6px !important;
     }
     
-    /* 파일 업로더(st.file_uploader) 검은 배경 완벽 제거 */
-    section[data-testid="stFileUploader"],
-    section[data-testid="stFileUploader"] > div,
-    section[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"],
-    section[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] > div {
+    /* -------------------------------------------------------------
+       file_uploader 검은색 테마 완벽 강제 덮어쓰기 (모든 내부 요소 대상)
+       ------------------------------------------------------------- */
+    /* 업로더 최외곽 박스 */
+    [data-testid="stFileUploader"] {
         background-color: #f8f9fa !important;
-        color: #111111 !important;
         border: 2px dashed #03C75A !important;
         border-radius: 12px !important;
+        padding: 16px !important;
     }
-    
-    /* Upload 버튼 및 internal 텍스트 밝은 스타일 적용 */
-    section[data-testid="stFileUploader"] button {
+
+    /* 드롭존 영역 전체 */
+    [data-testid="stFileUploaderDropzone"] {
         background-color: #ffffff !important;
-        border: 1px solid #03C75A !important;
+        border: none !important;
+    }
+
+    /* 내부 영역 및 레이아웃 */
+    [data-testid="stFileUploaderDropzone"] > div {
+        background-color: #ffffff !important;
+        color: #111111 !important;
+    }
+
+    /* 파일 업로드 버튼 스타일 (Upload 버튼) */
+    [data-testid="stFileUploader"] button {
+        background-color: #ffffff !important;
+        border: 1.5px solid #03C75A !important;
         color: #03C75A !important;
         font-weight: bold !important;
+        box-shadow: none !important;
     }
-    
-    section[data-testid="stFileUploader"] button:hover {
+
+    [data-testid="stFileUploader"] button:hover {
         background-color: #03C75A !important;
         color: #ffffff !important;
     }
-    
-    section[data-testid="stFileUploader"] span,
-    section[data-testid="stFileUploader"] p,
-    section[data-testid="stFileUploader"] small {
-        color: #333333 !important;
+
+    /* 내부 텍스트, 설명글, 아이콘 색상 강제 지정 */
+    [data-testid="stFileUploader"] * {
+        color: #222222 !important;
+    }
+
+    [data-testid="stFileUploader"] svg {
+        fill: #03C75A !important;
+        stroke: #03C75A !important;
     }
 
     /* 상단 브랜드 로고 */
@@ -112,7 +131,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* 일반 버튼 스타일 */
+    /* 버튼 스타일 */
     .stButton > button {
         border-radius: 6px !important;
         border: 1px solid #e0e0e0 !important;
