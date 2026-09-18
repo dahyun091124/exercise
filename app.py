@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 
 # 페이지 기본 설정
 st.set_page_config(
@@ -79,41 +78,28 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-# 바탕화면 이미지 경로 지정 (로컬 테스트용)
-desktop_path = os.path.expanduser("~/Desktop")
-
-def get_image_path(filename):
-    local_desktop_file = os.path.join(desktop_path, filename)
-    if os.path.exists(local_desktop_file):
-        return local_desktop_file
-    elif os.path.exists(filename):
-        return filename
-    else:
-        # 파일이 없을 경우 대비 기본 플레이스홀더
-        return "https://via.placeholder.com/500?text=" + filename
-
-# 공식 키트 데이터 (바탕화면 이미지 연결)
+# 공식 키트 데이터 (GitHub 저장소 파일 연결)
 kits = [
     {
         "id": 1,
         "name": "DIY 운동 기구 풀키트", 
         "price": 15000, 
         "desc": "라텍스밴드, 지압판, 폴리모프로 자유롭게 내 맞춤형 기구를 제작합니다.",
-        "img": get_image_path("가나디.jpg")
+        "img": "가나디.jpg"
     },
     {
         "id": 2,
         "name": "공기방석 에어셀 제작 키트", 
         "price": 18500, 
         "desc": "에어셀 주머니와 스펀지로 자세 교정에 효과적인 커스텀 방석을 만듭니다.",
-        "img": get_image_path("우사기.jpg")
+        "img": "우사기.jpg"
     },
     {
         "id": 3,
         "name": "특산물 이온음료 DIY 키트", 
         "price": 9800, 
         "desc": "소멸위기 지역 대표 특산물 믹스로 나만의 건강 이온음료를 제작합니다.",
-        "img": get_image_path("하치와레.jpg")
+        "img": "하치와레.jpg"
     }
 ]
 
@@ -126,7 +112,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 3. 메인 탭 구성 (장바구니 탭 신설)
+# 3. 메인 탭 구성
 cart_count = len(st.session_state['cart'])
 cart_label = f"🛒 장바구니 & 결제 ({cart_count})" if cart_count > 0 else "🛒 장바구니 & 결제"
 
@@ -199,7 +185,7 @@ with tab3:
                         "seller": seller, 
                         "price": price, 
                         "desc": desc,
-                        "img": get_image_path("가나디.jpg")
+                        "img": "가나디.jpg"
                     })
                     st.success("성공적으로 등록되었습니다!")
                     st.rerun()
@@ -212,7 +198,7 @@ with tab3:
     for idx, item in enumerate(st.session_state['c2c_products']):
         with cols[idx % 2]:
             with st.container(border=True):
-                st.image(get_image_path(item.get("img", "하치와레.jpg")), use_container_width=True)
+                st.image(item.get("img", "하치와레.jpg"), use_container_width=True)
                 st.caption(f"👤 판매자: {item['seller']}")
                 st.markdown(f"### {item['title']}")
                 st.write(item['desc'])
@@ -227,7 +213,7 @@ with tab3:
                 with col_c2:
                     st.button("💬 1:1 톡톡 문의", key=f"chat_{idx}")
 
-# --- TAB 4: 장바구니 & 주문 결제 (신규 독립 창) ---
+# --- TAB 4: 장바구니 & 주문 결제 ---
 with tab4:
     st.subheader("🛒 장바구니 및 주문/결제")
     
@@ -236,7 +222,6 @@ with tab4:
     else:
         col_cart, col_pay = st.columns([3, 2])
         
-        # 왼쪽: 담긴 상품 목록
         with col_cart:
             st.markdown("### 📦 담은 상품 목록")
             total_price = 0
@@ -255,7 +240,6 @@ with tab4:
             
             st.markdown(f"## 총 주문 금액: **{total_price:,} 원**")
 
-        # 오른쪽: 주문자 정보 및 결제
         with col_pay:
             with st.container(border=True):
                 st.markdown("### 💳 주문 및 결제 정보")
