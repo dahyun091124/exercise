@@ -302,7 +302,7 @@ if st.session_state['page'] == 'cart':
                                 "total_price": total_price
                             }
                             st.session_state['orders'].append(new_order)
-                            st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
+                            st.success(f"주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
                             st.session_state['cart'] = []
                         else:
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
@@ -335,12 +335,12 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    st.markdown("### 📌 상품 상세 설명")
+    st.markdown("### 상품 상세 설명")
     st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
-        st.markdown("#### 📌 개요")
+        st.markdown("#### 개요")
         st.write(p.get('desc_title', ''))
         
         st.markdown("#### 💡 상품 특징 및 노하우")
@@ -349,7 +349,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         st.markdown("#### 📦 구성 품목")
         st.write(p.get('components', ''))
         
-        st.markdown("#### ⭐ 핵심 가치")
+        st.markdown("#### 💥 핵심 가치")
         st.write(p.get('feature', ''))
         
         st.divider()
@@ -403,7 +403,7 @@ elif st.session_state['page'] == 'admin':
 # 화면 4: 메인 쇼핑몰 홈 화면
 # -------------------------------------------------------------------
 else:
-    tab1, tab2 = st.tabs(["🔥 전체 상품", "🔄 구매자 창작 마켓 (C2C)"])
+    tab1, tab2 = st.tabs([" 전체 상품", "구매자 창작 마켓"])
     
     # --- TAB 1: 전체 상품 ---
     with tab1:
@@ -469,7 +469,7 @@ else:
                             "feature": c_feature
                         }
                         st.session_state['c2c_products'].append(new_c2c)
-                        st.success("🎉 성공적으로 등록되었습니다!")
+                        st.success("성공적으로 등록되었습니다!")
                         st.rerun()
                     else:
                         st.error("상품명, 판매자 닉네임, 한 줄 개요를 반드시 입력해 주세요.")
