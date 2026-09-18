@@ -97,10 +97,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 이미지 로드 안전 함수
-def safe_image(img_path):
-    if img_path and os.path.exists(str(img_path)):
-        st.image(img_path, use_container_width=True)
+# 이미지 로드 안전 함수 (업로드된 파일 객체 및 파일 경로 모두 지원)
+def safe_image(img):
+    if img is not None:
+        if isinstance(img, str):
+            if os.path.exists(img):
+                st.image(img, use_container_width=True)
+            else:
+                st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
+        else:
+            # 업로드된 파일 객체(BytesIO 등) 처리
+            st.image(img, use_container_width=True)
     else:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
@@ -120,7 +127,7 @@ if 'added_item' not in st.session_state:
 if 'selected_product' not in st.session_state:
     st.session_state['selected_product'] = None
 
-# C2C 상품 목록 초기화 (사용자가 등록한 제품들이 여기에 누적됩니다)
+# C2C 상품 목록 초기화
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
@@ -365,7 +372,9 @@ else:
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
-                c_img_choice = st.selectbox("대표 이미지 선택", ["ganadi.jpg", "usagi.jpg", "hachiware.jpg"])
+                # 노트북 이미지 파일 직접 업로드
+                c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택 (노트북 파일 선택)", type=["jpg", "jpeg", "png", "webp"])
+                
                 c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
                 c_desc_detail = st.text_area("상세설명 및 제작 노하우", placeholder="예: 손 모양에 딱 맞춰 굳힌 맞춤형 악력기입니다.")
                 c_components = st.text_input("구성품", placeholder="예: 수제 폴리모프 성형 기구 1개")
@@ -375,12 +384,15 @@ else:
                 
                 if c_submit:
                     if c_title and c_seller and c_desc_title:
+                        # 이미지가 업로드되지 않은 경우 기본 예시 이미지 사용
+                        selected_img = c_img_file if c_img_file is not None else "ganadi.jpg"
+                        
                         new_c2c = {
                             "id": len(st.session_state['c2c_products']) + 200,
                             "name": f"[C2C] {c_title}" if not c_title.startswith("[C2C]") else c_title,
                             "price": c_price,
                             "comment": f"판매자: {c_seller} | {c_desc_title}",
-                            "img": c_img_choice,
+                            "img": selected_img,
                             "desc_title": c_desc_title,
                             "desc_detail": c_desc_detail,
                             "components": c_components,
