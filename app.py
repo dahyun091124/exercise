@@ -68,7 +68,7 @@ st.markdown("""
 tab1, tab2, tab3 = st.tabs(["🏠 스토어 홈", "📦 공식 DIY 키트", "🔄 구매자 창작 마켓 (C2C)"])
 
 # 세션 상태 초기화 (C2C 물품 데이터)
-if 'c2c_products' not in st.items():
+if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {"title": "폴리모프 커스텀 지압 악력기", "seller": "정예나", "price": 12000, "desc": "키트 재료로 손 모양에 딱 맞게 제작한 지압 악력기입니다."}
     ]
@@ -127,7 +127,7 @@ with tab3:
             seller = st.text_input("판매자 닉네임")
             price = st.number_input("판매 가격 (원)", min_value=0, step=1000)
             desc = st.text_area("작품 및 제작 노하우 설명")
-            submitted = st.form_submit_dict = st.form_submit_button("스토어에 등록하기")
+            submitted = st.form_submit_button("스토어에 등록하기")
             
             if submitted and title and seller:
                 st.session_state['c2c_products'].append({
