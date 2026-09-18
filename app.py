@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 # 페이지 기본 설정
 st.set_page_config(
@@ -7,16 +8,15 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 커스텀 CSS (시인성 강화 및 네이버 스타일)
+# 스마트스토어 커스텀 CSS (선명한 가독성 보장)
 st.markdown("""
 <style>
-    /* 전체 배경 */
     .stApp {
         background-color: #f5f6f8;
     }
     
     /* 텍스트 시인성 보장 */
-    h1, h2, h3, h4, h5, h6, p, div, span {
+    h1, h2, h3, h4, h5, h6, p, div, span, label {
         color: #1e1e1e !important;
     }
     
@@ -64,7 +64,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 1. 세션 상태 초기화 (장바구니 및 C2C 데이터)
+# 1. 세션 상태 초기화
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
@@ -75,75 +75,49 @@ if 'c2c_products' not in st.session_state:
             "seller": "정예나", 
             "price": 12000, 
             "desc": "키트 재료로 손 모양에 딱 맞게 제작한 지압 악력기입니다.",
-            "img": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60"
+            "img": "하치와레.jpg"
         }
     ]
 
-# 공식 키트 데이터 (임의 이미지 연결)
+# 바탕화면 이미지 경로 지정 (로컬 테스트용)
+desktop_path = os.path.expanduser("~/Desktop")
+
+def get_image_path(filename):
+    local_desktop_file = os.path.join(desktop_path, filename)
+    if os.path.exists(local_desktop_file):
+        return local_desktop_file
+    elif os.path.exists(filename):
+        return filename
+    else:
+        # 파일이 없을 경우 대비 기본 플레이스홀더
+        return "https://via.placeholder.com/500?text=" + filename
+
+# 공식 키트 데이터 (바탕화면 이미지 연결)
 kits = [
     {
         "id": 1,
         "name": "DIY 운동 기구 풀키트", 
         "price": 15000, 
         "desc": "라텍스밴드, 지압판, 폴리모프로 자유롭게 내 맞춤형 기구를 제작합니다.",
-        "img": "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=500&auto=format&fit=crop&q=60"
+        "img": get_image_path("가나디.jpg")
     },
     {
         "id": 2,
         "name": "공기방석 에어셀 제작 키트", 
         "price": 18500, 
         "desc": "에어셀 주머니와 스펀지로 자세 교정에 효과적인 커스텀 방석을 만듭니다.",
-        "img": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&auto=format&fit=crop&q=60"
+        "img": get_image_path("우사기.jpg")
     },
     {
         "id": 3,
         "name": "특산물 이온음료 DIY 키트", 
         "price": 9800, 
         "desc": "소멸위기 지역 대표 특산물 믹스로 나만의 건강 이온음료를 제작합니다.",
-        "img": "https://images.unsplash.com/photo-1556881286-fc6915169721?w=500&auto=format&fit=crop&q=60"
+        "img": get_image_path("하치와레.jpg")
     }
 ]
 
-# 2. 사이드바 - 장바구니 및 결제 창
-with st.sidebar:
-    st.title("🛒 장바구니 & 결제")
-    st.divider()
-    
-    if not st.session_state['cart']:
-        st.info("장바구니가 비어 있습니다.")
-    else:
-        total_price = 0
-        for idx, item in enumerate(st.session_state['cart']):
-            col_s1, col_s2 = st.columns([3, 1])
-            with col_s1:
-                st.write(f"**{item['name']}**")
-                st.caption(f"{item['price']:,} 원")
-            with col_s2:
-                if st.button("삭제", key=f"del_{idx}"):
-                    st.session_state['cart'].pop(idx)
-                    st.rerun()
-            total_price += item['price']
-            st.divider()
-            
-        st.markdown(f"### 총 결제 금액: **{total_price:,} 원**")
-        
-        # 결제 Form
-        with st.form("checkout_form"):
-            st.subheader("💳 주문자 정보")
-            name = st.text_input("수령인 이름")
-            phone = st.text_input("연락처")
-            address = st.text_input("배송지 주소")
-            pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
-            
-            pay_submitted = st.form_submit_button("💳 결제하기", type="primary")
-            if pay_submitted:
-                if name and phone and address:
-                    st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 완료.")
-                    st.session_state['cart'] = []
-                else:
-                    st.error("배송지 및 주문자 정보를 모두 입력해 주세요.")
-
-# 3. 메인 상단 헤더
+# 2. 메인 상단 헤더
 st.markdown("""
 <div class="store-header">
     <span class="naver-badge">N SMART STORE</span>
@@ -152,8 +126,16 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 4. 탭 구성
-tab1, tab2, tab3 = st.tabs(["🏠 스토어 홈", "📦 공식 DIY 키트", "🔄 구매자 창작 마켓 (C2C)"])
+# 3. 메인 탭 구성 (장바구니 탭 신설)
+cart_count = len(st.session_state['cart'])
+cart_label = f"🛒 장바구니 & 결제 ({cart_count})" if cart_count > 0 else "🛒 장바구니 & 결제"
+
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🏠 스토어 홈", 
+    "📦 공식 DIY 키트", 
+    "🔄 구매자 창작 마켓 (C2C)", 
+    cart_label
+])
 
 # --- TAB 1: 스토어 홈 ---
 with tab1:
@@ -217,7 +199,7 @@ with tab3:
                         "seller": seller, 
                         "price": price, 
                         "desc": desc,
-                        "img": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60"
+                        "img": get_image_path("가나디.jpg")
                     })
                     st.success("성공적으로 등록되었습니다!")
                     st.rerun()
@@ -230,7 +212,7 @@ with tab3:
     for idx, item in enumerate(st.session_state['c2c_products']):
         with cols[idx % 2]:
             with st.container(border=True):
-                st.image(item.get("img", "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60"), use_container_width=True)
+                st.image(get_image_path(item.get("img", "하치와레.jpg")), use_container_width=True)
                 st.caption(f"👤 판매자: {item['seller']}")
                 st.markdown(f"### {item['title']}")
                 st.write(item['desc'])
@@ -244,3 +226,50 @@ with tab3:
                         st.rerun()
                 with col_c2:
                     st.button("💬 1:1 톡톡 문의", key=f"chat_{idx}")
+
+# --- TAB 4: 장바구니 & 주문 결제 (신규 독립 창) ---
+with tab4:
+    st.subheader("🛒 장바구니 및 주문/결제")
+    
+    if not st.session_state['cart']:
+        st.info("장바구니가 비어 있습니다. 원하는 키트를 장바구니에 담아보세요!")
+    else:
+        col_cart, col_pay = st.columns([3, 2])
+        
+        # 왼쪽: 담긴 상품 목록
+        with col_cart:
+            st.markdown("### 📦 담은 상품 목록")
+            total_price = 0
+            for idx, item in enumerate(st.session_state['cart']):
+                with st.container(border=True):
+                    c1, c2, c3 = st.columns([3, 2, 1])
+                    with c1:
+                        st.markdown(f"**{item['name']}**")
+                    with c2:
+                        st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
+                    with c3:
+                        if st.button("삭제", key=f"tab_del_{idx}"):
+                            st.session_state['cart'].pop(idx)
+                            st.rerun()
+                    total_price += item['price']
+            
+            st.markdown(f"## 총 주문 금액: **{total_price:,} 원**")
+
+        # 오른쪽: 주문자 정보 및 결제
+        with col_pay:
+            with st.container(border=True):
+                st.markdown("### 💳 주문 및 결제 정보")
+                with st.form("checkout_tab_form"):
+                    name = st.text_input("수령인 이름")
+                    phone = st.text_input("연락처")
+                    address = st.text_input("배송지 주소")
+                    pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
+                    
+                    pay_submitted = st.form_submit_button("💳 결제하기", type="primary", use_container_width=True)
+                    if pay_submitted:
+                        if name and phone and address:
+                            st.balloons()
+                            st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 완료.")
+                            st.session_state['cart'] = []
+                        else:
+                            st.error("배송지 및 주문자 정보를 모두 입력해 주세요.")
