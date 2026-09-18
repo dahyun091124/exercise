@@ -61,7 +61,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 이미지 로드 안전 함수 (파일이 없으면 대체 이미지 출력)
+# 이미지 로드 안전 함수
 def safe_image(img_path):
     if os.path.exists(img_path):
         st.image(img_path, use_container_width=True)
@@ -79,31 +79,32 @@ if 'c2c_products' not in st.session_state:
             "seller": "정예나", 
             "price": 12000, 
             "desc": "키트 재료로 손 모양에 딱 맞게 제작한 지압 악력기입니다.",
-            "img": "하치와레.jpg"
+            "img": "hachiware.jpg"
         }
     ]
 
+# 공식 키트 데이터 (영문 파일명 연결)
 kits = [
     {
         "id": 1,
         "name": "DIY 운동 기구 풀키트", 
         "price": 15000, 
         "desc": "라텍스밴드, 지압판, 폴리모프로 자유롭게 내 맞춤형 기구를 제작합니다.",
-        "img": "가나디.jpg"
+        "img": "ganadi.jpg"
     },
     {
         "id": 2,
         "name": "공기방석 에어셀 제작 키트", 
         "price": 18500, 
         "desc": "에어셀 주머니와 스펀지로 자세 교정에 효과적인 커스텀 방석을 만듭니다.",
-        "img": "우사기.jpg"
+        "img": "usagi.jpg"
     },
     {
         "id": 3,
         "name": "특산물 이온음료 DIY 키트", 
         "price": 9800, 
         "desc": "소멸위기 지역 대표 특산물 믹스로 나만의 건강 이온음료를 제작합니다.",
-        "img": "하치와레.jpg"
+        "img": "hachiware.jpg"
     }
 ]
 
@@ -189,7 +190,7 @@ with tab3:
                         "seller": seller, 
                         "price": price, 
                         "desc": desc,
-                        "img": "가나디.jpg"
+                        "img": "ganadi.jpg"
                     })
                     st.success("성공적으로 등록되었습니다!")
                     st.rerun()
@@ -202,7 +203,7 @@ with tab3:
     for idx, item in enumerate(st.session_state['c2c_products']):
         with cols[idx % 2]:
             with st.container(border=True):
-                safe_image(item.get("img", "하치와레.jpg"))
+                safe_image(item.get("img", "hachiware.jpg"))
                 st.caption(f"👤 판매자: {item['seller']}")
                 st.markdown(f"### {item['title']}")
                 st.write(item['desc'])
