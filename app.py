@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS
+# 스마트스토어 감성 커스텀 CSS (파일 업로드 영역 화이트 테마 강제 적용)
 st.markdown("""
 <style>
     .stApp {
@@ -20,7 +20,7 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
     
-    /* 입력창 및 폼 테마 강제 수정 (검은 배경 방지) */
+    /* 입력창 및 폼 테마 강제 수정 */
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] > input,
     textarea {
@@ -28,6 +28,25 @@ st.markdown("""
         color: #1e1e1e !important;
         border: 1px solid #cccccc !important;
         border-radius: 6px !important;
+    }
+    
+    /* 파일 업로더(st.file_uploader) 검은 배경 제거 및 화이트톤/점선 테두리 적용 */
+    section[data-testid="stFileUploader"] {
+        background-color: #f9f9f9 !important;
+        border: 2px dashed #03C75A !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
+    }
+    
+    section[data-testid="stFileUploader"] * {
+        color: #222222 !important;
+        background-color: transparent !important;
+    }
+
+    section[data-testid="stFileUploader"] button {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        color: #111111 !important;
     }
     
     /* 상단 브랜드 로고 */
@@ -97,7 +116,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 이미지 로드 안전 함수 (업로드된 파일 객체 및 파일 경로 모두 지원)
+# 이미지 로드 안전 함수
 def safe_image(img):
     if img is not None:
         if isinstance(img, str):
@@ -106,7 +125,6 @@ def safe_image(img):
             else:
                 st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
         else:
-            # 업로드된 파일 객체(BytesIO 등) 처리
             st.image(img, use_container_width=True)
     else:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
@@ -372,7 +390,7 @@ else:
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
-                # 노트북 이미지 파일 직접 업로드
+                # 파일 업로더 (배경을 연한 회색/녹색 점선 테두리로 밝게 디자인 변경)
                 c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택 (노트북 파일 선택)", type=["jpg", "jpeg", "png", "webp"])
                 
                 c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
@@ -384,7 +402,6 @@ else:
                 
                 if c_submit:
                     if c_title and c_seller and c_desc_title:
-                        # 이미지가 업로드되지 않은 경우 기본 예시 이미지 사용
                         selected_img = c_img_file if c_img_file is not None else "ganadi.jpg"
                         
                         new_c2c = {
