@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 # 페이지 기본 설정
 st.set_page_config(
@@ -7,19 +8,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 커스텀 CSS (선명한 가독성 보장)
+# 스마트스토어 커스텀 CSS
 st.markdown("""
 <style>
     .stApp {
         background-color: #f5f6f8;
     }
     
-    /* 텍스트 시인성 보장 */
     h1, h2, h3, h4, h5, h6, p, div, span, label {
         color: #1e1e1e !important;
     }
     
-    /* 스토어 상단 헤더 */
     .store-header {
         background-color: #ffffff;
         padding: 24px;
@@ -52,7 +51,6 @@ st.markdown("""
         color: #03C75A !important;
     }
     
-    /* 안내 배너 */
     .info-banner {
         background-color: #ffffff;
         border: 1px solid #03C75A;
@@ -62,6 +60,13 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+# 이미지 로드 안전 함수 (파일이 없으면 대체 이미지 출력)
+def safe_image(img_path):
+    if os.path.exists(img_path):
+        st.image(img_path, use_container_width=True)
+    else:
+        st.image("https://via.placeholder.com/500x500.png?text=EXERCISE+KIT", use_container_width=True)
 
 # 1. 세션 상태 초기화
 if 'cart' not in st.session_state:
@@ -78,7 +83,6 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-# 공식 키트 데이터 (GitHub 저장소 파일 연결)
 kits = [
     {
         "id": 1,
@@ -137,7 +141,7 @@ with tab1:
     for idx, kit in enumerate(kits):
         with cols[idx]:
             with st.container(border=True):
-                st.image(kit["img"], use_container_width=True)
+                safe_image(kit["img"])
                 st.markdown(f"### {kit['name']}")
                 st.caption(kit['desc'])
                 st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
@@ -154,7 +158,7 @@ with tab2:
         with st.container(border=True):
             col_a, col_b = st.columns([1, 2])
             with col_a:
-                st.image(kit["img"], use_container_width=True)
+                safe_image(kit["img"])
             with col_b:
                 st.markdown(f"## {kit['name']}")
                 st.write(kit['desc'])
@@ -198,7 +202,7 @@ with tab3:
     for idx, item in enumerate(st.session_state['c2c_products']):
         with cols[idx % 2]:
             with st.container(border=True):
-                st.image(item.get("img", "하치와레.jpg"), use_container_width=True)
+                safe_image(item.get("img", "하치와레.jpg"))
                 st.caption(f"👤 판매자: {item['seller']}")
                 st.markdown(f"### {item['title']}")
                 st.write(item['desc'])
