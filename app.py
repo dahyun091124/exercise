@@ -65,14 +65,16 @@ st.markdown("""
         color: #222222 !important;
     }
 
+    /* 상단 브랜드 로고 (크기 대폭 확대) */
     .brand-header {
         text-align: center;
-        padding: 10px 0 20px 0;
+        padding: 15px 0 25px 0;
     }
     .brand-title {
-        font-size: 32px;
+        font-size: 48px;
         font-weight: 900;
-        letter-spacing: -0.5px;
+        letter-spacing: -1px;
+        color: #111111 !important;
     }
 
     .rank-badge {
@@ -124,6 +126,9 @@ def safe_image(img):
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
+if 'orders' not in st.session_state:
+    st.session_state['orders'] = []
+
 if 'page' not in st.session_state:
     st.session_state['page'] = 'home'
 
@@ -135,6 +140,9 @@ if 'added_item' not in st.session_state:
 
 if 'selected_product' not in st.session_state:
     st.session_state['selected_product'] = None
+
+if 'admin_authenticated' not in st.session_state:
+    st.session_state['admin_authenticated'] = False
 
 # C2C 상품 목록 초기화
 if 'c2c_products' not in st.session_state:
@@ -195,24 +203,31 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# 2. 최상단 우측 장바구니 이모지 버튼 & 로고
-col_head1, col_head2 = st.columns([6, 1])
+# 2. 최상단 우측 장바구니 / 관리자 버튼 & 로고
+col_head1, col_head2 = st.columns([5, 2])
 
 with col_head1:
     st.markdown("""
     <div class="brand-header">
         <div class="brand-title">EXERCISE</div>
-        <p style="color:#666; font-size:14px; margin-top:2px;">“운동에는 하나의 정답이 없다”</p>
+        <p style="color:#666; font-size:15px; margin-top:2px;">“운동에는 하나의 정답이 없다”</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col_head2:
     st.write("")
-    cart_cnt = len(st.session_state['cart'])
-    btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
-    if st.button(btn_text, type="primary", use_container_width=True):
-        st.session_state['page'] = 'cart'
-        st.rerun()
+    st.write("")
+    btn_col1, btn_col2 = st.columns(2)
+    with btn_col1:
+        cart_cnt = len(st.session_state['cart'])
+        btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
+        if st.button(btn_text, type="primary", use_container_width=True):
+            st.session_state['page'] = 'cart'
+            st.rerun()
+    with btn_col2:
+        if st.button("⚙️ 관리자", use_container_width=True):
+            st.session_state['page'] = 'admin'
+            st.rerun()
 
 # 장바구니 담김 알림 상자
 if st.session_state['show_modal']:
@@ -275,14 +290,24 @@ if st.session_state['page'] == 'cart':
                     pay_submitted = st.form_submit_button("💳 결제하기", type="primary", use_container_width=True)
                     if pay_submitted:
                         if name and phone and address:
-                            st.balloons()
+                            # 주문 데이터 저장 (관리자 확인용)
+                            new_order = {
+                                "id": len(st.session_state['orders']) + 1,
+                                "name": name,
+                                "phone": phone,
+                                "address": address,
+                                "pay_method": pay_method,
+                                "items": [item['name'] for item in st.session_state['cart']],
+                                "total_price": total_price
+                            }
+                            st.session_state['orders'].append(new_order)
                             st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
                             st.session_state['cart'] = []
                         else:
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
 
 # -------------------------------------------------------------------
-# 화면 2: 상품 상세 페이지 (검은 박스 에러 해결 수정 부분)
+# 화면 2: 상품 상세 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
@@ -330,14 +355,58 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         safe_image(p['img'])
 
 # -------------------------------------------------------------------
-# 화면 3: 메인 쇼핑몰 홈 화면
+# 화면 3: 관리자 모드
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'admin':
+    if st.button("⬅ 메인 쇼핑몰로 돌아가기"):
+        st.session_state['page'] = 'home'
+        st.rerun()
+        
+    st.divider()
+    st.markdown("## ⚙️ EXERCISE 관리자 페이지")
+    
+    # 관리자 인증 체크
+    if not st.session_state['admin_authenticated']:
+        with st.form("admin_login"):
+            pw = st.text_input("관리자 비밀번호를 입력하세요", type="password")
+            login_btn = st.form_submit_button("로그인", type="primary")
+            if login_btn:
+                if pw == "1234":
+                    st.session_state['admin_authenticated'] = True
+                    st.success("인증되었습니다.")
+                    st.rerun()
+                else:
+                    st.error("비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)")
+    else:
+        st.subheader("📋 실시간 고객 주문 내역")
+        
+        if not st.session_state['orders']:
+            st.info("현재 접수된 주문 내역이 없습니다.")
+        else:
+            for order in reversed(st.session_state['orders']):
+                with st.container(border=True):
+                    col_o1, col_o2 = st.columns([2, 3])
+                    with col_o1:
+                        st.markdown(f"**주문 번호 #NO-{order['id']}**")
+                        st.markdown(f"**수령인:** {order['name']}")
+                        st.markdown(f"**연락처:** {order['phone']}")
+                        st.markdown(f"**배송지:** {order['address']}")
+                        st.markdown(f"**결제 방식:** {order['pay_method']}")
+                    with col_o2:
+                        st.markdown("**주문 상품 목록:**")
+                        for item in order['items']:
+                            st.write(f"- {item}")
+                        st.markdown(f"**총 결제 금액:** <span class='price-text'>{order['total_price']:,} 원</span>", unsafe_allow_html=True)
+
+# -------------------------------------------------------------------
+# 화면 4: 메인 쇼핑몰 홈 화면
 # -------------------------------------------------------------------
 else:
-    tab1, tab2 = st.tabs(["🔥 베스트 상품", "🔄 구매자 창작 마켓 (C2C)"])
+    tab1, tab2 = st.tabs(["🔥 전체 상품", "🔄 구매자 창작 마켓 (C2C)"])
     
-    # --- TAB 1: 베스트 상품 ---
+    # --- TAB 1: 전체 상품 ---
     with tab1:
-        st.markdown("<h3 style='margin-bottom:20px;'>베스트 상품</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-bottom:20px;'>전체 상품</h3>", unsafe_allow_html=True)
         
         cols = st.columns(3)
         for idx, kit in enumerate(kits):
