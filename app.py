@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS (화이트 톤 고정)
+# 스마트스토어 감성 커스텀 CSS
 st.markdown("""
 <style>
     .stApp {
@@ -120,7 +120,23 @@ if 'added_item' not in st.session_state:
 if 'selected_product' not in st.session_state:
     st.session_state['selected_product'] = None
 
-# 기획서 기반 상품 데이터
+# C2C 상품 목록 초기화 (사용자가 등록한 제품들이 여기에 누적됩니다)
+if 'c2c_products' not in st.session_state:
+    st.session_state['c2c_products'] = [
+        {
+            "id": 101,
+            "name": "[C2C] 폴리모프 커스텀 지압 악력기", 
+            "price": 12000, 
+            "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
+            "img": "ganadi.jpg",
+            "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
+            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다. 손 전체에 골고루 지압 자극을 주어 손목 강화와 스트레칭에 매우 효과적입니다.",
+            "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
+            "feature": "제작자 맞춤형 손 그립감 구현"
+        }
+    ]
+
+# 기획서 기반 공식 키트 데이터
 kits = [
     {
         "id": 1,
@@ -277,11 +293,10 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    # 상세 텍스트 설명
     st.markdown("""
     <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
         <h2 style="font-weight: 800;">상품 상세 설명</h2>
-        <p style="color:#888;">EXERCISE 공식 제작 가이드</p>
+        <p style="color:#888;">EXERCISE 제작 가이드</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -342,33 +357,65 @@ else:
         st.markdown("### 🔄 구매자 창작 물품 거래소")
         st.caption("키트를 구매한 소비자들이 직접 만든 완성품을 판매하는 공간입니다.")
         
-        cols = st.columns(2)
-        c2c_item = {
-            "id": 99,
-            "name": "[C2C] 폴리모프 커스텀 지압 악력기", 
-            "price": 12000, 
-            "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
-            "img": "ganadi.jpg",
-            "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
-            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다. 손 전체에 골고루 지압 자극을 주어 손목 강화와 스트레칭에 매우 효과적입니다.",
-            "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
-            "feature": "제작자 맞춤형 손 그립감 구현"
-        }
-        
-        with cols[0]:
-            with st.container(border=True):
-                safe_image(c2c_item['img'])
-                st.markdown(f"**{c2c_item['name']}**")
-                st.caption(c2c_item['comment'])
-                st.markdown(f"<p class='price-text'>{c2c_item['price']:,} 원</p>", unsafe_allow_html=True)
+        # 1. C2C 신규 상품 직접 등록 접이식 폼
+        with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
+            with st.form("c2c_add_form"):
+                st.markdown("#### 📝 상품 정보 입력")
+                c_title = st.text_input("상품명", placeholder="예: [C2C] 폴리모프 악력 스트레처")
+                c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
+                c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
-                col_cb1, col_cb2 = st.columns(2)
-                with col_cb1:
-                    if st.button("상세보기", key="c2c_detail", use_container_width=True):
-                        st.session_state['selected_product'] = c2c_item
-                        st.session_state['page'] = 'detail'
+                c_img_choice = st.selectbox("대표 이미지 선택", ["ganadi.jpg", "usagi.jpg", "hachiware.jpg"])
+                c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
+                c_desc_detail = st.text_area("상세설명 및 제작 노하우", placeholder="예: 손 모양에 딱 맞춰 굳힌 맞춤형 악력기입니다.")
+                c_components = st.text_input("구성품", placeholder="예: 수제 폴리모프 성형 기구 1개")
+                c_feature = st.text_input("핵심 가치", placeholder="예: 맞춤형 그립감 제공")
+                
+                c_submit = st.form_submit_button("🚀 마켓에 등록하기", type="primary", use_container_width=True)
+                
+                if c_submit:
+                    if c_title and c_seller and c_desc_title:
+                        new_c2c = {
+                            "id": len(st.session_state['c2c_products']) + 200,
+                            "name": f"[C2C] {c_title}" if not c_title.startswith("[C2C]") else c_title,
+                            "price": c_price,
+                            "comment": f"판매자: {c_seller} | {c_desc_title}",
+                            "img": c_img_choice,
+                            "desc_title": c_desc_title,
+                            "desc_detail": c_desc_detail,
+                            "components": c_components,
+                            "feature": c_feature
+                        }
+                        st.session_state['c2c_products'].append(new_c2c)
+                        st.success("🎉 성공적으로 등록되었습니다!")
                         st.rerun()
-                with col_cb2:
-                    if st.button("담기", key="c2c_cart", type="primary", use_container_width=True):
-                        add_to_cart(c2c_item['name'], c2c_item['price'])
-                        st.rerun()
+                    else:
+                        st.error("상품명, 판매자 닉네임, 한 줄 개요를 반드시 입력해 주세요.")
+                        
+        st.divider()
+        
+        # 2. C2C 등록 상품 리스트 출력
+        c2c_list = st.session_state['c2c_products']
+        
+        if not c2c_list:
+            st.info("현재 등록된 창작 물품이 없습니다. 첫 작품을 올려보세요!")
+        else:
+            cols_c2c = st.columns(2)
+            for idx, c_item in enumerate(c2c_list):
+                with cols_c2c[idx % 2]:
+                    with st.container(border=True):
+                        safe_image(c_item['img'])
+                        st.markdown(f"**{c_item['name']}**")
+                        st.caption(c_item['comment'])
+                        st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
+                        
+                        col_cb1, col_cb2 = st.columns(2)
+                        with col_cb1:
+                            if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
+                                st.session_state['selected_product'] = c_item
+                                st.session_state['page'] = 'detail'
+                                st.rerun()
+                        with col_cb2:
+                            if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
+                                add_to_cart(c_item['name'], c_item['price'])
+                                st.rerun()
