@@ -66,7 +66,7 @@ st.markdown("""
         color: #222222 !important;
     }
 
-    /* 상단 브랜드 로고 (화면 전체 폭을 가득 채우는 초대형 스타일) */
+    /* 상단 브랜드 로고 */
     .brand-header {
         text-align: center;
         padding: 10px 0 10px 0;
@@ -113,7 +113,7 @@ st.markdown("""
         border: none !important;
     }
 
-    /* 차트 영역 검은색 배경 문제 보정 CSS */
+    /* 차트 영역 배경 및 스타일 최적화 */
     div[data-testid="stVegaLiteChart"] {
         background-color: #ffffff !important;
         border-radius: 8px !important;
@@ -306,7 +306,6 @@ if st.session_state['page'] == 'cart':
                     pay_submitted = st.form_submit_button("💳 결제하기", type="primary", use_container_width=True)
                     if pay_submitted:
                         if name and phone and address:
-                            # 주문 데이터 저장 (관리자 확인용)
                             new_order = {
                                 "id": len(st.session_state['orders']) + 1,
                                 "name": name,
@@ -394,7 +393,8 @@ elif st.session_state['page'] == 'admin':
                 else:
                     st.error("비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)")
     else:
-        st.subheader("📊 항목별 구매 통계 (판매 수량 시각화)")
+        # 문구 수정 완료 (괄호 문구 제거)
+        st.subheader("📊 항목별 구매 통계")
         
         if not st.session_state['orders']:
             st.info("현재 접수된 주문 내역이 없어 통계를 출력할 수 없습니다.")
@@ -408,8 +408,8 @@ elif st.session_state['page'] == 'admin':
             df_counts.columns = ['상품명', '판매 수량']
             df_counts = df_counts.set_index('상품명')
             
-            # 기본 내장 막대 차트 (흰색 배경 CSS가 적용됨)
-            st.bar_chart(df_counts, color="#03C75A")
+            # 가독성을 높이기 위해 가로 막대 차트(horizontal=True)로 설정
+            st.bar_chart(df_counts, horizontal=True, color="#03C75A")
             
             # 요약 지표
             col_stat1, col_stat2 = st.columns(2)
