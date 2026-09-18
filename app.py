@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS (파일 업로드 영역 화이트 테마 강제 적용)
+# 스마트스토어 감성 커스텀 CSS (파일 업로더 완벽 화이트 톤 적용)
 st.markdown("""
 <style>
     .stApp {
@@ -30,25 +30,36 @@ st.markdown("""
         border-radius: 6px !important;
     }
     
-    /* 파일 업로더(st.file_uploader) 검은 배경 제거 및 화이트톤/점선 테두리 적용 */
-    section[data-testid="stFileUploader"] {
-        background-color: #f9f9f9 !important;
+    /* 파일 업로더(st.file_uploader) 검은 배경 완벽 제거 */
+    section[data-testid="stFileUploader"],
+    section[data-testid="stFileUploader"] > div,
+    section[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"],
+    section[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzone"] > div {
+        background-color: #f8f9fa !important;
+        color: #111111 !important;
         border: 2px dashed #03C75A !important;
-        border-radius: 10px !important;
-        padding: 15px !important;
+        border-radius: 12px !important;
     }
     
-    section[data-testid="stFileUploader"] * {
-        color: #222222 !important;
-        background-color: transparent !important;
-    }
-
+    /* Upload 버튼 및 internal 텍스트 밝은 스타일 적용 */
     section[data-testid="stFileUploader"] button {
         background-color: #ffffff !important;
-        border: 1px solid #cccccc !important;
-        color: #111111 !important;
+        border: 1px solid #03C75A !important;
+        color: #03C75A !important;
+        font-weight: bold !important;
     }
     
+    section[data-testid="stFileUploader"] button:hover {
+        background-color: #03C75A !important;
+        color: #ffffff !important;
+    }
+    
+    section[data-testid="stFileUploader"] span,
+    section[data-testid="stFileUploader"] p,
+    section[data-testid="stFileUploader"] small {
+        color: #333333 !important;
+    }
+
     /* 상단 브랜드 로고 */
     .brand-header {
         text-align: center;
@@ -80,7 +91,7 @@ st.markdown("""
         color: #03C75A !important;
     }
     
-    /* 상세페이지 깔끔한 텍스트 스타일 */
+    /* 상세페이지 스타일 */
     .detail-container {
         text-align: center;
         padding: 20px 0;
@@ -101,7 +112,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* 버튼 스타일 */
+    /* 일반 버튼 스타일 */
     .stButton > button {
         border-radius: 6px !important;
         border: 1px solid #e0e0e0 !important;
@@ -390,7 +401,7 @@ else:
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
-                # 파일 업로더 (배경을 연한 회색/녹색 점선 테두리로 밝게 디자인 변경)
+                # 완전히 밝아진 파일 업로더
                 c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택 (노트북 파일 선택)", type=["jpg", "jpeg", "png", "webp"])
                 
                 c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
