@@ -8,17 +8,50 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 커스텀 CSS
+# 스마트스토어 커스텀 CSS (다크모드 완벽 방지 및 시인성 강화)
 st.markdown("""
 <style>
+    /* 전체 라이트 모드 고정 */
     .stApp {
-        background-color: #f5f6f8;
+        background-color: #f5f6f8 !important;
     }
     
+    /* 텍스트 시인성 보장 */
     h1, h2, h3, h4, h5, h6, p, div, span, label {
         color: #1e1e1e !important;
     }
     
+    /* 입력창 및 폼 테마 강제 수정 (검은 배경 방지) */
+    div[data-baseweb="input"] > div, 
+    div[data-baseweb="base-input"] > input,
+    textarea {
+        background-color: #ffffff !important;
+        color: #1e1e1e !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 6px !important;
+    }
+    
+    /* 일반 버튼 스타일 수정 (삭제 버튼 등 검은색 방지) */
+    .stButton > button {
+        background-color: #ffffff !important;
+        color: #1e1e1e !important;
+        border: 1px solid #d0d0d0 !important;
+        border-radius: 6px !important;
+    }
+    
+    .stButton > button:hover {
+        border-color: #03C75A !important;
+        color: #03C75A !important;
+    }
+    
+    /* 강조 버튼 (NPay, 결제하기 등) */
+    .stButton > button[kind="primary"] {
+        background-color: #03C75A !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+
+    /* 스토어 상단 헤더 */
     .store-header {
         background-color: #ffffff;
         padding: 24px;
@@ -66,14 +99,21 @@ def safe_image(img_path):
     if img_path and os.path.exists(str(img_path)):
         st.image(img_path, use_container_width=True)
     else:
-        # 파일이 없을 경우 준비된 온라인 샘플 이미지 표시
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
 # 1. 세션 상태 초기화
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
-# C2C 첫 번째 상품 이미지를 ganadi.jpg로 설정
+if 'active_tab' not in st.session_state:
+    st.session_state['active_tab'] = 0
+
+if 'show_modal' not in st.session_state:
+    st.session_state['show_modal'] = False
+
+if 'added_item' not in st.session_state:
+    st.session_state['added_item'] = ""
+
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
@@ -110,6 +150,12 @@ kits = [
     }
 ]
 
+# 장바구니 담기 처리 함수
+def add_to_cart(item_name, item_price):
+    st.session_state['cart'].append({"name": item_name, "price": item_price})
+    st.session_state['added_item'] = item_name
+    st.session_state['show_modal'] = True
+
 # 2. 메인 상단 헤더
 st.markdown("""
 <div class="store-header">
@@ -118,6 +164,21 @@ st.markdown("""
     <div class="store-sub">“운동에는 하나의 정답이 없다” | 나만의 DIY 운동 기구 & C2C 창작 마켓</div>
 </div>
 """, unsafe_allow_html=True)
+
+# 장바구니 담김 안내 상자 (네모 박스 두 개 선택 창)
+if st.session_state['show_modal']:
+    with st.container(border=True):
+        st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            if st.button("🛍️ 계속 둘러보기", use_container_width=True):
+                st.session_state['show_modal'] = False
+                st.rerun()
+        with col_m2:
+            if st.button("🛒 장바구니로 이동", type="primary", use_container_width=True):
+                st.session_state['show_modal'] = False
+                st.session_state['active_tab'] = 3
+                st.rerun()
 
 # 3. 메인 탭 구성
 cart_count = len(st.session_state['cart'])
@@ -148,9 +209,8 @@ with tab1:
                 st.markdown(f"### {kit['name']}")
                 st.caption(kit['desc'])
                 st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
-                if st.button("장바구니 담기", key=f"home_cart_{kit['id']}", type="primary"):
-                    st.session_state['cart'].append(kit)
-                    st.toast(f"'{kit['name']}'이(가) 장바구니에 담겼습니다!")
+                if st.button("장바구니 담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
+                    add_to_cart(kit['name'], kit['price'])
                     st.rerun()
 
 # --- TAB 2: 공식 키트 ---
@@ -168,8 +228,7 @@ with tab2:
                 st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
                 
                 if st.button("🛒 장바구니에 추가", key=f"kit_cart_{kit['id']}", type="primary"):
-                    st.session_state['cart'].append(kit)
-                    st.toast(f"'{kit['name']}'이(가) 장바구니에 담겼습니다!")
+                    add_to_cart(kit['name'], kit['price'])
                     st.rerun()
 
 # --- TAB 3: 구매자 창작 마켓 (C2C) ---
@@ -213,12 +272,11 @@ with tab3:
                 
                 col_c1, col_c2 = st.columns(2)
                 with col_c1:
-                    if st.button("🛒 장바구니 담기", key=f"c2c_cart_{idx}"):
-                        st.session_state['cart'].append({"name": f"[C2C] {item['title']}", "price": item['price']})
-                        st.toast("장바구니에 담겼습니다!")
+                    if st.button("🛒 장바구니 담기", key=f"c2c_cart_{idx}", use_container_width=True):
+                        add_to_cart(f"[C2C] {item['title']}", item['price'])
                         st.rerun()
                 with col_c2:
-                    st.button("💬 1:1 톡톡 문의", key=f"chat_{idx}")
+                    st.button("💬 1:1 톡톡 문의", key=f"chat_{idx}", use_container_width=True)
 
 # --- TAB 4: 장바구니 & 주문 결제 ---
 with tab4:
