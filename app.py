@@ -8,10 +8,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS (업로드 영역 다크모드 완벽 타파)
+# 스마트스토어 감성 커스텀 CSS
 st.markdown("""
 <style>
-    /* 전체 배경 및 기본 폰트 색상 강제 */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
@@ -22,7 +21,6 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
     
-    /* 입력창 테마 강제 수정 */
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] > input,
     textarea {
@@ -32,10 +30,7 @@ st.markdown("""
         border-radius: 6px !important;
     }
     
-    /* -------------------------------------------------------------
-       file_uploader 검은색 테마 완벽 강제 덮어쓰기 (모든 내부 요소 대상)
-       ------------------------------------------------------------- */
-    /* 업로더 최외곽 박스 */
+    /* 파일 업로더 완벽 화이트 톤 */
     [data-testid="stFileUploader"] {
         background-color: #f8f9fa !important;
         border: 2px dashed #03C75A !important;
@@ -43,19 +38,16 @@ st.markdown("""
         padding: 16px !important;
     }
 
-    /* 드롭존 영역 전체 */
     [data-testid="stFileUploaderDropzone"] {
         background-color: #ffffff !important;
         border: none !important;
     }
 
-    /* 내부 영역 및 레이아웃 */
     [data-testid="stFileUploaderDropzone"] > div {
         background-color: #ffffff !important;
         color: #111111 !important;
     }
 
-    /* 파일 업로드 버튼 스타일 (Upload 버튼) */
     [data-testid="stFileUploader"] button {
         background-color: #ffffff !important;
         border: 1.5px solid #03C75A !important;
@@ -69,17 +61,10 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 내부 텍스트, 설명글, 아이콘 색상 강제 지정 */
     [data-testid="stFileUploader"] * {
         color: #222222 !important;
     }
 
-    [data-testid="stFileUploader"] svg {
-        fill: #03C75A !important;
-        stroke: #03C75A !important;
-    }
-
-    /* 상단 브랜드 로고 */
     .brand-header {
         text-align: center;
         padding: 10px 0 20px 0;
@@ -90,7 +75,6 @@ st.markdown("""
         letter-spacing: -0.5px;
     }
 
-    /* 상품 베스트 순위 뱃지 */
     .rank-badge {
         position: absolute;
         top: 10px;
@@ -103,35 +87,12 @@ st.markdown("""
         z-index: 10;
     }
     
-    /* 가격 텍스트 */
     .price-text {
         font-size: 20px;
         font-weight: 800;
         color: #03C75A !important;
     }
     
-    /* 상세페이지 스타일 */
-    .detail-container {
-        text-align: center;
-        padding: 20px 0;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    .detail-section-title {
-        font-size: 18px;
-        font-weight: 800;
-        margin-top: 24px;
-        margin-bottom: 6px;
-        color: #03C75A !important;
-    }
-    .detail-section-content {
-        font-size: 15px;
-        color: #444444 !important;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-    
-    /* 버튼 스타일 */
     .stButton > button {
         border-radius: 6px !important;
         border: 1px solid #e0e0e0 !important;
@@ -321,7 +282,7 @@ if st.session_state['page'] == 'cart':
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
 
 # -------------------------------------------------------------------
-# 화면 2: 상품 상세 페이지
+# 화면 2: 상품 상세 페이지 (검은 박스 에러 해결 수정 부분)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
@@ -348,31 +309,24 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    st.markdown("""
-    <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
-        <h2 style="font-weight: 800;">상품 상세 설명</h2>
-        <p style="color:#888;">EXERCISE 제작 가이드</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 📌 상품 상세 설명")
+    st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
-        st.markdown(f"""
-        <div class="detail-container">
-            <div class="detail-section-title">📌 개요</div>
-            <div class="detail-section-content">{p.get('desc_title', '')}</div>
-            
-            <div class="detail-section-title">💡 상품 특징 및 노하우</div>
-            <div class="detail-section-content">{p.get('desc_detail', '')}</div>
-            
-            <div class="detail-section-title">📦 구성 품목</div>
-            <div class="detail-section-content">{p.get('components', '')}</div>
-            
-            <div class="detail-section-title">⭐ 핵심 가치</div>
-            <div class="detail-section-content">{p.get('feature', '')}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("#### 📌 개요")
+        st.write(p.get('desc_title', ''))
         
+        st.markdown("#### 💡 상품 특징 및 노하우")
+        st.write(p.get('desc_detail', ''))
+        
+        st.markdown("#### 📦 구성 품목")
+        st.write(p.get('components', ''))
+        
+        st.markdown("#### ⭐ 핵심 가치")
+        st.write(p.get('feature', ''))
+        
+        st.divider()
         safe_image(p['img'])
 
 # -------------------------------------------------------------------
@@ -420,7 +374,6 @@ else:
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
-                # 완전히 밝아진 파일 업로더
                 c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택 (노트북 파일 선택)", type=["jpg", "jpeg", "png", "webp"])
                 
                 c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
