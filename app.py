@@ -65,16 +65,21 @@ st.markdown("""
         color: #222222 !important;
     }
 
-    /* 상단 브랜드 로고 (크기 대폭 확대) */
+    /* 상단 브랜드 로고 (화면 전체 폭을 가득 채우는 초대형 스타일) */
     .brand-header {
         text-align: center;
-        padding: 15px 0 25px 0;
+        padding: 10px 0 10px 0;
+        width: 100%;
     }
     .brand-title {
-        font-size: 48px;
-        font-weight: 900;
-        letter-spacing: -1px;
+        font-size: clamp(60px, 9vw, 120px);
+        font-weight: 950;
+        letter-spacing: -2px;
+        line-height: 1.0;
         color: #111111 !important;
+        text-transform: uppercase;
+        width: 100%;
+        display: block;
     }
 
     .rank-badge {
@@ -203,31 +208,27 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# 2. 최상단 우측 장바구니 / 관리자 버튼 & 로고
-col_head1, col_head2 = st.columns([5, 2])
-
-with col_head1:
-    st.markdown("""
-    <div class="brand-header">
-        <div class="brand-title">EXERCISE</div>
-        <p style="color:#666; font-size:15px; margin-top:2px;">“운동에는 하나의 정답이 없다”</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col_head2:
-    st.write("")
-    st.write("")
-    btn_col1, btn_col2 = st.columns(2)
-    with btn_col1:
+# 2. 상단 버튼 레이아웃 및 꽉 찬 초대형 EXERCISE 타이틀
+col_top_btns1, col_top_btns2 = st.columns([5, 1])
+with col_top_btns2:
+    b_col1, b_col2 = st.columns(2)
+    with b_col1:
         cart_cnt = len(st.session_state['cart'])
         btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
         if st.button(btn_text, type="primary", use_container_width=True):
             st.session_state['page'] = 'cart'
             st.rerun()
-    with btn_col2:
-        if st.button("⚙️ 관리자", use_container_width=True):
+    with b_col2:
+        if st.button("⚙️", use_container_width=True, help="관리자 페이지"):
             st.session_state['page'] = 'admin'
             st.rerun()
+
+st.markdown("""
+<div class="brand-header">
+    <div class="brand-title">EXERCISE</div>
+    <p style="color:#666; font-size:16px; margin-top:4px; font-weight:500;">“운동에는 하나의 정답이 없다”</p>
+</div>
+""", unsafe_allow_html=True)
 
 # 장바구니 담김 알림 상자
 if st.session_state['show_modal']:
