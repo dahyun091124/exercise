@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import pandas as pd
 
 # 페이지 기본 설정
 st.set_page_config(
@@ -302,7 +303,7 @@ if st.session_state['page'] == 'cart':
                                 "total_price": total_price
                             }
                             st.session_state['orders'].append(new_order)
-                            st.success(f"주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
+                            st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
                             st.session_state['cart'] = []
                         else:
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
@@ -335,12 +336,12 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    st.markdown("### 상품 상세 설명")
+    st.markdown("### 📌 상품 상세 설명")
     st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
-        st.markdown("#### 개요")
+        st.markdown("#### 📌 개요")
         st.write(p.get('desc_title', ''))
         
         st.markdown("#### 💡 상품 특징 및 노하우")
@@ -349,7 +350,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         st.markdown("#### 📦 구성 품목")
         st.write(p.get('components', ''))
         
-        st.markdown("#### 💥 핵심 가치")
+        st.markdown("#### ⭐ 핵심 가치")
         st.write(p.get('feature', ''))
         
         st.divider()
@@ -379,11 +380,34 @@ elif st.session_state['page'] == 'admin':
                 else:
                     st.error("비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)")
     else:
-        st.subheader("📋 실시간 고객 주문 내역")
+        st.subheader("📊 항목별 구매 통계 (판매 수량 시각화)")
         
         if not st.session_state['orders']:
-            st.info("현재 접수된 주문 내역이 없습니다.")
+            st.info("현재 접수된 주문 내역이 없어 통계를 출력할 수 없습니다.")
         else:
+            # 전체 주문 데이터에서 상품별 집계
+            all_items = []
+            for order in st.session_state['orders']:
+                all_items.extend(order['items'])
+            
+            item_counts = pd.Series(all_items).value_counts().reset_index()
+            item_counts.columns = ['상품명', '판매 수량']
+            
+            # 1. 막대 그래프 집계 출력
+            st.bar_chart(data=item_counts, x='상품명', y='판매 수량', color="#03C75A")
+            
+            # 2. 통계 요약 요약 수치
+            col_stat1, col_stat2 = st.columns(2)
+            with col_stat1:
+                st.metric("총 주문 건수", f"{len(st.session_state['orders'])} 건")
+            with col_stat2:
+                total_sales = sum([o['total_price'] for o in st.session_state['orders']])
+                st.metric("총 누적 매출액", f"{total_sales:,} 원")
+                
+        st.divider()
+        st.subheader("📋 실시간 상세 주문 내역")
+        
+        if st.session_state['orders']:
             for order in reversed(st.session_state['orders']):
                 with st.container(border=True):
                     col_o1, col_o2 = st.columns([2, 3])
@@ -403,7 +427,7 @@ elif st.session_state['page'] == 'admin':
 # 화면 4: 메인 쇼핑몰 홈 화면
 # -------------------------------------------------------------------
 else:
-    tab1, tab2 = st.tabs([" 전체 상품", "구매자 창작 마켓"])
+    tab1, tab2 = st.tabs(["🔥 전체 상품", "🔄 구매자 창작 마켓 (C2C)"])
     
     # --- TAB 1: 전체 상품 ---
     with tab1:
@@ -433,14 +457,14 @@ else:
 
     # --- TAB 2: C2C 창작 마켓 ---
     with tab2:
-        st.markdown("### 구매자 창작 물품 거래소")
+        st.markdown("### 🔄 구매자 창작 물품 거래소")
         st.caption("키트를 구매한 소비자들이 직접 만든 완성품을 판매하는 공간입니다.")
         
         # 1. C2C 신규 상품 직접 등록 접이식 폼
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
             with st.form("c2c_add_form"):
                 st.markdown("#### 📝 상품 정보 입력")
-                c_title = st.text_input("상품명", placeholder="예: 폴리모프 악력 스트레처")
+                c_title = st.text_input("상품명", placeholder="예: [C2C] 폴리모프 악력 스트레처")
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
                 
@@ -451,7 +475,7 @@ else:
                 c_components = st.text_input("구성품", placeholder="예: 수제 폴리모프 성형 기구 1개")
                 c_feature = st.text_input("핵심 가치", placeholder="예: 맞춤형 그립감 제공")
                 
-                c_submit = st.form_submit_button("마켓에 등록하기", type="primary", use_container_width=True)
+                c_submit = st.form_submit_button("🚀 마켓에 등록하기", type="primary", use_container_width=True)
                 
                 if c_submit:
                     if c_title and c_seller and c_desc_title:
@@ -469,7 +493,7 @@ else:
                             "feature": c_feature
                         }
                         st.session_state['c2c_products'].append(new_c2c)
-                        st.success("성공적으로 등록되었습니다!")
+                        st.success("🎉 성공적으로 등록되었습니다!")
                         st.rerun()
                     else:
                         st.error("상품명, 판매자 닉네임, 한 줄 개요를 반드시 입력해 주세요.")
