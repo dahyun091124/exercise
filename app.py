@@ -63,15 +63,17 @@ st.markdown("""
 
 # 이미지 로드 안전 함수
 def safe_image(img_path):
-    if os.path.exists(img_path):
+    if img_path and os.path.exists(str(img_path)):
         st.image(img_path, use_container_width=True)
     else:
-        st.image("https://via.placeholder.com/500x500.png?text=EXERCISE+KIT", use_container_width=True)
+        # 파일이 없을 경우 준비된 온라인 샘플 이미지 표시
+        st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
 # 1. 세션 상태 초기화
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
+# C2C 첫 번째 상품 이미지를 ganadi.jpg로 설정
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
@@ -79,11 +81,11 @@ if 'c2c_products' not in st.session_state:
             "seller": "정예나", 
             "price": 12000, 
             "desc": "키트 재료로 손 모양에 딱 맞게 제작한 지압 악력기입니다.",
-            "img": "hachiware.jpg"
+            "img": "ganadi.jpg"
         }
     ]
 
-# 공식 키트 데이터 (영문 파일명 연결)
+# 공식 키트 데이터
 kits = [
     {
         "id": 1,
@@ -203,7 +205,7 @@ with tab3:
     for idx, item in enumerate(st.session_state['c2c_products']):
         with cols[idx % 2]:
             with st.container(border=True):
-                safe_image(item.get("img", "hachiware.jpg"))
+                safe_image(item.get("img", "ganadi.jpg"))
                 st.caption(f"👤 판매자: {item['seller']}")
                 st.markdown(f"### {item['title']}")
                 st.write(item['desc'])
