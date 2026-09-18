@@ -8,15 +8,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS
+# 스마트스토어 감성 커스텀 CSS (화이트 톤 고정)
 st.markdown("""
 <style>
-    /* 전체 배경 화이트 고정 */
     .stApp {
         background-color: #ffffff !important;
     }
     
-    /* 폰트 및 시인성 보장 */
     h1, h2, h3, h4, h5, h6, p, div, span, label {
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
@@ -35,32 +33,12 @@ st.markdown("""
     /* 상단 브랜드 로고 */
     .brand-header {
         text-align: center;
-        padding: 10px 0;
+        padding: 10px 0 20px 0;
     }
     .brand-title {
         font-size: 32px;
         font-weight: 900;
         letter-spacing: -0.5px;
-    }
-    
-    /* 쿠폰 혜택 배너 */
-    .coupon-banner {
-        background-color: #f7f8f9;
-        border: 1px solid #e1e4e6;
-        border-radius: 8px;
-        padding: 14px;
-        text-align: center;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-    .coupon-badge {
-        background-color: #03C75A;
-        color: white !important;
-        padding: 4px 8px;
-        font-size: 12px;
-        font-weight: bold;
-        border-radius: 4px;
-        margin-left: 8px;
     }
 
     /* 상품 베스트 순위 뱃지 */
@@ -83,21 +61,25 @@ st.markdown("""
         color: #03C75A !important;
     }
     
-    /* 감성 상세페이지 스타일 */
-    .detail-section {
+    /* 상세페이지 깔끔한 텍스트 스타일 */
+    .detail-container {
         text-align: center;
-        padding: 30px 0;
+        padding: 20px 0;
+        max-width: 600px;
+        margin: 0 auto;
     }
-    .detail-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 4px;
-        letter-spacing: 1px;
+    .detail-section-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-top: 24px;
+        margin-bottom: 6px;
+        color: #03C75A !important;
     }
-    .detail-sub {
+    .detail-section-content {
         font-size: 15px;
-        color: #666666 !important;
-        margin-bottom: 24px;
+        color: #444444 !important;
+        line-height: 1.6;
+        margin-bottom: 20px;
     }
     
     /* 버튼 스타일 */
@@ -127,7 +109,7 @@ if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'home' # 'home', 'detail', 'cart'
+    st.session_state['page'] = 'home'
 
 if 'show_modal' not in st.session_state:
     st.session_state['show_modal'] = False
@@ -138,40 +120,40 @@ if 'added_item' not in st.session_state:
 if 'selected_product' not in st.session_state:
     st.session_state['selected_product'] = None
 
-# 키트 데이터 세팅
+# 기획서 기반 상품 데이터
 kits = [
     {
         "id": 1,
-        "name": "EXERCISE 커스텀 운동 기구 풀키트", 
+        "name": "EXERCISE 커스텀 DIY 운동 키트", 
         "price": 15000, 
-        "comment": "라텍스밴드 + 지압판 + 폴리모프 조합 / 나만의 맞춤 기구",
+        "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
         "img": "ganadi.jpg",
-        "color": "black, mint, beige",
-        "size": "free size",
-        "fabric": "latex, polymorph, rubber",
-        "model_size": "yena / 165cm / top 55 / bottom 26\n(손 모양에 맞춰 제작 가능한 커스텀 구조)"
+        "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
+        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다. 체온에 반응해 자유롭게 형태를 잡을 수 있는 폴리모프 소재와 발/손 지압용 지압판, 근력 운동용 라텍스밴드가 포함되어 있어 세상에 하나뿐인 나만의 운동 기구를 만들어 사용할 수 있습니다.",
+        "components": "라텍스밴드, 지압판, 폴리모프 왁스",
+        "feature": "손 모양이나 발 모양에 맞춰 자유롭게 성형 가능한 커스텀 구조"
     },
     {
         "id": 2,
-        "name": "공기방석 에어셀 자세교정 키트", 
+        "name": "맞춤형 공기방석 에어셀 제작 키트", 
         "price": 18500, 
-        "comment": "에어셀 주머니 + 고밀도 스펀지 / 척추 균형 서포트",
+        "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
         "img": "usagi.jpg",
-        "color": "ivory, gray",
-        "size": "40cm x 40cm (표준 방석 사이즈)",
-        "fabric": "air-cell urethane, sponge, mesh cover",
-        "model_size": "dahyun / 158cm / top 44 / bottom 25\n(장시간 착석 시 골반 불균형 완화)"
+        "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
+        "desc_detail": "상부 쿠션층 스펀지와 하부 지지층 스펀지, 그리고 공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다. 체중 분산과 자세 교정이 필요한 위치에 에어셀을 직접 배치하여 가장 편안한 착석감을 제공합니다.",
+        "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
+        "feature": "공기압 조절을 통한 맞춤형 자세 교정 및 체중 분산 기능"
     },
     {
         "id": 3,
         "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
         "price": 9800, 
-        "comment": "지역 특산 믹스 / 수분 보충 & 유기농 과즙",
+        "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
         "img": "hachiware.jpg",
-        "color": "natural citrus, berry",
-        "size": "10포 / 15포 세트 선택 가능",
-        "fabric": "organic local extract powder",
-        "model_size": "exercise team / 매일 운동 후 섭취 추천"
+        "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
+        "desc_detail": "지방 소멸 위기 지역의 대표 특산물인 꿀유자 믹스와 송원 오미자 스틱을 활용하여 제작된 이온음료 DIY 키트입니다. 운동 후 빠르게 수분과 전해질을 보충해 주며, 지역 상생의 의미를 담아 건강하고 맛있게 즐기실 수 있습니다.",
+        "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
+        "feature": "100% 지역 특산물 활용 / 빠른 수분 및 에너지 충전 효과"
     }
 ]
 
@@ -193,21 +175,14 @@ with col_head1:
     """, unsafe_allow_html=True)
 
 with col_head2:
-    st.write("") # 여백 조절
+    st.write("")
     cart_cnt = len(st.session_state['cart'])
     btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
     if st.button(btn_text, type="primary", use_container_width=True):
         st.session_state['page'] = 'cart'
         st.rerun()
 
-# 혜택 배너
-st.markdown("""
-<div class="coupon-banner">
-    <b>EXERCISE 고객님을 위한 혜택</b> &nbsp;|&nbsp; 첫 구매 고객 전 품목 <b>3,000원 장바구니 할인 쿠폰</b> 제공 <span class="coupon-badge">COUPON ⬇</span>
-</div>
-""", unsafe_allow_html=True)
-
-# 장바구니 담김 알림 상자 (네모 박스 두 개)
+# 장바구니 담김 알림 상자
 if st.session_state['show_modal']:
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
@@ -223,7 +198,7 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 1: 장바구니 화면 (우측 상단 🛒 클릭 시 전환되는 큰 화면)
+# 화면 1: 장바구니 화면
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'cart':
     if st.button("⬅ 메인 쇼핑몰로 돌아가기"):
@@ -275,7 +250,7 @@ if st.session_state['page'] == 'cart':
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
 
 # -------------------------------------------------------------------
-# 화면 2: 상품 상세 페이지 (상품 클릭 시 이동)
+# 화면 2: 상품 상세 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
@@ -302,29 +277,29 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    # 상세페이지 정보
+    # 상세 텍스트 설명
     st.markdown("""
-    <div style="text-align: center; margin-top: 40px;">
-        <h2 style="font-weight: 800;">PRODUCT DETAIL</h2>
-        <p style="color:#888;">EXERCISE 제작 가이드 및 사양 정보</p>
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+        <h2 style="font-weight: 800;">상품 상세 설명</h2>
+        <p style="color:#888;">EXERCISE 공식 제작 가이드</p>
     </div>
     """, unsafe_allow_html=True)
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
         st.markdown(f"""
-        <div class="detail-section">
-            <div class="detail-title">color</div>
-            <div class="detail-sub">{p.get('color', 'N/A')}</div>
+        <div class="detail-container">
+            <div class="detail-section-title">📌 개요</div>
+            <div class="detail-section-content">{p.get('desc_title', '')}</div>
             
-            <div class="detail-title">size</div>
-            <div class="detail-sub">{p.get('size', 'FREE')}</div>
+            <div class="detail-section-title">💡 상품 특징 및 노하우</div>
+            <div class="detail-section-content">{p.get('desc_detail', '')}</div>
             
-            <div class="detail-title">fabric</div>
-            <div class="detail-sub">{p.get('fabric', 'N/A')}</div>
+            <div class="detail-section-title">📦 구성 품목</div>
+            <div class="detail-section-content">{p.get('components', '')}</div>
             
-            <div class="detail-title">model size / note</div>
-            <div class="detail-sub" style="white-space: pre-line;">{p.get('model_size', 'N/A')}</div>
+            <div class="detail-section-title">⭐ 핵심 가치</div>
+            <div class="detail-section-content">{p.get('feature', '')}</div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -374,10 +349,10 @@ else:
             "price": 12000, 
             "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
             "img": "ganadi.jpg",
-            "color": "custom white",
-            "size": "맞춤형 사이즈",
-            "fabric": "polymorph thermo-plastic",
-            "model_size": "정예나 제작자 직용 모델\n손 악력 및 지압 강화에 최적화된 형태"
+            "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
+            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다. 손 전체에 골고루 지압 자극을 주어 손목 강화와 스트레칭에 매우 효과적입니다.",
+            "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
+            "feature": "제작자 맞춤형 손 그립감 구현"
         }
         
         with cols[0]:
