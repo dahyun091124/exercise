@@ -5,6 +5,7 @@ import pandas as pd
 # 페이지 기본 설정
 st.set_page_config(
     page_title="EXERCISE 스마트스토어",
+    page_icon="💪🏼",
     layout="wide"
 )
 
@@ -124,6 +125,22 @@ st.markdown("""
     }
     div[data-testid="stVegaLiteChart"] text {
         fill: #111111 !important;
+    }
+
+    /* 푸터 스타일 */
+    .footer-container {
+        margin-top: 50px;
+        padding: 30px 0 10px 0;
+        border-top: 1px solid #eeeeee;
+        color: #888888;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .footer-title {
+        font-weight: bold;
+        color: #333333 !important;
+        font-size: 14px;
+        margin-bottom: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -278,6 +295,7 @@ if st.session_state['page'] == 'cart':
         with col_c1:
             st.markdown("### 📦 담은 상품 목록")
             total_price = 0
+            delete_index = None
             for idx, item in enumerate(st.session_state['cart']):
                 with st.container(border=True):
                     mc1, mc2, mc3 = st.columns([3, 2, 1])
@@ -287,9 +305,12 @@ if st.session_state['page'] == 'cart':
                         st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
                     with mc3:
                         if st.button("삭제", key=f"big_cart_del_{idx}"):
-                            st.session_state['cart'].pop(idx)
-                            st.rerun()
+                            delete_index = idx
                     total_price += item['price']
+            
+            if delete_index is not None:
+                st.session_state['cart'].pop(delete_index)
+                st.rerun()
             
             st.markdown(f"### 총 결제 예정 금액: **{total_price:,} 원**")
 
@@ -392,7 +413,6 @@ elif st.session_state['page'] == 'admin':
                 else:
                     st.error("비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)")
     else:
-        # 문구 수정 완료 (괄호 문구 제거)
         st.subheader("📊 항목별 구매 통계")
         
         if not st.session_state['orders']:
@@ -449,7 +469,7 @@ else:
         
         cols = st.columns(3)
         for idx, kit in enumerate(kits):
-            with cols[idx]:
+            with cols[idx % 3]:
                 with st.container(border=True):
                     st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
                     safe_image(kit["img"])
@@ -539,3 +559,18 @@ else:
                             if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
                                 add_to_cart(c_item['name'], c_item['price'])
                                 st.rerun()
+
+# -------------------------------------------------------------------
+# 푸터 영역 (페이지 공통 하단)
+# -------------------------------------------------------------------
+st.markdown("""
+<div class="footer-container">
+    <div class="footer-title">EXERCISE 스마트스토어</div>
+    <p>
+        상호명: EXERCISE | 대표: 홍길동 | 사업자등록번호: 000-00-00000<br>
+        통신판매업신고: 제2026-서울강남-0000호 | 고객센터: 1588-0000 (평일 09:00 ~ 18:00)<br>
+        주소: 서울특별시 강남구 테헤란로 123 EXERCISE 타워<br>
+        Copyright © EXERCISE Inc. All rights reserved.
+    </p>
+</div>
+""", unsafe_allow_html=True)
