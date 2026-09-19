@@ -2,14 +2,14 @@ import streamlit as st
 import os
 import pandas as pd
 
-# 페이지 기본 설정
+# 페이지 기본 설정 (page_icon 추가)
 st.set_page_config(
     page_title="EXERCISE 스마트스토어",
     page_icon="💪🏼",
     layout="wide"
 )
 
-# 스마트스토어 감성 커스텀 CSS
+# 스마트스토어 & 러쉬 감성 커스텀 CSS
 st.markdown("""
 <style>
     .stApp, body, html {
@@ -22,6 +22,23 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
     
+    /* 러쉬 스타일 상단 네비게이션 바 */
+    .lush-top-nav {
+        background-color: #000000;
+        padding: 12px 20px;
+        margin: -60px -50px 20px -50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .lush-nav-link {
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] > input,
     textarea {
@@ -239,9 +256,17 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# 2. 상단 버튼 레이아웃 (장바구니 전용)
-col_top_btns1, col_top_btns2 = st.columns([5, 1])
-with col_top_btns2:
+# --- 2-1. 러쉬 스타일 최상단 브랜드 네비게이션 바 ---
+nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
+with nav_col1:
+    if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True):
+        st.session_state['page'] = 'about'
+        st.rerun()
+with nav_col2:
+    if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
+        st.session_state['page'] = 'home'
+        st.rerun()
+with nav_col3:
     cart_cnt = len(st.session_state['cart'])
     btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
     if st.button(btn_text, type="primary", use_container_width=True):
@@ -271,9 +296,44 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
+# 화면 0: 기업/브랜드 소개 페이지 (러쉬 WeAre 스타일)
+# -------------------------------------------------------------------
+if st.session_state['page'] == 'about':
+    st.divider()
+    st.markdown("## 🏢 WE ARE EXERCISE")
+    st.markdown("### **“운동에는 하나의 정답이 없다”**")
+    
+    st.write("""
+    EXERCISE는 기성 운동기구의 정형화된 틀을 깨고, 모든 사람이 **자신의 신체와 목적에 맞는 최적의 운동 솔루션**을 직접 만들어가는 DIY 웰니스 브랜드입니다.
+    
+    우리는 표준화된 규격에 몸을 맞추는 것이 아니라, **나의 몸에 기구를 맞추는 가치**를 선물합니다.
+    """)
+    
+    st.divider()
+    
+    col_a1, col_a2, col_a3 = st.columns(3)
+    with col_a1:
+        with st.container(border=True):
+            st.markdown("#### 🎨 Customization")
+            st.write("폴리모프와 맞춤 소재를 이용하여 손목, 발목, 체형에 완벽히 피팅되는 기구를 직접 제작합니다.")
+    with col_a2:
+        with st.container(border=True):
+            st.markdown("#### ♻️ Eco & Local")
+            st.write("지방 소멸 위기 지역의 특산물을 활용한 건강한 보충 음료 등 지역 상생과 지속 가능성을 지향합니다.")
+    with col_a3:
+        with st.container(border=True):
+            st.markdown("#### 🤝 Creator Market")
+            st.write("내가 만든 운동 아이디어를 다른 사람들과 공유하고 거래하는 커뮤니티 기반 C2C 에코시스템입니다.")
+            
+    st.divider()
+    if st.button("🛍️ EXERCISE 제품 둘러보기 (스마트스토어로 이동)", type="primary", use_container_width=True):
+        st.session_state['page'] = 'home'
+        st.rerun()
+
+# -------------------------------------------------------------------
 # 화면 1: 장바구니 화면
 # -------------------------------------------------------------------
-if st.session_state['page'] == 'cart':
+elif st.session_state['page'] == 'cart':
     if st.button("⬅ 메인 쇼핑몰로 돌아가기"):
         st.session_state['page'] = 'home'
         st.rerun()
@@ -556,15 +616,15 @@ st.markdown("""
 <div class="footer-container">
     <div class="footer-title">EXERCISE 스마트스토어</div>
     <p>
-        상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 012-34-56789<br>
-        통신판매업신고: 제2026-서울강남-1234호 | 고객센터: 9876-5432 (평일 09:00 ~ 18:00)<br>
-        주소: 경기도 고양시 일산동구 위시티4로 112<br>
+        상호명: EXERCISE | 대표: 홍길동 | 사업자등록번호: 000-00-00000<br>
+        통신판매업신고: 제2026-서울강남-0000호 | 고객센터: 1588-0000 (평일 09:00 ~ 18:00)<br>
+        주소: 서울특별시 강남구 테헤란로 123 EXERCISE 타워<br>
         Copyright © EXERCISE Inc. All rights reserved.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# 푸터 맨 밑에 깔끔하게 넣은 <관리자> 이동 링크 버튼
+# 푸터 맨 밑에 '관리자' 이동 버튼 (텍스트 수정 완료)
 if st.button("관리자", key="footer_admin_btn"):
     st.session_state['page'] = 'admin'
     st.rerun()
