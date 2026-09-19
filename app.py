@@ -565,6 +565,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 푸터 맨 밑에 깔끔하게 넣은 <관리자> 이동 링크 버튼
-if st.button("<관리자>", key="footer_admin_btn"):
+if st.button("관리자", key="footer_admin_btn"):
     st.session_state['page'] = 'admin'
     st.rerun()
