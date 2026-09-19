@@ -5,7 +5,6 @@ import pandas as pd
 # 페이지 기본 설정
 st.set_page_config(
     page_title="EXERCISE 스마트스토어",
-    page_icon="🛍️",
     layout="wide"
 )
 
@@ -169,7 +168,7 @@ if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
             "id": 101,
-            "name": "[C2C] 폴리모프 커스텀 지압 악력기", 
+            "name": "폴리모프 커스텀 지압 악력기", 
             "price": 12000, 
             "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
             "img": "ganadi.jpg",
@@ -316,7 +315,7 @@ if st.session_state['page'] == 'cart':
                                 "total_price": total_price
                             }
                             st.session_state['orders'].append(new_order)
-                            st.success(f"🎉 주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
+                            st.success(f"주문이 완료되었습니다!\n[{pay_method}] 로 {total_price:,}원 결제 성공.")
                             st.session_state['cart'] = []
                         else:
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
@@ -349,12 +348,12 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             
     st.divider()
     
-    st.markdown("### 📌 상품 상세 설명")
+    st.markdown("### 상품 상세 설명")
     st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
-        st.markdown("#### 📌 개요")
+        st.markdown("#### 개요")
         st.write(p.get('desc_title', ''))
         
         st.markdown("#### 💡 상품 특징 및 노하우")
@@ -363,7 +362,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         st.markdown("#### 📦 구성 품목")
         st.write(p.get('components', ''))
         
-        st.markdown("#### ⭐ 핵심 가치")
+        st.markdown("#### 💥 핵심 가치")
         st.write(p.get('feature', ''))
         
         st.divider()
@@ -442,7 +441,7 @@ elif st.session_state['page'] == 'admin':
 # 화면 4: 메인 쇼핑몰 홈 화면
 # -------------------------------------------------------------------
 else:
-    tab1, tab2 = st.tabs(["🔥 전체 상품", "🔄 구매자 창작 마켓 (C2C)"])
+    tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
     
     # --- TAB 1: 전체 상품 ---
     with tab1:
@@ -472,7 +471,7 @@ else:
 
     # --- TAB 2: C2C 창작 마켓 ---
     with tab2:
-        st.markdown("### 🔄 구매자 창작 물품 거래소")
+        st.markdown("### 구매자 창작 물품 거래소")
         st.caption("키트를 구매한 소비자들이 직접 만든 완성품을 판매하는 공간입니다.")
         
         # 1. C2C 신규 상품 직접 등록 접이식 폼
