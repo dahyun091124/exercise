@@ -244,22 +244,22 @@ if st.session_state['page'] == 'about':
     # 기업 소개 페이지일 때는 깔끔하게 메뉴 버튼 2개만 배치 (장바구니 제외)
     nav_col1, nav_col2 = st.columns(2)
     with nav_col1:
-        if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True, type="primary"):
+        if st.button("EXERCISE 브랜드 소개", use_container_width=True, type="primary"):
             st.session_state['page'] = 'about'
             st.rerun()
     with nav_col2:
-        if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
+        if st.button("스마트스토어", use_container_width=True):
             st.session_state['page'] = 'home'
             st.rerun()
 else:
     # 쇼핑몰/장바구니/상세/관리자 페이지일 때는 장바구니 버튼 표시
     nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
     with nav_col1:
-        if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True):
+        if st.button("EXERCISE 브랜드 소개", use_container_width=True):
             st.session_state['page'] = 'about'
             st.rerun()
     with nav_col2:
-        if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
+        if st.button("스마트스토어", use_container_width=True):
             st.session_state['page'] = 'home'
             st.rerun()
     with nav_col3:
@@ -296,11 +296,11 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.divider()
-    st.markdown("## 🏢 WE ARE EXERCISE")
+    st.markdown("## WE ARE EXERCISE")
     st.markdown("### **“운동에는 하나의 정답이 없다”**")
     
     st.write("""
-    EXERCISE는 기성 운동기구의 정형화된 틀을 깨고, 모든 사람이 **자신의 신체와 목적에 맞는 최적의 운동 솔루션**을 직접 만들어가는 DIY 웰니스 브랜드입니다.
+    EXERCISE는 기성 운동기구의 정형화된 틀을 깨고 모든 사람이 **자신의 신체와 목적에 맞는 최적의 운동 솔루션**을 직접 만들어가는 DIY 웰니스 브랜드입니다.
     
     우리는 표준화된 규격에 몸을 맞추는 것이 아니라, **나의 몸에 기구를 맞추는 가치**를 선물합니다.
     """)
@@ -310,7 +310,7 @@ if st.session_state['page'] == 'about':
     col_a1, col_a2, col_a3 = st.columns(3)
     with col_a1:
         with st.container(border=True):
-            st.markdown("#### 🎨 Customization")
+            st.markdown("#### 🔧 Customization")
             st.write("폴리모프와 맞춤 소재를 이용하여 손목, 발목, 체형에 완벽히 피팅되는 기구를 직접 제작합니다.")
     with col_a2:
         with st.container(border=True):
@@ -318,11 +318,11 @@ if st.session_state['page'] == 'about':
             st.write("지방 소멸 위기 지역의 특산물을 활용한 건강한 보충 음료 등 지역 상생과 지속 가능성을 지향합니다.")
     with col_a3:
         with st.container(border=True):
-            st.markdown("#### 🤝 Creator Market")
+            st.markdown("#### 🫵🏼 Creator Market")
             st.write("내가 만든 운동 아이디어를 다른 사람들과 공유하고 거래하는 커뮤니티 기반 C2C 에코시스템입니다.")
             
     st.divider()
-    if st.button("🛍️ EXERCISE 제품 둘러보기 (스마트스토어로 이동)", type="primary", use_container_width=True):
+    if st.button("EXERCISE 제품 둘러보기", type="primary", use_container_width=True):
         st.session_state['page'] = 'home'
         st.rerun()
 
