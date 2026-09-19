@@ -239,20 +239,14 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# 2. 상단 버튼 레이아웃 및 꽉 찬 초대형 EXERCISE 타이틀
+# 2. 상단 버튼 레이아웃 (장바구니 전용)
 col_top_btns1, col_top_btns2 = st.columns([5, 1])
 with col_top_btns2:
-    b_col1, b_col2 = st.columns(2)
-    with b_col1:
-        cart_cnt = len(st.session_state['cart'])
-        btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
-        if st.button(btn_text, type="primary", use_container_width=True):
-            st.session_state['page'] = 'cart'
-            st.rerun()
-    with b_col2:
-        if st.button("⚙️", use_container_width=True, help="관리자 페이지"):
-            st.session_state['page'] = 'admin'
-            st.rerun()
+    cart_cnt = len(st.session_state['cart'])
+    btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
+    if st.button(btn_text, type="primary", use_container_width=True):
+        st.session_state['page'] = 'cart'
+        st.rerun()
 
 st.markdown("""
 <div class="brand-header">
@@ -418,7 +412,6 @@ elif st.session_state['page'] == 'admin':
         if not st.session_state['orders']:
             st.info("현재 접수된 주문 내역이 없어 통계를 출력할 수 없습니다.")
         else:
-            # 전체 주문 데이터에서 상품별 집계
             all_items = []
             for order in st.session_state['orders']:
                 all_items.extend(order['items'])
@@ -427,10 +420,8 @@ elif st.session_state['page'] == 'admin':
             df_counts.columns = ['상품명', '판매 수량']
             df_counts = df_counts.set_index('상품명')
             
-            # 가독성을 높이기 위해 가로 막대 차트(horizontal=True)로 설정
             st.bar_chart(df_counts, horizontal=True, color="#03C75A")
             
-            # 요약 지표
             col_stat1, col_stat2 = st.columns(2)
             with col_stat1:
                 st.metric("총 주문 건수", f"{len(st.session_state['orders'])} 건")
@@ -494,7 +485,6 @@ else:
         st.markdown("### 구매자 창작 물품 거래소")
         st.caption("키트를 구매한 소비자들이 직접 만든 완성품을 판매하는 공간입니다.")
         
-        # 1. C2C 신규 상품 직접 등록 접이식 폼
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
             with st.form("c2c_add_form"):
                 st.markdown("#### 📝 상품 정보 입력")
@@ -534,7 +524,6 @@ else:
                         
         st.divider()
         
-        # 2. C2C 등록 상품 리스트 출력
         c2c_list = st.session_state['c2c_products']
         
         if not c2c_list:
@@ -561,16 +550,21 @@ else:
                                 st.rerun()
 
 # -------------------------------------------------------------------
-# 푸터 영역 (페이지 공통 하단)
+# 푸터 영역 (페이지 공통 하단 & 관리자 이동 링크 포함)
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
     <div class="footer-title">EXERCISE 스마트스토어</div>
     <p>
-        상호명: EXERCISE | 대표: 홍길동 | 사업자등록번호: 000-00-00000<br>
-        통신판매업신고: 제2026-서울강남-0000호 | 고객센터: 1588-0000 (평일 09:00 ~ 18:00)<br>
-        주소: 서울특별시 강남구 테헤란로 123 EXERCISE 타워<br>
+        상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 012-34-56789<br>
+        통신판매업신고: 제2026-서울강남-1234호 | 고객센터: 9876-5432 (평일 09:00 ~ 18:00)<br>
+        주소: 경기도 고양시 일산동구 위시티4로 112<br>
         Copyright © EXERCISE Inc. All rights reserved.
     </p>
 </div>
 """, unsafe_allow_html=True)
+
+# 푸터 맨 밑에 깔끔하게 넣은 <관리자> 이동 링크 버튼
+if st.button("<관리자>", key="footer_admin_btn"):
+    st.session_state['page'] = 'admin'
+    st.rerun()
