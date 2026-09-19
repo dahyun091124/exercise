@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import pandas as pd
 
-# 페이지 기본 설정 (page_icon 추가)
+# 페이지 기본 설정
 st.set_page_config(
     page_title="EXERCISE 스마트스토어",
     page_icon="💪🏼",
@@ -21,23 +21,6 @@ st.markdown("""
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
-    
-    /* 러쉬 스타일 상단 네비게이션 바 */
-    .lush-top-nav {
-        background-color: #000000;
-        padding: 12px 20px;
-        margin: -60px -50px 20px -50px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .lush-nav-link {
-        color: #ffffff !important;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 14px;
-        letter-spacing: 1px;
-    }
 
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] > input,
@@ -48,7 +31,7 @@ st.markdown("""
         border-radius: 6px !important;
     }
     
-    /* 파일 업로더 완벽 화이트 톤 */
+    /* 파일 업로더 화이트 톤 */
     [data-testid="stFileUploader"] {
         background-color: #f8f9fa !important;
         border: 2px dashed #03C75A !important;
@@ -175,7 +158,7 @@ def safe_image(img):
     else:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
-# 1. 세션 상태 초기화
+# 1. 세션 상태 초기화 (★ 초기 진입 페이지를 'about'으로 설정!)
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
@@ -183,7 +166,7 @@ if 'orders' not in st.session_state:
     st.session_state['orders'] = []
 
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'home'
+    st.session_state['page'] = 'about'  # 처음 접속 시 브랜드 소개 페이지 진입
 
 if 'show_modal' not in st.session_state:
     st.session_state['show_modal'] = False
@@ -256,22 +239,35 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# --- 2-1. 러쉬 스타일 최상단 브랜드 네비게이션 바 ---
-nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
-with nav_col1:
-    if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True):
-        st.session_state['page'] = 'about'
-        st.rerun()
-with nav_col2:
-    if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
-        st.session_state['page'] = 'home'
-        st.rerun()
-with nav_col3:
-    cart_cnt = len(st.session_state['cart'])
-    btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
-    if st.button(btn_text, type="primary", use_container_width=True):
-        st.session_state['page'] = 'cart'
-        st.rerun()
+# --- 2-1. 최상단 브랜드 네비게이션 바 (조건부 분기) ---
+if st.session_state['page'] == 'about':
+    # 기업 소개 페이지일 때는 깔끔하게 메뉴 버튼 2개만 배치 (장바구니 제외)
+    nav_col1, nav_col2 = st.columns(2)
+    with nav_col1:
+        if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True, type="primary"):
+            st.session_state['page'] = 'about'
+            st.rerun()
+    with nav_col2:
+        if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
+            st.session_state['page'] = 'home'
+            st.rerun()
+else:
+    # 쇼핑몰/장바구니/상세/관리자 페이지일 때는 장바구니 버튼 표시
+    nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
+    with nav_col1:
+        if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True):
+            st.session_state['page'] = 'about'
+            st.rerun()
+    with nav_col2:
+        if st.button("🛍️ 스마트스토어 홈", use_container_width=True):
+            st.session_state['page'] = 'home'
+            st.rerun()
+    with nav_col3:
+        cart_cnt = len(st.session_state['cart'])
+        btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
+        if st.button(btn_text, type="primary", use_container_width=True):
+            st.session_state['page'] = 'cart'
+            st.rerun()
 
 st.markdown("""
 <div class="brand-header">
@@ -280,8 +276,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 장바구니 담김 알림 상자
-if st.session_state['show_modal']:
+# 장바구니 담김 알림 상자 (쇼핑몰 이용 중에만 표시)
+if st.session_state['show_modal'] and st.session_state['page'] != 'about':
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
         col_m1, col_m2 = st.columns(2)
@@ -296,7 +292,7 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (러쉬 WeAre 스타일)
+# 화면 0: 기업/브랜드 소개 페이지 (첫 화면)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.divider()
@@ -616,15 +612,15 @@ st.markdown("""
 <div class="footer-container">
     <div class="footer-title">EXERCISE 스마트스토어</div>
     <p>
-        상호명: EXERCISE | 대표: 홍길동 | 사업자등록번호: 000-00-00000<br>
+        상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 000-00-00000<br>
         통신판매업신고: 제2026-서울강남-0000호 | 고객센터: 1588-0000 (평일 09:00 ~ 18:00)<br>
-        주소: 서울특별시 강남구 테헤란로 123 EXERCISE 타워<br>
+        주소: 경기도 고양시 일산동구 위시티4로 112<br>
         Copyright © EXERCISE Inc. All rights reserved.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# 푸터 맨 밑에 '관리자' 이동 버튼 (텍스트 수정 완료)
+# 푸터 맨 밑 관리자 버튼
 if st.button("관리자", key="footer_admin_btn"):
     st.session_state['page'] = 'admin'
     st.rerun()
