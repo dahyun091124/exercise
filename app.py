@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정)
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 노출 보장)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -24,47 +24,58 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 상단 헤더 배경 투명화 및 레이어 최상단 설정 */
+    /* 1. 상단 헤더 및 아이콘 표시 공간 확보 */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 99999 !important;
+        height: 60px !important;
     }
 
-    /* 🔥 [수정 1] 사이드바 버튼 영역 설정 */
+    /* 2. 사이드바 열기/닫기 컨트롤 버튼 스타일 정밀 교정 */
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
-    [data-testid="stSidebarExpandButton"] {
-        position: fixed !important;
-        top: 12px !important;
-        left: 12px !important;
-        z-index: 100000 !important;
+    [data-testid="stSidebarExpandButton"],
+    button[data-testid="baseButton-headerNoPadding"] {
         display: flex !important;
         align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 15px !important;
+        z-index: 100000 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #dddddd !important;
+        border-radius: 6px !important;
+        padding: 4px 12px 4px 8px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        cursor: pointer !important;
     }
 
-    /* 🔥 [수정 2] 화살표 아이콘(SVG, 버튼 internal)을 검정색으로 강제 변경 */
-    [data-testid="stSidebarCollapsedControl"] *,
-    [data-testid="stSidebarCollapseButton"] *,
-    [data-testid="stSidebarExpandButton"] * {
-        color: #000000 !important;
+    /* 3. 화살표 아이콘(SVG, 내부 원소)을 선명한 검정색으로 강제 지정 */
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="stSidebarExpandButton"] svg,
+    button[data-testid="baseButton-headerNoPadding"] svg {
         fill: #000000 !important;
+        color: #000000 !important;
         stroke: #000000 !important;
+        width: 20px !important;
+        height: 20px !important;
     }
 
-    /* 🔥 [수정 3] 화살표 아이콘 바로 옆에 '메뉴' 글자 정렬 및 검정색 설정 */
-    [data-testid="stSidebarCollapsedControl"]::before,
-    [data-testid="stSidebarCollapseButton"]::before,
-    [data-testid="stSidebarExpandButton"]::before {
+    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 (검정색, 두껍게) */
+    [data-testid="stSidebarCollapsedControl"]::after,
+    [data-testid="stSidebarCollapseButton"]::after,
+    [data-testid="stSidebarExpandButton"]::after,
+    button[data-testid="baseButton-headerNoPadding"]::after {
         content: "메뉴" !important;
-        position: absolute !important;
-        left: 42px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        font-size: 16px !important;
+        margin-left: 6px !important;
+        font-size: 15px !important;
         font-weight: 800 !important;
         color: #000000 !important;
         white-space: nowrap !important;
-        pointer-events: none !important;
+        display: inline-block !important;
     }
 
     /* 스토어 탭 글씨 검정색 설정 */
@@ -101,7 +112,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* 사이드바(메뉴창) 스타일 */
+    /* 사이드바(메뉴창) 내부 스타일 */
     [data-testid="stSidebar"] {
         background-color: #ffffff !important;
         border-right: 1px solid #eeeeee !important;
@@ -213,7 +224,7 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
-    /* 가격 스타일 */
+    /* 가격 및 랭킹 태그 */
     .price-text {
         font-size: 20px;
         font-weight: 800;
