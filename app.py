@@ -534,7 +534,7 @@ if st.session_state['page'] == 'about':
         st.markdown("""
         <div class="lush-section-title">
             내 손바닥 곡선에 딱 맞게<br>
-            변형되는 맞춤형 지압 구조
+            변형되는 맞춤형 구조
         </div>
         <div class="lush-section-desc">
             체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여<br>
