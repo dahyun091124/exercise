@@ -13,82 +13,93 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 노출 보장)
+# 커스텀 CSS (좌측 상단 '메뉴' 버튼 & 탭 검정색 글씨 완벽 강제 적용)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* 전체 백그라운드 & 폰트 설정 */
+    /* 전체 백그라운드 & 기본 폰트 설정 */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 1. 상단 헤더 및 아이콘 표시 공간 확보 */
+    /* 1. 상단 기본 헤더 배경 투명화 및 높이 지정 */
     header[data-testid="stHeader"] {
         background: transparent !important;
-        z-index: 99999 !important;
         height: 60px !important;
     }
 
-    /* 2. 사이드바 열기/닫기 컨트롤 버튼 스타일 정밀 교정 */
+    /* 2. 사이드바 열기/닫기 컨트롤 버튼 (좌측 상단 '메뉴' 검정색 박스) */
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebarExpandButton"],
-    button[data-testid="baseButton-headerNoPadding"] {
+    button[data-testid="baseButton-headerNoPadding"],
+    button[aria-label="Toggle sidebar"] {
         display: flex !important;
         align-items: center !important;
+        justify-content: center !important;
         visibility: visible !important;
         opacity: 1 !important;
         position: fixed !important;
-        top: 12px !important;
+        top: 14px !important;
         left: 15px !important;
-        z-index: 100000 !important;
+        z-index: 9999999 !important;
         background-color: #ffffff !important;
-        border: 1px solid #dddddd !important;
+        border: 2px solid #000000 !important;
         border-radius: 6px !important;
-        padding: 4px 12px 4px 8px !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        padding: 4px 12px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
         cursor: pointer !important;
     }
 
-    /* 3. 화살표 아이콘(SVG, 내부 원소)을 선명한 검정색으로 강제 지정 */
+    /* 3. 화살표 아이콘(SVG) 검정색 강제 */
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] svg,
     [data-testid="stSidebarExpandButton"] svg,
-    button[data-testid="baseButton-headerNoPadding"] svg {
+    button[data-testid="baseButton-headerNoPadding"] svg,
+    button[aria-label="Toggle sidebar"] svg {
         fill: #000000 !important;
         color: #000000 !important;
         stroke: #000000 !important;
-        width: 20px !important;
-        height: 20px !important;
+        width: 18px !important;
+        height: 18px !important;
     }
 
-    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 (검정색, 두껍게) */
+    /* 4. 아이콘 바로 옆 '메뉴' 검정색 텍스트 강제 주입 */
     [data-testid="stSidebarCollapsedControl"]::after,
     [data-testid="stSidebarCollapseButton"]::after,
     [data-testid="stSidebarExpandButton"]::after,
-    button[data-testid="baseButton-headerNoPadding"]::after {
+    button[data-testid="baseButton-headerNoPadding"]::after,
+    button[aria-label="Toggle sidebar"]::after {
         content: "메뉴" !important;
         margin-left: 6px !important;
         font-size: 15px !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         color: #000000 !important;
         white-space: nowrap !important;
         display: inline-block !important;
     }
 
-    /* 스토어 탭 글씨 검정색 설정 */
-    .stTabs [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] div,
+    /* 5. 스마트스토어 [전체 상품], [구매자 창작 마켓] 탭 글씨 검정색 강제 지정 */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #ffffff !important;
+    }
     .stTabs [data-baseweb="tab"] {
-        color: #111111 !important;
-        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] span,
+    .stTabs [data-baseweb="tab"] div {
+        color: #000000 !important;
+        font-size: 17px !important;
+        font-weight: 800 !important;
+        opacity: 1 !important;
     }
     .stTabs [aria-selected="true"] p,
-    .stTabs [aria-selected="true"] div,
-    .stTabs [aria-selected="true"] {
-        color: #000000 !important;
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {
+        color: #03C75A !important; /* 선택된 탭 강조색 */
         font-weight: 900 !important;
     }
 
@@ -134,7 +145,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px) */
+    /* 중앙 EXERCISE 로고 */
     .lush-logo-center {
         font-size: 52px;
         font-weight: 950;
@@ -169,7 +180,7 @@ st.markdown("""
         word-break: keep-all;
     }
 
-    /* 러쉬 원형 아이콘 그리드 스타일 */
+    /* 원형 카드 스타일 */
     .circle-card {
         background-color: #111111;
         width: 170px;
@@ -214,7 +225,6 @@ st.markdown("""
         word-break: keep-all;
     }
     
-    /* 초록색 태그 강조 (#03C75A) */
     .lush-tag {
         font-size: 13px;
         font-weight: 800;
@@ -224,7 +234,6 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
-    /* 가격 및 랭킹 태그 */
     .price-text {
         font-size: 20px;
         font-weight: 800;
@@ -242,7 +251,6 @@ st.markdown("""
         z-index: 10;
     }
 
-    /* 푸터 스타일 */
     .footer-container {
         margin-top: 80px;
         padding: 40px 0 20px 0;
@@ -626,7 +634,7 @@ elif st.session_state['page'] == 'store':
     tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
     
     with tab1:
-        st.markdown("<h3 style='margin-bottom:20px;'>전체 상품 목록</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='margin-bottom:20px; color:#111111;'>전체 상품 목록</h3>", unsafe_allow_html=True)
         cols = st.columns(3)
         for idx, kit in enumerate(kits):
             with cols[idx % 3]:
@@ -649,7 +657,7 @@ elif st.session_state['page'] == 'store':
                             st.rerun()
 
     with tab2:
-        st.markdown("### 구매자 창작 물품 거래소")
+        st.markdown("<h3 style='color:#111111;'>구매자 창작 물품 거래소</h3>", unsafe_allow_html=True)
         st.caption("구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다.")
         
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
