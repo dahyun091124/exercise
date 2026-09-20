@@ -30,12 +30,15 @@ st.markdown("""
         height: 60px !important;
     }
 
-    /* 2. 사이드바 열기/닫기 컨트롤 버튼 (좌측 상단 '메뉴' 검정색 박스) */
+    /* 2. 좌측 상단 사이드바 메뉴 버튼 */
+    /* Streamlit 버전에 따라 aria-label/testid가 달라질 수 있어 모두 대응 */
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebarExpandButton"],
     button[data-testid="baseButton-headerNoPadding"],
-    button[aria-label="Toggle sidebar"] {
+    button[aria-label="Toggle sidebar"],
+    button[aria-label="Open sidebar"],
+    button[aria-label="Close sidebar"] {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -46,19 +49,23 @@ st.markdown("""
         left: 15px !important;
         z-index: 9999999 !important;
         background-color: #ffffff !important;
+        color: #000000 !important;
         border: 2px solid #000000 !important;
         border-radius: 6px !important;
-        padding: 4px 12px !important;
+        padding: 5px 12px !important;
+        min-width: 78px !important;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
         cursor: pointer !important;
     }
 
-    /* 3. 화살표 아이콘(SVG) 검정색 강제 */
+    /* 3. 메뉴 아이콘을 검정색으로 */
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] svg,
     [data-testid="stSidebarExpandButton"] svg,
     button[data-testid="baseButton-headerNoPadding"] svg,
-    button[aria-label="Toggle sidebar"] svg {
+    button[aria-label="Toggle sidebar"] svg,
+    button[aria-label="Open sidebar"] svg,
+    button[aria-label="Close sidebar"] svg {
         fill: #000000 !important;
         color: #000000 !important;
         stroke: #000000 !important;
@@ -66,40 +73,48 @@ st.markdown("""
         height: 18px !important;
     }
 
-    /* 4. 아이콘 바로 옆 '메뉴' 검정색 텍스트 강제 주입 */
+    /* 4. 아이콘 오른쪽에 '메뉴'를 검정색으로 표시 */
     [data-testid="stSidebarCollapsedControl"]::after,
     [data-testid="stSidebarCollapseButton"]::after,
     [data-testid="stSidebarExpandButton"]::after,
     button[data-testid="baseButton-headerNoPadding"]::after,
-    button[aria-label="Toggle sidebar"]::after {
+    button[aria-label="Toggle sidebar"]::after,
+    button[aria-label="Open sidebar"]::after,
+    button[aria-label="Close sidebar"]::after {
         content: "메뉴" !important;
-        margin-left: 6px !important;
+        margin-left: 7px !important;
         font-size: 15px !important;
-        font-weight: 900 !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
         color: #000000 !important;
         white-space: nowrap !important;
         display: inline-block !important;
     }
 
-    /* 5. 스마트스토어 [전체 상품], [구매자 창작 마켓] 탭 글씨 검정색 강제 지정 */
+    /* 5. 스마트스토어 탭 글씨: '전체 상품' / '구매자 창작 마켓' 모두 검정색 */
     .stTabs [data-baseweb="tab-list"] {
         background-color: #ffffff !important;
     }
-    .stTabs [data-baseweb="tab"] {
+
+    .stTabs [data-baseweb="tab"],
+    .stTabs [data-baseweb="tab"] *,
+    .stTabs button[role="tab"],
+    .stTabs button[role="tab"] *,
+    .stTabs [aria-selected="true"],
+    .stTabs [aria-selected="true"] * {
         background-color: transparent !important;
-    }
-    .stTabs [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] span,
-    .stTabs [data-baseweb="tab"] div {
         color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         font-size: 17px !important;
         font-weight: 800 !important;
         opacity: 1 !important;
     }
-    .stTabs [aria-selected="true"] p,
-    .stTabs [aria-selected="true"] span,
-    .stTabs [aria-selected="true"] div {
-        color: #03C75A !important; /* 선택된 탭 강조색 */
+
+    /* 선택된 탭도 초록색으로 바뀌지 않고 검정색 유지 */
+    .stTabs [data-baseweb="tab"][aria-selected="true"],
+    .stTabs button[role="tab"][aria-selected="true"] {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         font-weight: 900 !important;
     }
 
