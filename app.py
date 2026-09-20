@@ -9,19 +9,44 @@ st.set_page_config(
     page_title="EXERCISE 브랜드몰",
     page_icon="💪🏼",
     layout="wide",
-    initial_sidebar_state="expanded"  # 사이드바가 펼쳐진 상태로 시작
+    initial_sidebar_state="expanded"
 )
 
 # -------------------------------------------------------------------
-# 러쉬(LUSH) 스타일 커스텀 CSS (아이콘 폰트 깨짐 방지 수정 완료)
+# 러쉬(LUSH) 스타일 커스텀 CSS (접힌 사이드바 버튼 옆 '메뉴' 텍스트 추가)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* 전체 백그라운드 & 폰트 설정 (아이콘 폰트 덮어쓰기 방지) */
+    /* 전체 백그라운드 & 폰트 설정 */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* 🔥 [핵심 수정] 사이드바 접힘 버튼(>>) 옆에 "MENU (메뉴)" 글씨 표시 */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: auto !important;
+        padding-right: 12px !important;
+        background-color: #111111 !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"]::after {
+        content: "MENU (메뉴)";
+        font-size: 14px;
+        font-weight: 800;
+        color: #ffffff !important;
+        white-space: nowrap;
+        margin-left: 2px;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] button {
+        color: #ffffff !important;
     }
 
     /* 사이드바(메뉴창) 스타일 */
@@ -46,7 +71,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px 크기 적용) */
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px) */
     .lush-logo-center {
         font-size: 52px;
         font-weight: 950;
@@ -282,7 +307,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 사이드바 내비게이션 메뉴 (Streamlit 순정 사이드바)
+# 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🧭 NAVIGATION")
@@ -336,7 +361,6 @@ if st.session_state['show_modal']:
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     
-    # [러쉬 서두] 메인 브랜드 선언문
     st.markdown("""
     <div class="lush-quote-box">
         <div class="lush-quote-title">
@@ -350,7 +374,6 @@ if st.session_state['page'] == 'about':
     </div>
     """, unsafe_allow_html=True)
 
-    # [러쉬 6개 원형 아이콘 그리드 (3열 x 2행)]
     col_g1, col_g2, col_g3 = st.columns(3)
     with col_g1:
         st.markdown("""
@@ -400,8 +423,6 @@ if st.session_state['page'] == 'about':
     st.write("<br><br>", unsafe_allow_html=True)
     st.divider()
 
-    # [상세 특징 5가지 (지그재그 감성 이미지/텍스트)]
-    
     # 01. CUSTOM DIY KIT
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
     with col_img1:
