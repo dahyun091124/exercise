@@ -314,7 +314,8 @@ about_images = [
     "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
 ]
 
 # 스마트스토어 상품 목록
@@ -415,7 +416,7 @@ if st.session_state['page'] == 'about':
         </div>
         <div class="lush-quote-desc">
             획일화된 공장형 기구의 틀에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 케어,<br>
-            그리고 구매자의 아이디어가 상품이 되는 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
+            시공간 제약을 넘어서는 VR 피트니스 및 C2C 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -461,8 +462,8 @@ if st.session_state['page'] == 'about':
     with col_g6:
         st.markdown("""
         <div class="circle-card">
-            <div class="circle-card-icon">🌱</div>
-            <div class="circle-card-title">SUSTAINABLE</div>
+            <div class="circle-card-icon">🥽</div>
+            <div class="circle-card-title">VR FITNESS</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -568,6 +569,27 @@ if st.session_state['page'] == 'about':
         """, unsafe_allow_html=True)
 
     st.divider()
+
+    # 06. VIRTUAL REALITY FIT
+    col_txt6, col_img6 = st.columns([1, 1], gap="large")
+    with col_txt6:
+        st.write("")
+        st.markdown('<div class="lush-tag">06. VIRTUAL REALITY FIT</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            시공간의 한계를 뛰어넘는<br>
+            몰입형 VR 메타버스 트레이닝
+        </div>
+        <div class="lush-section-desc">
+            가상현실(VR) 기술을 결합하여 어디서나 생동감 있는 맞춤형 운동 공간을 체험하고,<br>
+            실시간 데이터 코칭을 통해 더 몰입감 넘치는 헬스케어 루틴을 제안합니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img6:
+        safe_image(about_images[5])
+
+    st.divider()
+
 # -------------------------------------------------------------------
 # 2. 로그인 / 회원가입 페이지
 # -------------------------------------------------------------------
