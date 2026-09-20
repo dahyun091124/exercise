@@ -127,35 +127,20 @@ st.markdown("""
         fill: #111111 !important;
     }
 
-    /* 러쉬 스타일 히어로 섹션 */
-    .lush-hero-title {
-        font-size: clamp(28px, 4vw, 42px);
+    /* 러쉬 스타일 좌/우 레이아웃 전용 CSS */
+    .lush-section-title {
+        font-size: clamp(28px, 3.2vw, 42px);
         font-weight: 900;
-        text-align: center;
-        line-height: 1.3;
-        margin: 20px 0 10px 0;
-        letter-spacing: -1px;
-    }
-    .lush-hero-sub {
-        font-size: 18px;
-        text-align: center;
-        color: #555555 !important;
-        margin-bottom: 30px;
+        line-height: 1.25;
+        letter-spacing: -1.5px;
+        color: #111111 !important;
+        margin-bottom: 24px;
         word-break: keep-all;
     }
-
-    /* 러쉬 스타일 가치 카드 */
-    .lush-card-title {
-        font-size: 22px;
-        font-weight: 800;
-        margin-top: 15px;
-        margin-bottom: 8px;
-        letter-spacing: -0.5px;
-    }
-    .lush-card-desc {
-        font-size: 15px;
+    .lush-section-desc {
+        font-size: 16px;
+        line-height: 1.75;
         color: #444444 !important;
-        line-height: 1.6;
         word-break: keep-all;
     }
 
@@ -190,7 +175,7 @@ def safe_image(img):
     else:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
-# 1. 세션 상태 초기화 (★ 초기 진입 페이지를 'about'으로 설정!)
+# 1. 세션 상태 초기화 (처음 접속 시 브랜드 소개 페이지 진입)
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
@@ -198,7 +183,7 @@ if 'orders' not in st.session_state:
     st.session_state['orders'] = []
 
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'about'  # 처음 접속 시 브랜드 소개 페이지 진입
+    st.session_state['page'] = 'about'
 
 if 'show_modal' not in st.session_state:
     st.session_state['show_modal'] = False
@@ -271,9 +256,8 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# --- 2-1. 최상단 브랜드 네비게이션 바 (조건부 분기) ---
+# --- 2-1. 최상단 브랜드 네비게이션 바 ---
 if st.session_state['page'] == 'about':
-    # 기업 소개 페이지일 때는 깔끔하게 메뉴 버튼 2개만 배치 (장바구니 제외)
     nav_col1, nav_col2 = st.columns(2)
     with nav_col1:
         if st.button("EXERCISE 브랜드 소개", use_container_width=True, type="primary"):
@@ -284,7 +268,6 @@ if st.session_state['page'] == 'about':
             st.session_state['page'] = 'home'
             st.rerun()
 else:
-    # 쇼핑몰/장바구니/상세/관리자 페이지일 때는 장바구니 버튼 표시
     nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
     with nav_col1:
         if st.button("EXERCISE 브랜드 소개", use_container_width=True):
@@ -308,7 +291,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 장바구니 담김 알림 상자 (쇼핑몰 이용 중에만 표시)
+# 장바구니 담김 알림 상자
 if st.session_state['show_modal'] and st.session_state['page'] != 'about':
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
@@ -324,48 +307,71 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (러쉬 감성 비주얼 화)
+# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 왼쪽 이미지, 오른쪽 텍스트)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
-    # 메인 히어로 비주얼 섹션
-    st.markdown('<div class="lush-hero-title">WE ARE EXERCISE</div>', unsafe_allow_html=True)
-    st.markdown('<div class="lush-hero-sub">“운동에는 하나의 정답이 없다”</div>', unsafe_allow_html=True)
-    
-    st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&auto=format&fit=crop&q=80", use_container_width=True)
-    
     st.write("")
-    st.markdown("""
-    <div style="text-align: center; max-width: 800px; margin: 30px auto; font-size: 19px; line-height: 1.8; word-break: keep-all; font-weight: 500;">
-        EXERCISE는 기성 운동기구의 정형화된 틀을 깨고, 모든 사람이 <strong>자신의 신체와 목적에 맞는 최적의 운동 솔루션</strong>을 직접 만들어가는 DIY 웰니스 브랜드입니다.<br><br>
-        우리는 표준화된 규격에 몸을 맞추는 것이 아니라, <strong>나의 몸에 기구를 맞추는 가치</strong>를 선물합니다.
-    </div>
-    """, unsafe_allow_html=True)
+    st.write("")
     
-    st.divider()
+    # [섹션 1] 왼쪽: 이미지 / 오른쪽: 핵심 메시지 및 텍스트
+    col_img1, col_txt1 = st.columns([1.1, 1], gap="large")
     
-    # 러쉬 스타일의 3컬럼 가치 영역 (대형 이미지 + 직관적 문구)
-    col_a1, col_a2, col_a3 = st.columns(3)
-    
-    with col_a1:
-        st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80", use_container_width=True)
-        st.markdown('<div class="lush-card-title">🔧 Customization</div>', unsafe_allow_html=True)
-        st.markdown('<div class="lush-card-desc">폴리모프와 맞춤 소재를 이용하여 손목, 발목, 체형에 완벽히 피팅되는 기구를 직접 제작합니다.</div>', unsafe_allow_html=True)
+    with col_img1:
+        st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
         
-    with col_a2:
-        st.image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=80", use_container_width=True)
-        st.markdown('<div class="lush-card-title">♻️ Eco & Local</div>', unsafe_allow_html=True)
-        st.markdown('<div class="lush-card-desc">지방 소멸 위기 지역의 특산물을 활용한 건강한 보충 음료 등 지역 상생과 지속 가능성을 지향합니다.</div>', unsafe_allow_html=True)
-        
-    with col_a3:
-        st.image("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80", use_container_width=True)
-        st.markdown('<div class="lush-card-title">🫵🏼 Creator Market</div>', unsafe_allow_html=True)
-        st.markdown('<div class="lush-card-desc">내가 만든 운동 아이디어를 다른 사람들과 공유하고 거래하는 커뮤니티 기반 C2C 에코시스템입니다.</div>', unsafe_allow_html=True)
-        
+    with col_txt1:
+        st.write("")
+        st.write("")
+        st.markdown("""
+        <div class="lush-section-title">
+            EXERCISE는 커스텀 DIY 키트,<br>
+            맞춤형 에어셀 쿠션과 같은<br>
+            기발하고 혁신적인<br>
+            운동 솔루션을 선보입니다.
+        </div>
+        <div class="lush-section-desc">
+            특히 정형화된 운동 기구의 틀을 깨고 개인의 신체 조건에 완벽히 피팅되는 
+            다양한 '커스터마이징(Customizing)' 키트를 개발하며 
+            헬스 케어 및 웰니스 시장에 새로운 바람을 일으켜 왔습니다.
+        </div>
+        """, unsafe_allow_html=True)
+
     st.write("")
     st.write("")
     st.divider()
+    st.write("")
+    st.write("")
+
+    # [섹션 2] 왼쪽: 가치 설명 텍스트 / 오른쪽: 이미지 (지속가능성 & 커뮤니티)
+    col_txt2, col_img2 = st.columns([1, 1.1], gap="large")
     
-    if st.button("EXERCISE 제품 둘러보기", type="primary", use_container_width=True):
+    with col_txt2:
+        st.write("")
+        st.write("")
+        st.markdown("""
+        <div class="lush-section-title">
+            나만의 기구를 직접 만들고,<br>
+            지역 특산물로 수분을 채우며,<br>
+            가치를 함께 공유합니다.
+        </div>
+        <div class="lush-section-desc">
+            지방 소멸 위기 지역의 대표 특산물을 활용한 건강 이온음료부터,<br>
+            구매자들이 직접 제작한 아이디어를 서로 나누고 거래하는 C2C 창작 마켓까지.<br><br>
+            EXERCISE는 단순한 운동 제품 판매를 넘어, 지속 가능한 건강 생태계와 
+            상생의 커뮤니티 가치를 실천하고 있습니다.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_img2:
+        st.image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+
+    st.write("")
+    st.write("")
+    st.divider()
+    st.write("")
+
+    # 하단 행동 유도 버튼
+    if st.button("EXERCISE 상품 둘러보기", type="primary", use_container_width=True):
         st.session_state['page'] = 'home'
         st.rerun()
 
