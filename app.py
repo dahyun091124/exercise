@@ -13,275 +13,109 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 커스텀 CSS
+# 커스텀 CSS (좌측 상단 '메뉴' 버튼 & 탭 검정색 글씨 완벽 강제 적용)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-
-    /* ================================================================
-       전체 기본 스타일
-       ================================================================ */
-    .stApp,
-    body,
-    html {
+    /* 전체 백그라운드 & 기본 폰트 설정 */
+    .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont,
-                     system-ui, Roboto, sans-serif;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-
-    /* ================================================================
-       상단 헤더
-       ================================================================ */
+    /* 1. 상단 기본 헤더 배경 투명화 및 높이 지정 */
     header[data-testid="stHeader"] {
-        background: #ffffff !important;
+        background: transparent !important;
         height: 60px !important;
-        z-index: 999999 !important;
     }
 
-
     /* ================================================================
-       좌측 상단 메뉴 버튼
-       - 홈 화면에서도 항상 보이도록 처리
-       - 아이콘 검정색
-       - 아이콘 옆에 '메뉴' 표시
+       화면 좌측 상단 메뉴 버튼
+       Streamlit 내부 사이드바 버튼에 의존하지 않고
+       st.popover('☰ 메뉴')를 사용하므로 홈 화면에서도 항상 표시됨
        ================================================================ */
 
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"],
-    [data-testid="stSidebarExpandButton"],
-    button[data-testid="baseButton-headerNoPadding"],
-    button[aria-label="Toggle sidebar"],
-    button[aria-label="Open sidebar"],
-    button[aria-label="Close sidebar"] {
+    div[data-testid="stPopover"] {
+        position: fixed !important;
+        top: 14px !important;
+        left: 15px !important;
+        z-index: 99999999 !important;
+    }
+
+    div[data-testid="stPopover"] > button {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
 
-        visibility: visible !important;
-        opacity: 1 !important;
+        min-width: 88px !important;
+        height: 38px !important;
 
-        position: fixed !important;
-        top: 14px !important;
-        left: 15px !important;
+        padding: 6px 13px !important;
 
-        z-index: 99999999 !important;
-
-        width: auto !important;
-        min-width: 78px !important;
-        height: 34px !important;
-
-        padding: 5px 12px !important;
-
-        background-color: #ffffff !important;
+        background: #ffffff !important;
         color: #000000 !important;
 
         border: 2px solid #000000 !important;
         border-radius: 6px !important;
 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-
-        cursor: pointer !important;
-        overflow: visible !important;
-    }
-
-
-    /* 메뉴 아이콘 검정색 */
-    [data-testid="stSidebarCollapsedControl"] svg,
-    [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="stSidebarExpandButton"] svg,
-    button[data-testid="baseButton-headerNoPadding"] svg,
-    button[aria-label="Toggle sidebar"] svg,
-    button[aria-label="Open sidebar"] svg,
-    button[aria-label="Close sidebar"] svg {
-        fill: #000000 !important;
-        color: #000000 !important;
-        stroke: #000000 !important;
-
-        width: 18px !important;
-        height: 18px !important;
-
-        opacity: 1 !important;
-    }
-
-
-    /* 아이콘 옆 '메뉴' */
-    [data-testid="stSidebarCollapsedControl"]::after,
-    [data-testid="stSidebarCollapseButton"]::after,
-    [data-testid="stSidebarExpandButton"]::after,
-    button[data-testid="baseButton-headerNoPadding"]::after,
-    button[aria-label="Toggle sidebar"]::after,
-    button[aria-label="Open sidebar"]::after,
-    button[aria-label="Close sidebar"]::after {
-        content: "메뉴" !important;
-
-        display: inline-block !important;
-
-        margin-left: 7px !important;
-
-        color: #000000 !important;
         font-size: 15px !important;
         font-weight: 800 !important;
-        line-height: 1 !important;
 
-        white-space: nowrap !important;
         opacity: 1 !important;
         visibility: visible !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important;
     }
 
+    div[data-testid="stPopover"] > button:hover,
+    div[data-testid="stPopover"] > button:focus,
+    div[data-testid="stPopover"] > button:active {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
 
-    /* 메뉴 버튼 내부 텍스트가 Streamlit에 의해 숨겨지는 것 방지 */
-    [data-testid="stSidebarCollapsedControl"] *,
-    [data-testid="stSidebarCollapseButton"] *,
-    [data-testid="stSidebarExpandButton"] *,
-    button[data-testid="baseButton-headerNoPadding"] *,
-    button[aria-label="Toggle sidebar"] *,
-    button[aria-label="Open sidebar"] *,
-    button[aria-label="Close sidebar"] * {
+    div[data-testid="stPopover"] > button svg {
         color: #000000 !important;
         fill: #000000 !important;
         stroke: #000000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
     }
 
-
-    /* ================================================================
-       스마트스토어 탭
-       '전체 상품'과 '구매자 창작 마켓'이
-       클릭하지 않아도 항상 검정색으로 보이도록 강제
-       ================================================================ */
-
-    .stTabs {
-        width: 100% !important;
-    }
-
+    /* 5. 스마트스토어 [전체 상품], [구매자 창작 마켓] 탭 글씨 검정색 강제 지정 */
     .stTabs [data-baseweb="tab-list"] {
         background-color: #ffffff !important;
-        color: #000000 !important;
-        opacity: 1 !important;
     }
-
-
-    /* 모든 탭 기본 상태 */
     .stTabs [data-baseweb="tab"] {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-
-        font-size: 17px !important;
-        font-weight: 800 !important;
+        background-color: transparent !important;
     }
-
-
-    /* 탭 안의 모든 요소 */
-    .stTabs [data-baseweb="tab"] *,
     .stTabs [data-baseweb="tab"] p,
     .stTabs [data-baseweb="tab"] span,
-    .stTabs [data-baseweb="tab"] div,
-    .stTabs [data-baseweb="tab"] button {
+    .stTabs [data-baseweb="tab"] div {
         color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-
-        background-color: transparent !important;
-
-        opacity: 1 !important;
-        visibility: visible !important;
-
         font-size: 17px !important;
         font-weight: 800 !important;
-    }
-
-
-    /* role=tab을 사용하는 Streamlit 버전 대응 */
-    .stTabs button[role="tab"],
-    .stTabs button[role="tab"] *,
-    .stTabs button[role="tab"] p,
-    .stTabs button[role="tab"] span,
-    .stTabs button[role="tab"] div {
-        background-color: transparent !important;
-
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-
         opacity: 1 !important;
-        visibility: visible !important;
-
-        font-size: 17px !important;
-        font-weight: 800 !important;
     }
-
-
-    /* 선택된 탭도 무조건 검정색 */
-    .stTabs [data-baseweb="tab"][aria-selected="true"],
-    .stTabs [data-baseweb="tab"][aria-selected="true"] *,
-    .stTabs button[role="tab"][aria-selected="true"],
-    .stTabs button[role="tab"][aria-selected="true"] * {
-        background-color: transparent !important;
-
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-
-        opacity: 1 !important;
-        visibility: visible !important;
-
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {
+        color: #03C75A !important; /* 선택된 탭 강조색 */
         font-weight: 900 !important;
     }
 
-
-    /* 마우스를 올렸을 때도 검정색 */
-    .stTabs [data-baseweb="tab"]:hover,
-    .stTabs [data-baseweb="tab"]:hover *,
-    .stTabs button[role="tab"]:hover,
-    .stTabs button[role="tab"]:hover * {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        opacity: 1 !important;
-    }
-
-
-    /* 클릭/포커스 상태도 검정색 */
-    .stTabs [data-baseweb="tab"]:focus,
-    .stTabs [data-baseweb="tab"]:focus *,
-    .stTabs button[role="tab"]:focus,
-    .stTabs button[role="tab"]:focus *,
-    .stTabs [data-baseweb="tab"]:active,
-    .stTabs [data-baseweb="tab"]:active *,
-    .stTabs button[role="tab"]:active,
-    .stTabs button[role="tab"]:active * {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        opacity: 1 !important;
-    }
-
-
-    /* 탭 밑줄 */
-    .stTabs [data-baseweb="tab-highlight"] {
-        background-color: #000000 !important;
-    }
-
-
-    /* ================================================================
-       버튼
-       ================================================================ */
-
-    /* 담기 버튼 */
+    /* '담기' 버튼 색상 초록색(#03C75A) 설정 */
     .stButton > button[kind="primary"] {
         background-color: #03C75A !important;
         color: #ffffff !important;
         border: none !important;
         font-weight: bold !important;
     }
-
     .stButton > button[kind="primary"]:hover {
         background-color: #02b150 !important;
         color: #ffffff !important;
     }
 
-
-    /* 일반 버튼 */
+    /* 일반 버튼 스타일 */
     .stButton > button {
         border-radius: 4px !important;
         border: 1px solid #dddddd !important;
@@ -289,261 +123,185 @@ st.markdown("""
         color: #111111 !important;
     }
 
-
-    /* ================================================================
-       사이드바
-       ================================================================ */
-
+    /* 사이드바(메뉴창) 내부 스타일 */
     [data-testid="stSidebar"] {
         background-color: #ffffff !important;
         border-right: 1px solid #eeeeee !important;
     }
-
     [data-testid="stSidebar"] * {
         color: #111111 !important;
     }
-
     [data-testid="stSidebar"] .stButton > button {
         background-color: #f8f9fa !important;
         color: #111111 !important;
-
         border: 1px solid #e9ecef !important;
-
         font-weight: 600 !important;
-
         margin-bottom: 8px;
-
         text-align: left !important;
-
         padding-left: 15px !important;
     }
-
     [data-testid="stSidebar"] .stButton > button:hover {
         background-color: #111111 !important;
         color: #ffffff !important;
     }
 
-
-    /* ================================================================
-       중앙 EXERCISE 로고
-       ================================================================ */
-
+    /* 중앙 EXERCISE 로고 */
     .lush-logo-center {
         font-size: 52px;
         font-weight: 950;
-
         letter-spacing: -1.5px;
-
         color: #000000;
-
         text-transform: uppercase;
         text-align: center;
-
         width: 100%;
-
         margin-bottom: 20px;
     }
 
-
-    /* ================================================================
-       브랜드 메인 서두
-       ================================================================ */
-
+    /* 러쉬 브랜드 메인 서두 스타일 */
     .lush-quote-box {
         text-align: center;
-
         padding: 50px 20px 40px 20px;
-
         max-width: 900px;
-
         margin: 0 auto 30px auto;
     }
-
     .lush-quote-title {
         font-size: clamp(22px, 3.2vw, 34px);
-
         font-weight: 900;
-
         line-height: 1.45;
-
         letter-spacing: -1.5px;
-
         color: #111111;
-
         margin-bottom: 20px;
-
         word-break: keep-all;
     }
-
     .lush-quote-desc {
         font-size: 15px;
-
         line-height: 1.8;
-
         color: #666666;
-
         word-break: keep-all;
     }
 
-
-    /* ================================================================
-       원형 카드
-       ================================================================ */
-
+    /* 원형 카드 스타일 */
     .circle-card {
         background-color: #111111;
-
         width: 170px;
         height: 170px;
-
         border-radius: 50%;
-
         display: flex;
-
         flex-direction: column;
-
         justify-content: center;
         align-items: center;
-
         margin: 0 auto 15px auto;
-
         color: #ffffff !important;
-
         text-align: center;
-
         padding: 20px;
-
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-
     .circle-card-title {
         font-size: 13px;
-
         font-weight: 800;
-
         letter-spacing: 1px;
-
         text-transform: uppercase;
-
         color: #ffffff !important;
-
         margin-top: 6px;
     }
-
     .circle-card-icon {
         font-size: 28px;
     }
 
-
-    /* ================================================================
-       상세 섹션
-       ================================================================ */
-
+    /* 상세 섹션 스타일 */
     .lush-section-title {
         font-size: clamp(22px, 2.8vw, 34px);
-
         font-weight: 900;
-
         line-height: 1.35;
-
         letter-spacing: -1.5px;
-
         color: #111111 !important;
-
         margin-bottom: 15px;
-
         word-break: keep-all;
     }
-
     .lush-section-desc {
         font-size: 15px;
-
         line-height: 1.75;
-
         color: #555555 !important;
-
         word-break: keep-all;
     }
-
+    
     .lush-tag {
         font-size: 13px;
-
         font-weight: 800;
-
         letter-spacing: 2px;
-
         text-transform: uppercase;
-
         color: #03C75A !important;
-
         margin-bottom: 8px;
     }
 
     .price-text {
         font-size: 20px;
-
         font-weight: 800;
-
         color: #03C75A !important;
     }
-
     .rank-badge {
         position: absolute;
-
         top: 10px;
         left: 10px;
-
         background-color: #000000;
-
         color: #ffffff !important;
-
         font-weight: bold;
-
         padding: 4px 10px;
-
         font-size: 14px;
-
         z-index: 10;
     }
 
-
-    /* ================================================================
-       푸터
-       ================================================================ */
-
     .footer-container {
         margin-top: 80px;
-
         padding: 40px 0 20px 0;
-
         border-top: 1px solid #eeeeee;
-
         color: #888888;
-
         font-size: 13px;
-
         line-height: 1.7;
+    }
+
+    /* ================================================================
+       스마트스토어 메뉴 글씨
+       '전체 상품' / '구매자 창작 마켓'은 항상 검정색으로 표시
+       ================================================================ */
+
+    div[data-testid="stRadio"] label {
+        color: #000000 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        font-size: 17px !important;
+        font-weight: 800 !important;
+    }
+
+    div[data-testid="stRadio"] label p,
+    div[data-testid="stRadio"] label span,
+    div[data-testid="stRadio"] label div {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    div[data-testid="stRadio"] [role="radiogroup"] {
+        gap: 10px !important;
+    }
+
+    div[data-testid="stRadio"] [role="radio"] {
+        border-color: #000000 !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
-
-# -------------------------------------------------------------------
 # 안전한 이미지 로딩 함수
-# -------------------------------------------------------------------
 def safe_image(img_src):
     if isinstance(img_src, str):
         if os.path.exists(img_src) or img_src.startswith("http"):
             st.image(img_src, use_container_width=True)
         else:
-            st.image(
-                "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80",
-                use_container_width=True
-            )
+            st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80", use_container_width=True)
     else:
         st.image(img_src, use_container_width=True)
-
 
 # -------------------------------------------------------------------
 # 세션 상태 초기화
@@ -572,10 +330,7 @@ if 'selected_product' not in st.session_state:
 if 'admin_authenticated' not in st.session_state:
     st.session_state['admin_authenticated'] = False
 
-
-# -------------------------------------------------------------------
 # 감성 이미지 리스트
-# -------------------------------------------------------------------
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80",
@@ -584,15 +339,12 @@ about_images = [
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"
 ]
 
-
-# -------------------------------------------------------------------
 # 스마트스토어 상품 목록
-# -------------------------------------------------------------------
 kits = [
     {
         "id": 1,
-        "name": "EXERCISE 커스텀 DIY 운동 키트",
-        "price": 15000,
+        "name": "EXERCISE 커스텀 DIY 운동 키트", 
+        "price": 15000, 
         "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
         "img": "ganadi.jpg",
         "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
@@ -602,8 +354,8 @@ kits = [
     },
     {
         "id": 2,
-        "name": "맞춤형 공기방석 에어셀 제작 키트",
-        "price": 18500,
+        "name": "맞춤형 공기방석 에어셀 제작 키트", 
+        "price": 18500, 
         "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
         "img": "usagi.jpg",
         "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
@@ -613,8 +365,8 @@ kits = [
     },
     {
         "id": 3,
-        "name": "소멸위기 지역 특산물 이온음료 DIY 키트",
-        "price": 9800,
+        "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
+        "price": 9800, 
         "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
         "img": "hachiware.jpg",
         "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
@@ -624,16 +376,12 @@ kits = [
     }
 ]
 
-
-# -------------------------------------------------------------------
-# 구매자 창작 마켓
-# -------------------------------------------------------------------
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
             "id": 101,
-            "name": "폴리모프 커스텀 지압 악력기",
-            "price": 12000,
+            "name": "폴리모프 커스텀 지압 악력기", 
+            "price": 12000, 
             "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
             "img": about_images[3],
             "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
@@ -643,100 +391,71 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-
-# -------------------------------------------------------------------
-# 장바구니 함수
-# -------------------------------------------------------------------
 def add_to_cart(item_name, item_price):
-    st.session_state['cart'].append({
-        "name": item_name,
-        "price": item_price
-    })
-
+    st.session_state['cart'].append({"name": item_name, "price": item_price})
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-
 # -------------------------------------------------------------------
-# 사이드바 내비게이션 메뉴
+# 좌측 상단 메뉴
 # -------------------------------------------------------------------
-with st.sidebar:
+with st.popover("☰ 메뉴"):
 
-    st.markdown("### 🧭 NAVIGATION")
+    st.markdown(
+        "<h3 style='color:#111111; margin-top:0;'>MENU</h3>",
+        unsafe_allow_html=True
+    )
+
     st.write("---")
 
-    if st.button("🏢 기업소개", use_container_width=True):
+    if st.button("🏢 기업소개", key="menu_about", use_container_width=True):
         st.session_state['page'] = 'about'
         st.rerun()
 
-    if st.button("🛍️ 스마트스토어", use_container_width=True):
+    if st.button("🛍️ 스마트스토어", key="menu_store", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+    if st.button("🔑 로그인 / 회원가입", key="menu_login", use_container_width=True):
         st.session_state['page'] = 'login'
         st.rerun()
 
-    if st.button("⚙️ 관리자 페이지", use_container_width=True):
+    if st.button("⚙️ 관리자 페이지", key="menu_admin", use_container_width=True):
         st.session_state['page'] = 'admin'
         st.rerun()
 
-
 # -------------------------------------------------------------------
-# 메인 헤더
+# 메인 헤더: 중앙 EXERCISE 로고
 # -------------------------------------------------------------------
-st.markdown(
-    "<div class='lush-logo-center'>EXERCISE</div>",
-    unsafe_allow_html=True
-)
-
+st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
 st.write("---")
 
-
-# -------------------------------------------------------------------
-# 장바구니 알림
-# -------------------------------------------------------------------
+# 장바구니 알림 모달
 if st.session_state['show_modal']:
-
     with st.container(border=True):
-
-        st.success(
-            f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다."
-        )
-
+        st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
         col_m1, col_m2 = st.columns(2)
-
         with col_m1:
-            if st.button(
-                "🛍️ 계속 둘러보기",
-                use_container_width=True
-            ):
+            if st.button("🛍️ 계속 둘러보기", use_container_width=True):
                 st.session_state['show_modal'] = False
                 st.rerun()
-
         with col_m2:
-            if st.button(
-                "🛒 장바구니로 이동",
-                type="primary",
-                use_container_width=True
-            ):
+            if st.button("🛒 장바구니로 이동", type="primary", use_container_width=True):
                 st.session_state['show_modal'] = False
                 st.session_state['page'] = 'cart'
                 st.rerun()
 
-
 # -------------------------------------------------------------------
-# 1. 기업 / 브랜드 소개
+# 1. 기업/브랜드 소개 페이지
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
-
+    
     st.markdown("""
     <div class="lush-quote-box">
         <div class="lush-quote-title">
             “ EXERCISE는 모든 신체가 가진 고유한 가능성을 믿으며,<br>
             자신의 몸에 완벽하게 맞춰진 정직한 운동 경험을 손으로 만듭니다. ”
         </div>
-
         <div class="lush-quote-desc">
             획일화된 공장형 기구의 틀에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 케어,<br>
             그리고 구매자의 아이디어가 상품이 되는 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
@@ -744,9 +463,7 @@ if st.session_state['page'] == 'about':
     </div>
     """, unsafe_allow_html=True)
 
-
     col_g1, col_g2, col_g3 = st.columns(3)
-
     with col_g1:
         st.markdown("""
         <div class="circle-card">
@@ -754,7 +471,6 @@ if st.session_state['page'] == 'about':
             <div class="circle-card-title">CUSTOM DIY</div>
         </div>
         """, unsafe_allow_html=True)
-
     with col_g2:
         st.markdown("""
         <div class="circle-card">
@@ -762,7 +478,6 @@ if st.session_state['page'] == 'about':
             <div class="circle-card-title">AIR-CELL CUSHION</div>
         </div>
         """, unsafe_allow_html=True)
-
     with col_g3:
         st.markdown("""
         <div class="circle-card">
@@ -771,9 +486,7 @@ if st.session_state['page'] == 'about':
         </div>
         """, unsafe_allow_html=True)
 
-
     col_g4, col_g5, col_g6 = st.columns(3)
-
     with col_g4:
         st.markdown("""
         <div class="circle-card">
@@ -781,7 +494,6 @@ if st.session_state['page'] == 'about':
             <div class="circle-card-title">POLYMORPH</div>
         </div>
         """, unsafe_allow_html=True)
-
     with col_g5:
         st.markdown("""
         <div class="circle-card">
@@ -789,7 +501,6 @@ if st.session_state['page'] == 'about':
             <div class="circle-card-title">ETHICAL C2C</div>
         </div>
         """, unsafe_allow_html=True)
-
     with col_g6:
         st.markdown("""
         <div class="circle-card">
@@ -798,313 +509,185 @@ if st.session_state['page'] == 'about':
         </div>
         """, unsafe_allow_html=True)
 
-
     st.write("<br><br>", unsafe_allow_html=True)
     st.divider()
 
-
     # 01. CUSTOM DIY KIT
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
-
     with col_img1:
         safe_image(about_images[0])
-
     with col_txt1:
         st.write("")
-
-        st.markdown(
-            '<div class="lush-tag">01. CUSTOM DIY KIT</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<div class="lush-tag">01. CUSTOM DIY KIT</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             자신의 신체 조건과 목적에<br>
             완벽하게 맞추는 커스텀 키트
         </div>
-
         <div class="lush-section-desc">
-            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춤 피팅되는
+            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춤 피팅되는 
             커스터마이징 키트를 통해 나만의 효율적인 움직임을 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
 
-
     st.divider()
-
 
     # 02. AIR-CELL BALANCING
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
-
     with col_txt2:
         st.write("")
-
-        st.markdown(
-            '<div class="lush-tag">02. AIR-CELL BALANCING</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<div class="lush-tag">02. AIR-CELL BALANCING</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             장시간 앉아있는 현대인을 위한<br>
             골반 및 척추 균형 솔루션
         </div>
-
         <div class="lush-section-desc">
-            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여 바른 자세 유지와
+            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여 바른 자세 유지와 
             체중 분산 효과를 극대화한 인체공학적 방석을 제작합니다.
         </div>
         """, unsafe_allow_html=True)
-
     with col_img2:
         safe_image(about_images[1])
 
-
     st.divider()
-
 
     # 03. LOCAL RECOVERY DRINK
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
-
     with col_img3:
         safe_image(about_images[2])
-
     with col_txt3:
         st.write("")
-
-        st.markdown(
-            '<div class="lush-tag">03. LOCAL RECOVERY DRINK</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<div class="lush-tag">03. LOCAL RECOVERY DRINK</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             소멸 위기 지역 특산물로<br>
             건강하게 채우는 수분과 전해질
         </div>
-
         <div class="lush-section-desc">
-            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여
+            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여 
             운동 후 필요한 수분과 에너지를 건강하게 충전하는 상생형 음료입니다.
         </div>
         """, unsafe_allow_html=True)
 
-
     st.divider()
-
 
     # 04. POLYMORPH ERGONOMICS
     col_txt4, col_img4 = st.columns([1, 1], gap="large")
-
     with col_txt4:
         st.write("")
-
-        st.markdown(
-            '<div class="lush-tag">04. POLYMORPH ERGONOMICS</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<div class="lush-tag">04. POLYMORPH ERGONOMICS</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             내 손바닥 곡선에 딱 맞게<br>
             변형되는 맞춤형 지압 구조
         </div>
-
         <div class="lush-section-desc">
-            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여
+            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여 
             세상에 단 하나뿐인 최고의 그립감과 자극을 제공합니다.
         </div>
         """, unsafe_allow_html=True)
-
     with col_img4:
         safe_image(about_images[3])
 
-
     st.divider()
-
 
     # 05. SHARED COMMUNITY
     col_img5, col_txt5 = st.columns([1, 1], gap="large")
-
     with col_img5:
         safe_image(about_images[4])
-
     with col_txt5:
         st.write("")
-
-        st.markdown(
-            '<div class="lush-tag">05. SHARED COMMUNITY</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<div class="lush-tag">05. SHARED COMMUNITY</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             구매자의 아이디어가 상품이 되는<br>
             C2C 가치 공유 커뮤니티
         </div>
-
         <div class="lush-section-desc">
-            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는
+            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는 
             선순환 C2C 마켓플레이스를 지향합니다.
         </div>
         """, unsafe_allow_html=True)
 
-
     st.divider()
-
-    if st.button(
-        "🛍️ EXERCISE 스마트스토어 바로가기 ➔",
-        type="primary",
-        use_container_width=True
-    ):
+    if st.button("🛍️ EXERCISE 스마트스토어 바로가기 ➔", type="primary", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-
 # -------------------------------------------------------------------
-# 2. 로그인 / 회원가입
+# 2. 로그인 / 회원가입 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'login':
-
     col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
-
     with col_l2:
-
-        st.markdown(
-            "<h2 style='text-align: center;'>🔐 회원 로그인 / 회원가입</h2>",
-            unsafe_allow_html=True
-        )
-
+        st.markdown("<h2 style='text-align: center;'>🔐 회원 로그인 / 회원가입</h2>", unsafe_allow_html=True)
         st.write("")
-
-        tab_log1, tab_log2 = st.tabs([
-            "로그인",
-            "회원가입"
-        ])
-
-
+        
+        tab_log1, tab_log2 = st.tabs(["로그인", "회원가입"])
+        
         with tab_log1:
-
             with st.form("login_form"):
-
-                user_id = st.text_input(
-                    "아이디 또는 이메일",
-                    placeholder="example@exercise.com"
-                )
-
-                user_pw = st.text_input(
-                    "비밀번호",
-                    type="password"
-                )
-
-                submit_login = st.form_submit_button(
-                    "로그인하기",
-                    type="primary",
-                    use_container_width=True
-                )
-
-
+                user_id = st.text_input("아이디 또는 이메일", placeholder="example@exercise.com")
+                user_pw = st.text_input("비밀번호", type="password")
+                submit_login = st.form_submit_button("로그인하기", type="primary", use_container_width=True)
+                
                 if submit_login:
-
                     if user_id and user_pw:
-
                         st.session_state['user'] = user_id.split('@')[0]
-
-                        st.success(
-                            f"{st.session_state['user']}님, 환영합니다!"
-                        )
-
+                        st.success(f"{st.session_state['user']}님, 환영합니다!")
                         st.session_state['page'] = 'store'
                         st.rerun()
-
                     else:
-                        st.error(
-                            "아이디와 비밀번호를 모두 입력해 주세요."
-                        )
-
-
+                        st.error("아이디와 비밀번호를 모두 입력해 주세요.")
+                        
         with tab_log2:
-
             with st.form("signup_form"):
-
                 new_name = st.text_input("이름")
                 new_id = st.text_input("아이디(이메일)")
-                new_pw = st.text_input(
-                    "비밀번호 설정",
-                    type="password"
-                )
-
-                submit_signup = st.form_submit_button(
-                    "가입완료",
-                    type="primary",
-                    use_container_width=True
-                )
-
-
+                new_pw = st.text_input("비밀번호 설정", type="password")
+                submit_signup = st.form_submit_button("가입완료", type="primary", use_container_width=True)
+                
                 if submit_signup:
-
                     if new_name and new_id and new_pw:
-
-                        st.success(
-                            "회원가입이 완료되었습니다! 로그인해 주세요."
-                        )
-
+                        st.success("회원가입이 완료되었습니다! 로그인해 주세요.")
                     else:
-                        st.error(
-                            "모든 항목을 입력해야 합니다."
-                        )
-
+                        st.error("모든 항목을 입력해야 합니다.")
 
 # -------------------------------------------------------------------
-# 3. 스마트스토어
+# 3. 스마트스토어 메인 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'store':
-
     cart_cnt = len(st.session_state['cart'])
-
-    cart_btn_text = (
-        f"🛒 장바구니 ({cart_cnt})"
-        if cart_cnt > 0
-        else
-        "🛒 장바구니"
-    )
-
-
+    cart_btn_text = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
+    
     col_st_header, col_st_cart = st.columns([5, 1])
-
     with col_st_cart:
-
-        if st.button(
-            cart_btn_text,
-            use_container_width=True
-        ):
+        if st.button(cart_btn_text, use_container_width=True):
             st.session_state['page'] = 'cart'
             st.rerun()
 
+    # 탭 대신 가로형 라디오를 사용합니다.
+    # 두 항목이 클릭하지 않아도 항상 화면에 표시됩니다.
+    store_menu = st.radio(
+        "스마트스토어 메뉴",
+        ["전체 상품", "구매자 창작 마켓"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="store_menu"
+    )
 
     # ================================================================
-    # 탭 이름
-    # 클릭하지 않아도 두 이름 모두 표시됨
-    # ================================================================
-    tab1, tab2 = st.tabs([
-        "전체 상품",
-        "구매자 창작 마켓"
-    ])
-
-
-    # ----------------------------------------------------------------
     # 전체 상품
-    # ----------------------------------------------------------------
-    with tab1:
+    # ================================================================
+    if store_menu == "전체 상품":
 
         st.markdown(
             "<h3 style='margin-bottom:20px; color:#111111;'>전체 상품 목록</h3>",
             unsafe_allow_html=True
         )
 
-
         cols = st.columns(3)
-
 
         for idx, kit in enumerate(kits):
 
@@ -1119,22 +702,16 @@ elif st.session_state['page'] == 'store':
 
                     safe_image(kit["img"])
 
-                    st.markdown(
-                        f"**{kit['name']}**"
-                    )
+                    st.markdown(f"**{kit['name']}**")
 
-                    st.caption(
-                        kit['comment']
-                    )
+                    st.caption(kit['comment'])
 
                     st.markdown(
                         f"<p class='price-text'>{kit['price']:,} 원</p>",
                         unsafe_allow_html=True
                     )
 
-
                     col_b1, col_b2 = st.columns(2)
-
 
                     with col_b1:
 
@@ -1146,7 +723,6 @@ elif st.session_state['page'] == 'store':
                             st.session_state['selected_product'] = kit
                             st.session_state['page'] = 'detail'
                             st.rerun()
-
 
                     with col_b2:
 
@@ -1160,14 +736,13 @@ elif st.session_state['page'] == 'store':
                                 kit['name'],
                                 kit['price']
                             )
-
                             st.rerun()
 
 
-    # ----------------------------------------------------------------
+    # ================================================================
     # 구매자 창작 마켓
-    # ----------------------------------------------------------------
-    with tab2:
+    # ================================================================
+    else:
 
         st.markdown(
             "<h3 style='color:#111111;'>구매자 창작 물품 거래소</h3>",
@@ -1177,7 +752,6 @@ elif st.session_state['page'] == 'store':
         st.caption(
             "구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다."
         )
-
 
         with st.expander(
             "➕ 내 창작물 직접 판매 등록하기",
@@ -1202,21 +776,17 @@ elif st.session_state['page'] == 'store':
                     type=["jpg", "jpeg", "png"]
                 )
 
-                c_desc_title = st.text_input(
-                    "한 줄 개요"
-                )
+                c_desc_title = st.text_input("한 줄 개요")
 
                 c_desc_detail = st.text_area(
                     "상세설명 및 제작 노하우"
                 )
-
 
                 c_submit = st.form_submit_button(
                     "등록하기",
                     type="primary",
                     use_container_width=True
                 )
-
 
                 if c_submit and c_title and c_seller:
 
@@ -1232,23 +802,15 @@ elif st.session_state['page'] == 'store':
                         "feature": "맞춤형 그립"
                     }
 
+                    st.session_state['c2c_products'].append(new_c2c)
 
-                    st.session_state['c2c_products'].append(
-                        new_c2c
-                    )
-
-                    st.success(
-                        "등록되었습니다!"
-                    )
+                    st.success("등록되었습니다!")
 
                     st.rerun()
 
-
         st.divider()
 
-
         cols_c2c = st.columns(2)
-
 
         for idx, c_item in enumerate(
             st.session_state['c2c_products']
@@ -1258,26 +820,20 @@ elif st.session_state['page'] == 'store':
 
                 with st.container(border=True):
 
-                    safe_image(
-                        c_item['img']
-                    )
+                    safe_image(c_item['img'])
 
                     st.markdown(
                         f"**{c_item['name']}**"
                     )
 
-                    st.caption(
-                        c_item['comment']
-                    )
+                    st.caption(c_item['comment'])
 
                     st.markdown(
                         f"<p class='price-text'>{c_item['price']:,} 원</p>",
                         unsafe_allow_html=True
                     )
 
-
                     col_cb1, col_cb2 = st.columns(2)
-
 
                     with col_cb1:
 
@@ -1289,7 +845,6 @@ elif st.session_state['page'] == 'store':
                             st.session_state['selected_product'] = c_item
                             st.session_state['page'] = 'detail'
                             st.rerun()
-
 
                     with col_cb2:
 
@@ -1303,320 +858,122 @@ elif st.session_state['page'] == 'store':
                                 c_item['name'],
                                 c_item['price']
                             )
-
                             st.rerun()
 
 
 # -------------------------------------------------------------------
-# 4. 장바구니
+# 4. 장바구니 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'cart':
-
     if st.button("⬅ 이전으로 돌아가기"):
         st.session_state['page'] = 'store'
         st.rerun()
-
-
+        
     st.divider()
-
-    st.markdown(
-        "## 🛒 장바구니 및 주문결제"
-    )
-
-
+    st.markdown("## 🛒 장바구니 및 주문결제")
+    
     if not st.session_state['cart']:
-
-        st.info(
-            "장바구니가 비어 있습니다."
-        )
-
+        st.info("장바구니가 비어 있습니다.")
     else:
-
         col_c1, col_c2 = st.columns([3, 2])
-
-
         with col_c1:
-
             total_price = 0
-
             delete_index = None
-
-
-            for idx, item in enumerate(
-                st.session_state['cart']
-            ):
-
+            for idx, item in enumerate(st.session_state['cart']):
                 with st.container(border=True):
-
                     mc1, mc2, mc3 = st.columns([3, 2, 1])
-
-
                     with mc1:
-                        st.markdown(
-                            f"**{item['name']}**"
-                        )
-
-
+                        st.markdown(f"**{item['name']}**")
                     with mc2:
-                        st.markdown(
-                            f"<p class='price-text'>{item['price']:,} 원</p>",
-                            unsafe_allow_html=True
-                        )
-
-
+                        st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
                     with mc3:
-
-                        if st.button(
-                            "삭제",
-                            key=f"cart_del_{idx}"
-                        ):
+                        if st.button("삭제", key=f"cart_del_{idx}"):
                             delete_index = idx
-
-
                     total_price += item['price']
-
-
+            
             if delete_index is not None:
-
-                st.session_state['cart'].pop(
-                    delete_index
-                )
-
+                st.session_state['cart'].pop(delete_index)
                 st.rerun()
-
-
-            st.markdown(
-                f"### 총 결제 예정 금액: **{total_price:,} 원**"
-            )
-
+            st.markdown(f"### 총 결제 예정 금액: **{total_price:,} 원**")
 
         with col_c2:
-
             with st.container(border=True):
-
-                st.markdown(
-                    "### 💳 주문 정보 입력"
-                )
-
-
+                st.markdown("### 💳 주문 정보 입력")
                 with st.form("checkout_form"):
-
-                    name = st.text_input(
-                        "수령인 이름",
-                        value=(
-                            st.session_state['user']
-                            if st.session_state['user']
-                            else ""
-                        )
-                    )
-
-                    phone = st.text_input(
-                        "연락처"
-                    )
-
-                    address = st.text_input(
-                        "배송지 주소"
-                    )
-
-                    pay_method = st.radio(
-                        "결제 수단",
-                        [
-                            "N Pay (네이버페이)",
-                            "신용/체크카드",
-                            "계좌이체"
-                        ]
-                    )
-
-                    pay_submitted = st.form_submit_button(
-                        "💳 결제하기",
-                        type="primary",
-                        use_container_width=True
-                    )
-
-
+                    name = st.text_input("수령인 이름", value=st.session_state['user'] if st.session_state['user'] else "")
+                    phone = st.text_input("연락처")
+                    address = st.text_input("배송지 주소")
+                    pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
+                    pay_submitted = st.form_submit_button("💳 결제하기", type="primary", use_container_width=True)
+                    
                     if pay_submitted and name and phone and address:
-
                         new_order = {
                             "id": len(st.session_state['orders']) + 1,
                             "name": name,
-                            "items": [
-                                item['name']
-                                for item in st.session_state['cart']
-                            ],
+                            "items": [item['name'] for item in st.session_state['cart']],
                             "total_price": total_price
                         }
-
-
-                        st.session_state['orders'].append(
-                            new_order
-                        )
-
-                        st.success(
-                            "주문 결제가 완료되었습니다!"
-                        )
-
+                        st.session_state['orders'].append(new_order)
+                        st.success("주문 결제가 완료되었습니다!")
                         st.session_state['cart'] = []
-
 
 # -------------------------------------------------------------------
 # 5. 상품 상세 페이지
 # -------------------------------------------------------------------
-elif (
-    st.session_state['page'] == 'detail'
-    and st.session_state['selected_product'] is not None
-):
-
+elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
-
-
-    if st.button(
-        "⬅ 목록으로 돌아가기"
-    ):
+    if st.button("⬅ 목록으로 돌아가기"):
         st.session_state['page'] = 'store'
         st.rerun()
-
-
+        
     st.divider()
-
-
     col_d1, col_d2 = st.columns([1, 1])
-
-
     with col_d1:
-        safe_image(
-            p['img']
-        )
-
-
+        safe_image(p['img'])
     with col_d2:
-
-        st.markdown(
-            f"## {p['name']}"
-        )
-
-        st.caption(
-            p.get('comment', '')
-        )
-
-        st.markdown(
-            f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>",
-            unsafe_allow_html=True
-        )
-
-
-        if st.button(
-            "🛒 장바구니 담기",
-            type="primary",
-            use_container_width=True
-        ):
-            add_to_cart(
-                p['name'],
-                p['price']
-            )
-
+        st.markdown(f"## {p['name']}")
+        st.caption(p.get('comment', ''))
+        st.markdown(f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>", unsafe_allow_html=True)
+        if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
+            add_to_cart(p['name'], p['price'])
             st.rerun()
-
 
 # -------------------------------------------------------------------
 # 6. 관리자 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
-
-    if st.button(
-        "⬅ 메인으로 돌아가기"
-    ):
+    if st.button("⬅ 메인으로 돌아가기"):
         st.session_state['page'] = 'about'
         st.rerun()
-
-
+        
     st.divider()
-
-
-    st.markdown(
-        "## ⚙️ EXERCISE 관리자 페이지"
-    )
-
-
+    st.markdown("## ⚙️ EXERCISE 관리자 페이지")
     if not st.session_state['admin_authenticated']:
-
         with st.form("admin_login"):
-
-            pw = st.text_input(
-                "관리자 비밀번호",
-                type="password"
-            )
-
-
-            if st.form_submit_button(
-                "로그인",
-                type="primary"
-            ):
-
+            pw = st.text_input("관리자 비밀번호", type="password")
+            if st.form_submit_button("로그인", type="primary"):
                 if pw == "1234":
-
                     st.session_state['admin_authenticated'] = True
                     st.rerun()
-
                 else:
-
-                    st.error(
-                        "비밀번호 불일치 (기본값: 1234)"
-                    )
-
-
+                    st.error("비밀번호 불일치 (기본값: 1234)")
     else:
-
-        st.subheader(
-            "📊 구매 통계"
-        )
-
-
+        st.subheader("📊 구매 통계")
         if st.session_state['orders']:
-
-            all_items = [
-                item
-                for o in st.session_state['orders']
-                for item in o['items']
-            ]
-
-
-            df_counts = (
-                pd.Series(all_items)
-                .value_counts()
-                .reset_index()
-            )
-
-
-            df_counts.columns = [
-                '상품명',
-                '수량'
-            ]
-
-
-            st.bar_chart(
-                df_counts.set_index('상품명')
-            )
-
+            all_items = [item for o in st.session_state['orders'] for item in o['items']]
+            df_counts = pd.Series(all_items).value_counts().reset_index()
+            df_counts.columns = ['상품명', '수량']
+            st.bar_chart(df_counts.set_index('상품명'))
 
 # -------------------------------------------------------------------
 # 푸터
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
-
-    <div style="
-        font-weight: bold;
-        color: #111111;
-        font-size: 14px;
-        margin-bottom: 8px;
-    ">
-        EXERCISE 공식 스토어
-    </div>
-
+    <div style="font-weight: bold; color: #111111; font-size: 14px; margin-bottom: 8px;">EXERCISE 공식 스토어</div>
     <p>
         상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 000-00-00000<br>
         Copyright © EXERCISE Inc. All rights reserved.
     </p>
-
 </div>
 """, unsafe_allow_html=True)
