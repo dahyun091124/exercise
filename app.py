@@ -9,7 +9,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 커스텀 CSS (백그라운드 & 러쉬 감성 폰트)
+# 커스텀 CSS
 st.markdown("""
 <style>
     .stApp, body, html {
@@ -55,6 +55,7 @@ st.markdown("""
         color: #03C75A !important;
     }
     
+    /* 기본 버튼 스타일 */
     .stButton > button {
         border-radius: 6px !important;
         border: 1px solid #e0e0e0 !important;
@@ -65,6 +66,16 @@ st.markdown("""
         background-color: #03C75A !important;
         color: white !important;
         border: none !important;
+    }
+
+    /* 메뉴 드롭다운 전용 컨테이너 스타일 (밝은 배경) */
+    .menu-box {
+        background-color: #ffffff !important;
+        border: 2px solid #111111 !important;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     /* 러쉬 스타일 타이포그래피 */
@@ -110,19 +121,23 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 안전한 이미지 처리 함수
+# 이미지 처리 함수 (로컬 파일 확인 후 없으면 백업 이미지 사용)
 def safe_image(img_src):
     if isinstance(img_src, str):
-        if img_src.startswith("http") or os.path.exists(img_src):
+        if os.path.exists(img_src) or img_src.startswith("http"):
             st.image(img_src, use_container_width=True)
         else:
+            # 지정된 파일명이 없을 때 대체할 임시 고화질 이미지
             st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80", use_container_width=True)
     else:
         st.image(img_src, use_container_width=True)
 
-# 1. 세션 상태 초기화 (첫 화면: 브랜드 소개 'about')
+# 세션 상태 초기화
 if 'page' not in st.session_state:
     st.session_state['page'] = 'about'
+
+if 'menu_open' not in st.session_state:
+    st.session_state['menu_open'] = False
 
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
@@ -145,13 +160,50 @@ if 'selected_product' not in st.session_state:
 if 'admin_authenticated' not in st.session_state:
     st.session_state['admin_authenticated'] = False
 
-# 5개 섹션 이미지 URL (5번째는 회의하는 이미지)
+# 기업 소개용 감성 이미지 목록 (5번째: 회의하는 이미지)
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80", # 1. DIY 키트
     "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80", # 2. 에어셀 쿠션
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80", # 3. 이온음료
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80", # 4. 폴리모프 악력기
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. SHARED COMMUNITY (회의하는 이미지)
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. 회의/협업 이미지
+]
+
+# 스마트스토어 공식 키트 데이터 (요청하신 사진 경로 설정)
+kits = [
+    {
+        "id": 1,
+        "name": "EXERCISE 커스텀 DIY 운동 키트", 
+        "price": 15000, 
+        "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
+        "img": "ganadi.jpg", # ganadi 이미지
+        "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
+        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다.",
+        "components": "라텍스밴드, 지압판, 폴리모프 왁스",
+        "feature": "손 모양이나 발 모양에 맞춰 자유롭게 성형 가능한 커스텀 구조"
+    },
+    {
+        "id": 2,
+        "name": "맞춤형 공기방석 에어셀 제작 키트", 
+        "price": 18500, 
+        "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
+        "img": "usagi.jpg", # usagi 이미지
+        "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
+        "desc_detail": "공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다.",
+        "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
+        "feature": "공기압 조절을 통한 맞춤형 자세 교정 및 체중 분산 기능"
+    },
+    {
+        "id": 3,
+        "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
+        "price": 9800, 
+        "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
+        "img": "hachiware.jpg", # hachiware 이미지
+        "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
+        "desc_detail": "지역 상생의 의미를 담아 건강하고 맛있게 수분과 전해질을 보충하는 이온음료 키트입니다.",
+        "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
+        "feature": "100% 지역 특산물 활용 / 빠른 수분 및 에너지 충전 효과"
+    }
 ]
 
 # 원본 C2C 상품 목록
@@ -170,86 +222,31 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-# 공식 키트 데이터
-kits = [
-    {
-        "id": 1,
-        "name": "EXERCISE 커스텀 DIY 운동 키트", 
-        "price": 15000, 
-        "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
-        "img": about_images[0],
-        "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
-        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다.",
-        "components": "라텍스밴드, 지압판, 폴리모프 왁스",
-        "feature": "손 모양이나 발 모양에 맞춰 자유롭게 성형 가능한 커스텀 구조"
-    },
-    {
-        "id": 2,
-        "name": "맞춤형 공기방석 에어셀 제작 키트", 
-        "price": 18500, 
-        "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
-        "img": about_images[1],
-        "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
-        "desc_detail": "공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다.",
-        "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
-        "feature": "공기압 조절을 통한 맞춤형 자세 교정 및 체중 분산 기능"
-    },
-    {
-        "id": 3,
-        "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
-        "price": 9800, 
-        "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
-        "img": about_images[2],
-        "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
-        "desc_detail": "지역 상생의 의미를 담아 건강하고 맛있게 수분과 전해질을 보충하는 이온음료 키트입니다.",
-        "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
-        "feature": "100% 지역 특산물 활용 / 빠른 수분 및 에너지 충전 효과"
-    }
-]
-
 def add_to_cart(item_name, item_price):
     st.session_state['cart'].append({"name": item_name, "price": item_price})
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 왼쪽 사이드바 (스크린샷처럼 세로로 펼쳐지는 드로어 메뉴)
+# 상단 헤더 (메뉴 버튼 / 브랜드 타이틀 / 장바구니)
 # -------------------------------------------------------------------
-with st.sidebar:
-    st.markdown("## 🧭 EXERCISE")
-    st.caption("메뉴를 클릭하면 해당 페이지로 이동합니다.")
-    st.divider()
-    
-    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
-        st.session_state['page'] = 'login'
-        st.rerun()
-        
-    if st.button("🛍️ 스마트스토어", use_container_width=True):
-        st.session_state['page'] = 'store'
-        st.rerun()
-        
-    if st.button("🏢 기업/브랜드 소개", use_container_width=True):
-        st.session_state['page'] = 'about'
-        st.rerun()
-        
-    if st.button("⚙️ 관리자 페이지", use_container_width=True):
-        st.session_state['page'] = 'admin'
-        st.rerun()
-
-# -------------------------------------------------------------------
-# 메인 헤더 (기업 소개일 때는 장바구니 버튼 숨김)
-# -------------------------------------------------------------------
-col_hdr1, col_hdr2 = st.columns([5, 1])
+col_hdr1, col_hdr2, col_hdr3 = st.columns([1, 4, 1])
 
 with col_hdr1:
+    # 클릭할 때마다 메뉴창을 열고 닫는 토글 버튼
+    if st.button("≡ 메뉴", key="toggle_menu_btn", use_container_width=True):
+        st.session_state['menu_open'] = not st.session_state['menu_open']
+        st.rerun()
+
+with col_hdr2:
     st.markdown("""
     <div class="brand-header">
         <div class="brand-title">EXERCISE</div>
     </div>
     """, unsafe_allow_html=True)
 
-with col_hdr2:
-    # 기업 소개('about') 페이지가 아닐 때만 장바구니 버튼 노출
+with col_hdr3:
+    # 기업 소개('about') 화면일 때는 장바구니 버튼 안 보이도록 설정
     if st.session_state['page'] != 'about':
         cart_cnt = len(st.session_state['cart'])
         btn_text = f"🛒 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
@@ -257,7 +254,40 @@ with col_hdr2:
             st.session_state['page'] = 'cart'
             st.rerun()
 
-# 장바구니 모달
+# -------------------------------------------------------------------
+# 메뉴 클릭 시 열리는 세로 드롭다운 메뉴 (시시성이 좋은 밝은 카드 형태)
+# -------------------------------------------------------------------
+if st.session_state['menu_open']:
+    st.markdown("""
+    <div style="background-color: #ffffff; border: 2px solid #111111; border-radius: 10px; padding: 15px; margin-bottom: 25px;">
+        <h4 style="margin-top:0; margin-bottom: 12px; color:#111111; font-weight:bold;">🧭 메뉴 목록</h4>
+    """, unsafe_allow_html=True)
+    
+    col_m1, col_m2, col_m3, col_m4 = st.columns(1)[0], None, None, None # 세로 정렬
+    
+    if st.button("🔑 로그인 / 회원가입", use_container_width=True, key="menu_nav_login"):
+        st.session_state['page'] = 'login'
+        st.session_state['menu_open'] = False
+        st.rerun()
+        
+    if st.button("🛍️ 스마트스토어", use_container_width=True, key="menu_nav_store"):
+        st.session_state['page'] = 'store'
+        st.session_state['menu_open'] = False
+        st.rerun()
+        
+    if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True, key="menu_nav_about"):
+        st.session_state['page'] = 'about'
+        st.session_state['menu_open'] = False
+        st.rerun()
+        
+    if st.button("⚙️ 관리자 페이지", use_container_width=True, key="menu_nav_admin"):
+        st.session_state['page'] = 'admin'
+        st.session_state['menu_open'] = False
+        st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# 장바구니 알림 모달
 if st.session_state['show_modal']:
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
@@ -273,13 +303,13 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 1. 기업/브랜드 소개 페이지 (첫 화면)
+# 1. 기업/브랜드 소개 페이지 (5개 이미지 및 스토리)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.markdown("<p style='text-align:center; color:#666; font-size:18px; font-weight:500;'>“운동에는 하나의 정답이 없다”</p>", unsafe_allow_html=True)
     st.divider()
 
-    # [섹션 1]
+    # [섹션 1] DIY 키트
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
     with col_img1:
         safe_image(about_images[0])
@@ -299,7 +329,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 2]
+    # [섹션 2] 에어셀 쿠션
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
@@ -319,7 +349,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 3]
+    # [섹션 3] 지역 특산물 이온음료
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
     with col_img3:
         safe_image(about_images[2])
@@ -339,7 +369,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 4]
+    # [섹션 4] 폴리모프 성형 기술
     col_txt4, col_img4 = st.columns([1, 1], gap="large")
     with col_txt4:
         st.write("")
@@ -359,7 +389,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 5] SHARED COMMUNITY (회의하는 이미지)
+    # [섹션 5] 회의/협업 이미지 사용 (SHARED COMMUNITY)
     col_img5, col_txt5 = st.columns([1, 1], gap="large")
     with col_img5:
         safe_image(about_images[4])
@@ -423,7 +453,7 @@ elif st.session_state['page'] == 'login':
                         st.error("모든 항목을 입력해야 합니다.")
 
 # -------------------------------------------------------------------
-# 3. 스마트스토어 메인 페이지
+# 3. 스마트스토어 메인 페이지 (ganadi, usagi, hachiware 이미지 지정)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'store':
     tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
@@ -435,7 +465,7 @@ elif st.session_state['page'] == 'store':
             with cols[idx % 3]:
                 with st.container(border=True):
                     st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
-                    safe_image(kit["img"])
+                    safe_image(kit["img"]) # ganadi, usagi, hachiware
                     st.markdown(f"**{kit['name']}**")
                     st.caption(kit['comment'])
                     st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
