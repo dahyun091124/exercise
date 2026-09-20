@@ -11,15 +11,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# 기존 st.set_page_config(...) 바로 아랫줄에 붙여넣으세요!
-st.markdown("""
-    <div style="position: fixed; top: 14px; left: 58px; z-index: 999999; font-size: 16px; font-weight: 800; color: #000000; pointer-events: none;">
-        메뉴
-    </div>
-""", unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# 커스텀 CSS
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -30,12 +24,13 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 🔥 [수정 1] 좌측 상단 << 아이콘 옆에 검정색 '메뉴' 글씨 강제 고정 */
-    [data-testid="stHeader"] {
-        background-color: transparent !important;
+    /* 상단 헤더 배경 투명화 및 레이어 최상단 설정 */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
         z-index: 99999 !important;
     }
 
+    /* 🔥 [수정 1] 사이드바 버튼 영역 설정 */
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebarExpandButton"] {
@@ -47,13 +42,22 @@ st.markdown("""
         align-items: center !important;
     }
 
-    /* << 아이콘 오른쪽 옆에 '메뉴' 텍스트 고정 표시 (검정색) */
+    /* 🔥 [수정 2] 화살표 아이콘(SVG, 버튼 internal)을 검정색으로 강제 변경 */
+    [data-testid="stSidebarCollapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"] *,
+    [data-testid="stSidebarExpandButton"] * {
+        color: #000000 !important;
+        fill: #000000 !important;
+        stroke: #000000 !important;
+    }
+
+    /* 🔥 [수정 3] 화살표 아이콘 바로 옆에 '메뉴' 글자 정렬 및 검정색 설정 */
     [data-testid="stSidebarCollapsedControl"]::before,
     [data-testid="stSidebarCollapseButton"]::before,
     [data-testid="stSidebarExpandButton"]::before {
         content: "메뉴" !important;
         position: absolute !important;
-        left: 45px !important;
+        left: 42px !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
         font-size: 16px !important;
@@ -63,7 +67,7 @@ st.markdown("""
         pointer-events: none !important;
     }
 
-    /* 🔥 [수정 2] 스토어 탭(구매자 창작 마켓 등) 글씨 검정색 설정 */
+    /* 스토어 탭 글씨 검정색 설정 */
     .stTabs [data-baseweb="tab"] p,
     .stTabs [data-baseweb="tab"] div,
     .stTabs [data-baseweb="tab"] {
@@ -77,7 +81,7 @@ st.markdown("""
         font-weight: 900 !important;
     }
 
-    /* 🔥 [수정 3] '담기' 버튼 색상 초록색(#03C75A) 설정 */
+    /* '담기' 버튼 색상 초록색(#03C75A) 설정 */
     .stButton > button[kind="primary"] {
         background-color: #03C75A !important;
         color: #ffffff !important;
@@ -343,7 +347,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 사이드바 내비게이션 메뉴 (장바구니 항목 제거)
+# 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🧭 NAVIGATION")
@@ -599,7 +603,6 @@ elif st.session_state['page'] == 'login':
 # 3. 스마트스토어 메인 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'store':
-    # 🔥 [수정] 스토어 페이지 들어갔을 때 오른쪽 위에만 장바구니 버튼 표시
     cart_cnt = len(st.session_state['cart'])
     cart_btn_text = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
     
@@ -630,7 +633,6 @@ elif st.session_state['page'] == 'store':
                             st.session_state['page'] = 'detail'
                             st.rerun()
                     with col_b2:
-                        # 🔥 [수정] 담기 버튼 type="primary" (CSS에 의해 초록색으로 변경됨)
                         if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
                             add_to_cart(kit['name'], kit['price'])
                             st.rerun()
@@ -682,7 +684,6 @@ elif st.session_state['page'] == 'store':
                             st.session_state['page'] = 'detail'
                             st.rerun()
                     with col_cb2:
-                        # 🔥 [수정] 담기 버튼 type="primary" (CSS에 의해 초록색으로 변경됨)
                         if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
                             add_to_cart(c_item['name'], c_item['price'])
                             st.rerun()
@@ -792,7 +793,7 @@ elif st.session_state['page'] == 'admin':
             st.bar_chart(df_counts.set_index('상품명'))
 
 # -------------------------------------------------------------------
-# 러쉬 스타일 푸터
+# 푸터
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
