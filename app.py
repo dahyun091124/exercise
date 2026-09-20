@@ -6,7 +6,8 @@ import pandas as pd
 st.set_page_config(
     page_title="EXERCISE 스마트스토어",
     page_icon="💪🏼",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed" # 기본으로 사이드바(햄버거 메뉴)를 가려 메인 브랜딩 강조
 )
 
 # 스마트스토어 & 러쉬 감성 커스텀 CSS
@@ -20,6 +21,12 @@ st.markdown("""
     h1, h2, h3, h4, h5, h6, p, div, span, label, strong {
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* 사이드바 메뉴 스타일링 */
+    section[data-testid="stSidebar"] {
+        background-color: #f9f9f9 !important;
+        border-right: 1px solid #eeeeee !important;
     }
 
     div[data-baseweb="input"] > div, 
@@ -66,10 +73,10 @@ st.markdown("""
         color: #222222 !important;
     }
 
-    /* 상단 브랜드 로고 */
+    /* 상단 브랜드 로고 및 헤더 */
     .brand-header {
         text-align: center;
-        padding: 10px 0 10px 0;
+        padding: 5px 0 15px 0;
         width: 100%;
     }
     .brand-title {
@@ -119,12 +126,6 @@ st.markdown("""
         border-radius: 8px !important;
         padding: 10px !important;
         border: 1px solid #e0e0e0 !important;
-    }
-    div[data-testid="stVegaLiteChart"] svg {
-        background-color: #ffffff !important;
-    }
-    div[data-testid="stVegaLiteChart"] text {
-        fill: #111111 !important;
     }
 
     /* 러쉬 스타일 타이포그래피 */
@@ -191,7 +192,10 @@ if 'orders' not in st.session_state:
     st.session_state['orders'] = []
 
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'about'
+    st.session_state['page'] = 'home'
+
+if 'user' not in st.session_state:
+    st.session_state['user'] = None
 
 if 'show_modal' not in st.session_state:
     st.session_state['show_modal'] = False
@@ -213,24 +217,24 @@ if 'c2c_products' not in st.session_state:
             "name": "폴리모프 커스텀 지압 악력기", 
             "price": 12000, 
             "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
-            "img": "ganadi.jpg",
+            "img": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60",
             "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
-            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다. 손 전체에 골고루 지압 자극을 주어 손목 강화와 스트레칭에 매우 효과적입니다.",
+            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다.",
             "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
             "feature": "제작자 맞춤형 손 그립감 구현"
         }
     ]
 
-# 기획서 기반 공식 키트 데이터
+# 공식 키트 데이터
 kits = [
     {
         "id": 1,
         "name": "EXERCISE 커스텀 DIY 운동 키트", 
         "price": 15000, 
         "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
-        "img": "ganadi.jpg",
+        "img": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=60",
         "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
-        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다. 체온에 반응해 자유롭게 형태를 잡을 수 있는 폴리모프 소재와 발/손 지압용 지압판, 근력 운동용 라텍스밴드가 포함되어 있어 세상에 하나뿐인 나만의 운동 기구를 만들어 사용할 수 있습니다.",
+        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다.",
         "components": "라텍스밴드, 지압판, 폴리모프 왁스",
         "feature": "손 모양이나 발 모양에 맞춰 자유롭게 성형 가능한 커스텀 구조"
     },
@@ -239,9 +243,9 @@ kits = [
         "name": "맞춤형 공기방석 에어셀 제작 키트", 
         "price": 18500, 
         "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
-        "img": "usagi.jpg",
+        "img": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&auto=format&fit=crop&q=60",
         "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
-        "desc_detail": "상부 쿠션층 스펀지와 하부 지지층 스펀지, 그리고 공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다. 체중 분산과 자세 교정이 필요한 위치에 에어셀을 직접 배치하여 가장 편안한 착석감을 제공합니다.",
+        "desc_detail": "공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다.",
         "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
         "feature": "공기압 조절을 통한 맞춤형 자세 교정 및 체중 분산 기능"
     },
@@ -250,9 +254,9 @@ kits = [
         "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
         "price": 9800, 
         "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
-        "img": "hachiware.jpg",
+        "img": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&auto=format&fit=crop&q=60",
         "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
-        "desc_detail": "지방 소멸 위기 지역의 대표 특산물인 꿀유자 믹스와 송원 오미자 스틱을 활용하여 제작된 이온음료 DIY 키트입니다. 운동 후 빠르게 수분과 전해질을 보충해 주며, 지역 상생의 의미를 담아 건강하고 맛있게 즐기실 수 있습니다.",
+        "desc_detail": "지역 상생의 의미를 담아 건강하고 맛있게 수분과 전해질을 보충하는 이온음료 키트입니다.",
         "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
         "feature": "100% 지역 특산물 활용 / 빠른 수분 및 에너지 충전 효과"
     }
@@ -264,43 +268,66 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# --- 최상단 브랜드 네비게이션 바 ---
-if st.session_state['page'] == 'about':
-    nav_col1, nav_col2 = st.columns(2)
-    with nav_col1:
-        if st.button("EXERCISE 브랜드 소개", use_container_width=True, type="primary"):
-            st.session_state['page'] = 'about'
+# -------------------------------------------------------------------
+# 햄버거 메뉴 (사이드바 드로어 네비게이션)
+# -------------------------------------------------------------------
+with st.sidebar:
+    st.markdown("### 👤 회원 계정")
+    if st.session_state['user'] is None:
+        st.caption("로그인 후 맞춤 혜택을 받아보세요.")
+        if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+            st.session_state['page'] = 'login'
             st.rerun()
-    with nav_col2:
-        if st.button("스마트스토어", use_container_width=True):
-            st.session_state['page'] = 'home'
-            st.rerun()
-else:
-    nav_col1, nav_col2, nav_col3 = st.columns([2, 2, 1])
-    with nav_col1:
-        if st.button("EXERCISE 브랜드 소개", use_container_width=True):
-            st.session_state['page'] = 'about'
-            st.rerun()
-    with nav_col2:
-        if st.button("스마트스토어", use_container_width=True):
-            st.session_state['page'] = 'home'
-            st.rerun()
-    with nav_col3:
-        cart_cnt = len(st.session_state['cart'])
-        btn_text = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒"
-        if st.button(btn_text, type="primary", use_container_width=True):
-            st.session_state['page'] = 'cart'
+    else:
+        st.success(f"**{st.session_state['user']}**님 환영합니다!")
+        if st.button("🚪 로그아웃", use_container_width=True):
+            st.session_state['user'] = None
             st.rerun()
 
-st.markdown("""
-<div class="brand-header">
-    <div class="brand-title">EXERCISE</div>
-    <p style="color:#666; font-size:16px; margin-top:4px; font-weight:500;">“운동에는 하나의 정답이 없다”</p>
-</div>
-""", unsafe_allow_html=True)
+    st.divider()
+
+    st.markdown("### 🧭 메뉴 탐색")
+    if st.button("🏢 EXERCISE 브랜드 소개", use_container_width=True):
+        st.session_state['page'] = 'about'
+        st.rerun()
+
+    if st.button("🛍️ 스마트스토어 (메인)", use_container_width=True):
+        st.session_state['page'] = 'home'
+        st.rerun()
+
+    if st.button("🛒 장바구니 보기", use_container_width=True):
+        st.session_state['page'] = 'cart'
+        st.rerun()
+
+    st.divider()
+
+    st.markdown("### ⚙️ 시스템")
+    if st.button("🔐 관리자 페이지", use_container_width=True):
+        st.session_state['page'] = 'admin'
+        st.rerun()
+
+# -------------------------------------------------------------------
+# 메인 상단 헤더 (우측 상단에 장바구니만 깔끔하게배치)
+# -------------------------------------------------------------------
+col_hdr1, col_hdr2 = st.columns([5, 1])
+with col_hdr1:
+    st.markdown("""
+    <div class="brand-header">
+        <div class="brand-title">EXERCISE</div>
+        <p style="color:#666; font-size:16px; margin-top:4px; font-weight:500;">“운동에는 하나의 정답이 없다”</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_hdr2:
+    st.write("")
+    cart_cnt = len(st.session_state['cart'])
+    btn_text = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
+    if st.button(btn_text, type="primary", use_container_width=True):
+        st.session_state['page'] = 'cart'
+        st.rerun()
 
 # 장바구니 담김 알림 상자
-if st.session_state['show_modal'] and st.session_state['page'] != 'about':
+if st.session_state['show_modal']:
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
         col_m1, col_m2 = st.columns(2)
@@ -315,12 +342,52 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 샐러드 이미지를 피트니스 기구 이미지로 대체)
+# 화면 0: 로그인 / 회원가입 페이지
 # -------------------------------------------------------------------
-if st.session_state['page'] == 'about':
-    st.write("")
+if st.session_state['page'] == 'login':
+    st.divider()
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    with col_l2:
+        st.markdown("<h2 style='text-align: center;'>🔐 회원 로그인</h2>", unsafe_allow_html=True)
+        st.write("")
+        
+        tab_log1, tab_log2 = st.tabs(["로그인", "회원가입"])
+        
+        with tab_log1:
+            with st.form("login_form"):
+                user_id = st.text_input("아이디 또는 이메일", placeholder="example@exercise.com")
+                user_pw = st.text_input("비밀번호", type="password")
+                submit_login = st.form_submit_button("로그인하기", type="primary", use_container_width=True)
+                
+                if submit_login:
+                    if user_id and user_pw:
+                        st.session_state['user'] = user_id.split('@')[0]
+                        st.success(f"{st.session_state['user']}님, 성공적으로 로그인되었습니다!")
+                        st.session_state['page'] = 'home'
+                        st.rerun()
+                    else:
+                        st.error("아이디와 비밀번호를 모두 입력해 주세요.")
+                        
+        with tab_log2:
+            with st.form("signup_form"):
+                new_name = st.text_input("이름")
+                new_id = st.text_input("아이디(이메일)")
+                new_pw = st.text_input("비밀번호 설정", type="password")
+                submit_signup = st.form_submit_button("가입완료", type="primary", use_container_width=True)
+                
+                if submit_signup:
+                    if new_name and new_id and new_pw:
+                        st.success("회원가입이 완료되었습니다! 로그인해 주세요.")
+                    else:
+                        st.error("모든 항목을 입력해야 합니다.")
+
+# -------------------------------------------------------------------
+# 화면 1: 기업/브랜드 소개 페이지 (러쉬 감성 레이아웃)
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'about':
+    st.divider()
     
-    # [섹션 1] 왼쪽: 이미지 / 오른쪽: 혁신
+    # [섹션 1]
     col_img1, col_txt1 = st.columns([1.1, 1], gap="large")
     with col_img1:
         st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
@@ -344,7 +411,7 @@ if st.session_state['page'] == 'about':
     st.divider()
     st.write("")
 
-    # [섹션 2] 왼쪽: 커뮤니티 텍스트 / 오른쪽: 피트니스 상생 모티브 이미지 (샐러드 대체)
+    # [섹션 2] (운동/상생 컨셉 이미지)
     col_txt2, col_img2 = st.columns([1, 1.1], gap="large")
     with col_txt2:
         st.write("")
@@ -362,14 +429,13 @@ if st.session_state['page'] == 'about':
         </div>
         """, unsafe_allow_html=True)
     with col_img2:
-        # 기존 샐러드 사진 대신 크기가 딱 맞춰지는 운동/건강 피트니스 컨셉 이미지 적용
         st.image("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
 
     st.write("")
     st.divider()
     st.write("")
 
-    # [섹션 3] 왼쪽: 덤벨/운동기구 이미지 / 오른쪽: 100% 맞춤 피팅
+    # [섹션 3] (덤벨/운동 기구 이미지)
     col_img3, col_txt3 = st.columns([1.1, 1], gap="large")
     with col_img3:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
@@ -392,62 +458,15 @@ if st.session_state['page'] == 'about':
     st.divider()
     st.write("")
 
-    # [섹션 4] 왼쪽: 에어셀 쿠션 텍스트 / 오른쪽: 이미지
-    col_txt4, col_img4 = st.columns([1, 1.1], gap="large")
-    with col_txt4:
-        st.write("")
-        st.markdown('<div class="lush-tag">04. BALANCE & POSTURE</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <div class="lush-section-title">
-            장시간 앉아있는 현대인을 위한<br>
-            스마트 에어셀 밸런스 케어.
-        </div>
-        <div class="lush-section-desc">
-            잘못된 자세로 무너지는 골반과 척추를 위해 공기량을 자유롭게 조절할 수 있는 
-            독립 에어셀 주머니 기술을 적용했습니다.<br>
-            체중을 균일하게 분산시켜 하루 종일 지치지 않는 최상의 착석감을 선물합니다.
-        </div>
-        """, unsafe_allow_html=True)
-    with col_img4:
-        st.image("https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
-
-    st.write("")
-    st.divider()
-    st.write("")
-
-    # [섹션 5] 왼쪽: 이미지 / 오른쪽: C2C 크리에이터 마켓
-    col_img5, col_txt5 = st.columns([1.1, 1], gap="large")
-    with col_img5:
-        st.image("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
-    with col_txt5:
-        st.write("")
-        st.markdown('<div class="lush-tag">05. CREATOR MARKET</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <div class="lush-section-title">
-            당신의 아이디어가<br>
-            누군가의 운동 루틴이 됩니다.
-        </div>
-        <div class="lush-section-desc">
-            DIY 키트로 완성한 나만의 독창적인 기구를 C2C 오픈 마켓에 직접 올려 판매해보세요.<br>
-            소비자가 곧 창작자가 되는 선순환 플랫폼으로 새로운 웰니스 문화를 선도합니다.
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.write("")
-    st.write("")
-    st.divider()
-    st.write("")
-
-    # 하단 행동 유도 대형 버튼
     if st.button("EXERCISE 전체 상품 라인업 둘러보기 ➔", type="primary", use_container_width=True):
         st.session_state['page'] = 'home'
         st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 1: 장바구니 화면
+# 화면 2: 장바구니 및 결제 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'cart':
-    if st.button("⬅ 메인 쇼핑몰로 돌아가기"):
+    if st.button("⬅ 쇼핑 계속하기"):
         st.session_state['page'] = 'home'
         st.rerun()
         
@@ -471,7 +490,7 @@ elif st.session_state['page'] == 'cart':
                     with mc2:
                         st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
                     with mc3:
-                        if st.button("삭제", key=f"big_cart_del_{idx}"):
+                        if st.button("삭제", key=f"cart_del_{idx}"):
                             delete_index = idx
                     total_price += item['price']
             
@@ -484,8 +503,8 @@ elif st.session_state['page'] == 'cart':
         with col_c2:
             with st.container(border=True):
                 st.markdown("### 💳 주문 정보 입력")
-                with st.form("checkout_big_form"):
-                    name = st.text_input("수령인 이름")
+                with st.form("checkout_form"):
+                    name = st.text_input("수령인 이름", value=st.session_state['user'] if st.session_state['user'] else "")
                     phone = st.text_input("연락처")
                     address = st.text_input("배송지 주소")
                     pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
@@ -509,12 +528,12 @@ elif st.session_state['page'] == 'cart':
                             st.error("배송지 및 주문자 정보를 입력해 주세요.")
 
 # -------------------------------------------------------------------
-# 화면 2: 상품 상세 페이지
+# 화면 3: 상품 상세 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
     
-    if st.button("⬅ 전체 상품 목록으로 돌아가기"):
+    if st.button("⬅ 목록으로 돌아가기"):
         st.session_state['page'] = 'home'
         st.session_state['selected_product'] = None
         st.rerun()
@@ -535,9 +554,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             st.rerun()
             
     st.divider()
-    
     st.markdown("### 상품 상세 설명")
-    st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
     with col_center:
@@ -552,22 +569,18 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         
         st.markdown("#### 💥 핵심 가치")
         st.write(p.get('feature', ''))
-        
-        st.divider()
-        safe_image(p['img'])
 
 # -------------------------------------------------------------------
-# 화면 3: 관리자 모드
+# 화면 4: 관리자 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
-    if st.button("⬅ 메인 쇼핑몰로 돌아가기"):
+    if st.button("⬅ 메인으로 돌아가기"):
         st.session_state['page'] = 'home'
         st.rerun()
         
     st.divider()
     st.markdown("## ⚙️ EXERCISE 관리자 페이지")
     
-    # 관리자 인증 체크
     if not st.session_state['admin_authenticated']:
         with st.form("admin_login"):
             pw = st.text_input("관리자 비밀번호를 입력하세요", type="password")
@@ -578,12 +591,11 @@ elif st.session_state['page'] == 'admin':
                     st.success("인증되었습니다.")
                     st.rerun()
                 else:
-                    st.error("비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)")
+                    st.error("비밀번호가 올바르지 않습니다. (비밀번호: 1234)")
     else:
         st.subheader("📊 항목별 구매 통계")
-        
         if not st.session_state['orders']:
-            st.info("현재 접수된 주문 내역이 없어 통계를 출력할 수 없습니다.")
+            st.info("접수된 주문 내역이 없습니다.")
         else:
             all_items = []
             for order in st.session_state['orders']:
@@ -592,52 +604,23 @@ elif st.session_state['page'] == 'admin':
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '판매 수량']
             df_counts = df_counts.set_index('상품명')
-            
             st.bar_chart(df_counts, horizontal=True, color="#03C75A")
-            
-            col_stat1, col_stat2 = st.columns(2)
-            with col_stat1:
-                st.metric("총 주문 건수", f"{len(st.session_state['orders'])} 건")
-            with col_stat2:
-                total_sales = sum([o['total_price'] for o in st.session_state['orders']])
-                st.metric("총 누적 매출액", f"{total_sales:,} 원")
-                
-        st.divider()
-        st.subheader("📋 실시간 상세 주문 내역")
-        
-        if st.session_state['orders']:
-            for order in reversed(st.session_state['orders']):
-                with st.container(border=True):
-                    col_o1, col_o2 = st.columns([2, 3])
-                    with col_o1:
-                        st.markdown(f"**주문 번호 #NO-{order['id']}**")
-                        st.markdown(f"**수령인:** {order['name']}")
-                        st.markdown(f"**연락처:** {order['phone']}")
-                        st.markdown(f"**배송지:** {order['address']}")
-                        st.markdown(f"**결제 방식:** {order['pay_method']}")
-                    with col_o2:
-                        st.markdown("**주문 상품 목록:**")
-                        for item in order['items']:
-                            st.write(f"- {item}")
-                        st.markdown(f"**총 결제 금액:** <span class='price-text'>{order['total_price']:,} 원</span>", unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# 화면 4: 메인 쇼핑몰 홈 화면
+# 화면 5: 메인 쇼핑몰 홈 화면
 # -------------------------------------------------------------------
 else:
     tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
     
-    # --- TAB 1: 전체 상품 ---
+    # TAB 1: 전체 공식 상품
     with tab1:
-        st.markdown("<h3 style='margin-bottom:20px;'>전체 상품</h3>", unsafe_allow_html=True)
-        
+        st.markdown("<h3 style='margin-bottom:20px;'>전체 공식 상품</h3>", unsafe_allow_html=True)
         cols = st.columns(3)
         for idx, kit in enumerate(kits):
             with cols[idx % 3]:
                 with st.container(border=True):
                     st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
                     safe_image(kit["img"])
-                    
                     st.markdown(f"**{kit['name']}**")
                     st.caption(kit['comment'])
                     st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
@@ -653,10 +636,10 @@ else:
                             add_to_cart(kit['name'], kit['price'])
                             st.rerun()
 
-    # --- TAB 2: C2C 창작 마켓 ---
+    # TAB 2: C2C 창작 마켓
     with tab2:
         st.markdown("### 구매자 창작 물품 거래소")
-        st.caption("키트를 구매한 소비자들이 직접 만든 완성품을 판매하는 공간입니다.")
+        st.caption("소비자가 직접 만든 완성품을 자유롭게 공유하고 거래하는 공간입니다.")
         
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
             with st.form("c2c_add_form"):
@@ -664,66 +647,52 @@ else:
                 c_title = st.text_input("상품명", placeholder="예: 폴리모프 악력 스트레처")
                 c_seller = st.text_input("판매자 닉네임", placeholder="예: 홍길동")
                 c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
-                
-                c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택 (노트북 파일 선택)", type=["jpg", "jpeg", "png", "webp"])
-                
-                c_desc_title = st.text_input("한 줄 개요", placeholder="예: 키트의 폴리모프 재료를 활용한 스트레칭 기구")
-                c_desc_detail = st.text_area("상세설명 및 제작 노하우", placeholder="예: 손 모양에 딱 맞춰 굳힌 맞춤형 악력기입니다.")
-                c_components = st.text_input("구성품", placeholder="예: 수제 폴리모프 성형 기구 1개")
-                c_feature = st.text_input("핵심 가치", placeholder="예: 맞춤형 그립감 제공")
+                c_img_file = st.file_uploader("🖼️ 대표 이미지 파일 선택", type=["jpg", "jpeg", "png", "webp"])
+                c_desc_title = st.text_input("한 줄 개요")
+                c_desc_detail = st.text_area("상세설명 및 제작 노하우")
                 
                 c_submit = st.form_submit_button("등록하기", type="primary", use_container_width=True)
-                
                 if c_submit:
-                    if c_title and c_seller and c_desc_title:
-                        selected_img = c_img_file if c_img_file is not None else "ganadi.jpg"
-                        
+                    if c_title and c_seller:
+                        selected_img = c_img_file if c_img_file is not None else "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60"
                         new_c2c = {
                             "id": len(st.session_state['c2c_products']) + 200,
-                            "name": f"[C2C] {c_title}" if not c_title.startswith("[C2C]") else c_title,
+                            "name": f"[C2C] {c_title}",
                             "price": c_price,
                             "comment": f"판매자: {c_seller} | {c_desc_title}",
                             "img": selected_img,
                             "desc_title": c_desc_title,
                             "desc_detail": c_desc_detail,
-                            "components": c_components,
-                            "feature": c_feature
+                            "components": "커스텀 조합 구성",
+                            "feature": "독창적 C2C 커스텀 아이템"
                         }
                         st.session_state['c2c_products'].append(new_c2c)
-                        st.success("성공적으로 등록되었습니다!")
+                        st.success("등록되었습니다!")
                         st.rerun()
-                    else:
-                        st.error("상품명, 판매자 닉네임, 한 줄 개요를 반드시 입력해 주세요.")
-                        
+
         st.divider()
-        
-        c2c_list = st.session_state['c2c_products']
-        
-        if not c2c_list:
-            st.info("현재 등록된 창작 물품이 없습니다. 첫 작품을 올려보세요!")
-        else:
-            cols_c2c = st.columns(2)
-            for idx, c_item in enumerate(c2c_list):
-                with cols_c2c[idx % 2]:
-                    with st.container(border=True):
-                        safe_image(c_item['img'])
-                        st.markdown(f"**{c_item['name']}**")
-                        st.caption(c_item['comment'])
-                        st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
-                        
-                        col_cb1, col_cb2 = st.columns(2)
-                        with col_cb1:
-                            if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
-                                st.session_state['selected_product'] = c_item
-                                st.session_state['page'] = 'detail'
-                                st.rerun()
-                        with col_cb2:
-                            if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
-                                add_to_cart(c_item['name'], c_item['price'])
-                                st.rerun()
+        cols_c2c = st.columns(2)
+        for idx, c_item in enumerate(st.session_state['c2c_products']):
+            with cols_c2c[idx % 2]:
+                with st.container(border=True):
+                    safe_image(c_item['img'])
+                    st.markdown(f"**{c_item['name']}**")
+                    st.caption(c_item['comment'])
+                    st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
+                    
+                    col_cb1, col_cb2 = st.columns(2)
+                    with col_cb1:
+                        if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
+                            st.session_state['selected_product'] = c_item
+                            st.session_state['page'] = 'detail'
+                            st.rerun()
+                    with col_cb2:
+                        if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
+                            add_to_cart(c_item['name'], c_item['price'])
+                            st.rerun()
 
 # -------------------------------------------------------------------
-# 푸터 영역 (페이지 공통 하단 & 관리자 이동 링크 포함)
+# 공통 푸터
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
@@ -736,8 +705,3 @@ st.markdown("""
     </p>
 </div>
 """, unsafe_allow_html=True)
-
-# 푸터 맨 밑 관리자 버튼
-if st.button("관리자", key="footer_admin_btn"):
-    st.session_state['page'] = 'admin'
-    st.rerun()
