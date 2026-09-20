@@ -371,13 +371,13 @@ def add_to_cart(item_name, item_price):
 # 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🧭 NAVIGATION")
+    st.markdown("### MENU")
     st.write("---")
     
-    st.button("🏢 기업소개", use_container_width=True, on_click=set_page, args=('about',))
-    st.button("🛍️ 스마트스토어", use_container_width=True, on_click=set_page, args=('store',))
-    st.button("🔑 로그인 / 회원가입", use_container_width=True, on_click=set_page, args=('login',))
-    st.button("⚙️ 관리자 페이지", use_container_width=True, on_click=set_page, args=('admin',))
+    st.button("기업소개", use_container_width=True, on_click=set_page, args=('about',))
+    st.button("스토어", use_container_width=True, on_click=set_page, args=('store',))
+    st.button("로그인 / 회원가입", use_container_width=True, on_click=set_page, args=('login',))
+    st.button("관리자 페이지", use_container_width=True, on_click=set_page, args=('admin',))
 
 # -------------------------------------------------------------------
 # 메인 헤더: 중앙 EXERCISE 로고
@@ -561,15 +561,13 @@ if st.session_state['page'] == 'about':
         """, unsafe_allow_html=True)
 
     st.divider()
-    st.button("🛍️ EXERCISE 스마트스토어 바로가기 ➔", type="primary", use_container_width=True, on_click=set_page, args=('store',))
-
 # -------------------------------------------------------------------
 # 2. 로그인 / 회원가입 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'login':
     col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
     with col_l2:
-        st.markdown("<h2 style='text-align: center;'>🔐 회원 로그인 / 회원가입</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>로그인 / 회원가입</h2>", unsafe_allow_html=True)
         st.write("")
         
         tab_log1, tab_log2 = st.tabs(["로그인", "회원가입"])
@@ -639,7 +637,7 @@ elif st.session_state['page'] == 'store':
                             st.rerun()
 
     with tab2:
-        st.markdown("### 구매자 창작 물품 거래소")
+        st.markdown("### 구매자 창작 마켓")
         st.caption("구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다.")
         
         with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
@@ -724,13 +722,13 @@ elif st.session_state['page'] == 'cart':
 
         with col_c2:
             with st.container(border=True):
-                st.markdown("### 💳 주문 정보 입력")
+                st.markdown("### 주문 정보 입력")
                 with st.form("checkout_form"):
                     name = st.text_input("수령인 이름", value=st.session_state['user'] if st.session_state['user'] else "")
                     phone = st.text_input("연락처")
                     address = st.text_input("배송지 주소")
                     pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
-                    pay_submitted = st.form_submit_button("💳 결제하기", type="primary", use_container_width=True)
+                    pay_submitted = st.form_submit_button("결제하기", type="primary", use_container_width=True)
                     
                     if pay_submitted and name and phone and address:
                         new_order = {
@@ -769,7 +767,7 @@ elif st.session_state['page'] == 'admin':
     st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
         
     st.divider()
-    st.markdown("## ⚙️ EXERCISE 관리자 페이지")
+    st.markdown("## 관리자 페이지")
     if not st.session_state['admin_authenticated']:
         with st.form("admin_login"):
             pw = st.text_input("관리자 비밀번호", type="password")
