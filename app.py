@@ -13,7 +13,38 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 노출 보장)
+# 세션 상태 초기화
+# -------------------------------------------------------------------
+if 'page' not in st.session_state:
+    st.session_state['page'] = 'about'
+
+if 'cart' not in st.session_state:
+    st.session_state['cart'] = []
+
+if 'orders' not in st.session_state:
+    st.session_state['orders'] = []
+
+if 'user' not in st.session_state:
+    st.session_state['user'] = None
+
+if 'show_modal' not in st.session_state:
+    st.session_state['show_modal'] = False
+
+if 'added_item' not in st.session_state:
+    st.session_state['added_item'] = ""
+
+if 'selected_product' not in st.session_state:
+    st.session_state['selected_product'] = None
+
+if 'admin_authenticated' not in st.session_state:
+    st.session_state['admin_authenticated'] = False
+
+# 페이지 이동 콜백 함수
+def set_page(page_name):
+    st.session_state['page'] = page_name
+
+# -------------------------------------------------------------------
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 탭 글씨 시인성 개선)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -35,7 +66,9 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebarExpandButton"],
-    button[data-testid="baseButton-headerNoPadding"] {
+    button[data-testid="baseButton-headerNoPadding"],
+    button[aria-label="Toggle sidebar"],
+    [data-testid="stSidebarNavSeparator"] {
         display: flex !important;
         align-items: center !important;
         visibility: visible !important;
@@ -56,7 +89,8 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] svg,
     [data-testid="stSidebarExpandButton"] svg,
-    button[data-testid="baseButton-headerNoPadding"] svg {
+    button[data-testid="baseButton-headerNoPadding"] svg,
+    button[aria-label="Toggle sidebar"] svg {
         fill: #000000 !important;
         color: #000000 !important;
         stroke: #000000 !important;
@@ -68,7 +102,8 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"]::after,
     [data-testid="stSidebarCollapseButton"]::after,
     [data-testid="stSidebarExpandButton"]::after,
-    button[data-testid="baseButton-headerNoPadding"]::after {
+    button[data-testid="baseButton-headerNoPadding"]::after,
+    button[aria-label="Toggle sidebar"]::after {
         content: "메뉴" !important;
         margin-left: 6px !important;
         font-size: 15px !important;
@@ -78,18 +113,20 @@ st.markdown("""
         display: inline-block !important;
     }
 
-    /* 스토어 탭 글씨 검정색 설정 */
+    /* 5. 스마트스토어 탭(전체 상품 / 구매자 창작 마켓) 글씨 색상 검정색 고정 */
     .stTabs [data-baseweb="tab"] p,
     .stTabs [data-baseweb="tab"] div,
     .stTabs [data-baseweb="tab"] {
-        color: #111111 !important;
+        color: #333333 !important;
         font-weight: 700 !important;
+        font-size: 16px !important;
     }
     .stTabs [aria-selected="true"] p,
     .stTabs [aria-selected="true"] div,
     .stTabs [aria-selected="true"] {
         color: #000000 !important;
         font-weight: 900 !important;
+        font-size: 16px !important;
     }
 
     /* '담기' 버튼 색상 초록색(#03C75A) 설정 */
@@ -264,33 +301,6 @@ def safe_image(img_src):
     else:
         st.image(img_src, use_container_width=True)
 
-# -------------------------------------------------------------------
-# 세션 상태 초기화
-# -------------------------------------------------------------------
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'about'
-
-if 'cart' not in st.session_state:
-    st.session_state['cart'] = []
-
-if 'orders' not in st.session_state:
-    st.session_state['orders'] = []
-
-if 'user' not in st.session_state:
-    st.session_state['user'] = None
-
-if 'show_modal' not in st.session_state:
-    st.session_state['show_modal'] = False
-
-if 'added_item' not in st.session_state:
-    st.session_state['added_item'] = ""
-
-if 'selected_product' not in st.session_state:
-    st.session_state['selected_product'] = None
-
-if 'admin_authenticated' not in st.session_state:
-    st.session_state['admin_authenticated'] = False
-
 # 감성 이미지 리스트
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
@@ -364,21 +374,10 @@ with st.sidebar:
     st.markdown("### 🧭 NAVIGATION")
     st.write("---")
     
-    if st.button("🏢 기업소개", use_container_width=True):
-        st.session_state['page'] = 'about'
-        st.rerun()
-
-    if st.button("🛍️ 스마트스토어", use_container_width=True):
-        st.session_state['page'] = 'store'
-        st.rerun()
-
-    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
-        st.session_state['page'] = 'login'
-        st.rerun()
-
-    if st.button("⚙️ 관리자 페이지", use_container_width=True):
-        st.session_state['page'] = 'admin'
-        st.rerun()
+    st.button("🏢 기업소개", use_container_width=True, on_click=set_page, args=('about',))
+    st.button("🛍️ 스마트스토어", use_container_width=True, on_click=set_page, args=('store',))
+    st.button("🔑 로그인 / 회원가입", use_container_width=True, on_click=set_page, args=('login',))
+    st.button("⚙️ 관리자 페이지", use_container_width=True, on_click=set_page, args=('admin',))
 
 # -------------------------------------------------------------------
 # 메인 헤더: 중앙 EXERCISE 로고
@@ -392,14 +391,9 @@ if st.session_state['show_modal']:
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
         col_m1, col_m2 = st.columns(2)
         with col_m1:
-            if st.button("🛍️ 계속 둘러보기", use_container_width=True):
-                st.session_state['show_modal'] = False
-                st.rerun()
+            st.button("🛍️ 계속 둘러보기", use_container_width=True, on_click=lambda: st.session_state.update({'show_modal': False}))
         with col_m2:
-            if st.button("🛒 장바구니로 이동", type="primary", use_container_width=True):
-                st.session_state['show_modal'] = False
-                st.session_state['page'] = 'cart'
-                st.rerun()
+            st.button("🛒 장바구니로 이동", type="primary", use_container_width=True, on_click=lambda: st.session_state.update({'show_modal': False, 'page': 'cart'}))
 
 # -------------------------------------------------------------------
 # 1. 기업/브랜드 소개 페이지
@@ -567,9 +561,7 @@ if st.session_state['page'] == 'about':
         """, unsafe_allow_html=True)
 
     st.divider()
-    if st.button("🛍️ EXERCISE 스마트스토어 바로가기 ➔", type="primary", use_container_width=True):
-        st.session_state['page'] = 'store'
-        st.rerun()
+    st.button("🛍️ EXERCISE 스마트스토어 바로가기 ➔", type="primary", use_container_width=True, on_click=set_page, args=('store',))
 
 # -------------------------------------------------------------------
 # 2. 로그인 / 회원가입 페이지
@@ -591,8 +583,8 @@ elif st.session_state['page'] == 'login':
                 if submit_login:
                     if user_id and user_pw:
                         st.session_state['user'] = user_id.split('@')[0]
-                        st.success(f"{st.session_state['user']}님, 환영합니다!")
                         st.session_state['page'] = 'store'
+                        st.success(f"{st.session_state['user']}님, 환영합니다!")
                         st.rerun()
                     else:
                         st.error("아이디와 비밀번호를 모두 입력해 주세요.")
@@ -619,9 +611,7 @@ elif st.session_state['page'] == 'store':
     
     col_st_header, col_st_cart = st.columns([5, 1])
     with col_st_cart:
-        if st.button(cart_btn_text, use_container_width=True):
-            st.session_state['page'] = 'cart'
-            st.rerun()
+        st.button(cart_btn_text, use_container_width=True, on_click=set_page, args=('cart',))
 
     tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
     
@@ -641,7 +631,7 @@ elif st.session_state['page'] == 'store':
                     with col_b1:
                         if st.button("상세보기", key=f"detail_{kit['id']}", use_container_width=True):
                             st.session_state['selected_product'] = kit
-                            st.session_state['page'] = 'detail'
+                            set_page('detail')
                             st.rerun()
                     with col_b2:
                         if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
@@ -692,7 +682,7 @@ elif st.session_state['page'] == 'store':
                     with col_cb1:
                         if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
                             st.session_state['selected_product'] = c_item
-                            st.session_state['page'] = 'detail'
+                            set_page('detail')
                             st.rerun()
                     with col_cb2:
                         if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
@@ -703,9 +693,7 @@ elif st.session_state['page'] == 'store':
 # 4. 장바구니 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'cart':
-    if st.button("⬅ 이전으로 돌아가기"):
-        st.session_state['page'] = 'store'
-        st.rerun()
+    st.button("⬅ 이전으로 돌아가기", on_click=set_page, args=('store',))
         
     st.divider()
     st.markdown("## 🛒 장바구니 및 주문결제")
@@ -760,9 +748,7 @@ elif st.session_state['page'] == 'cart':
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
-    if st.button("⬅ 목록으로 돌아가기"):
-        st.session_state['page'] = 'store'
-        st.rerun()
+    st.button("⬅ 목록으로 돌아가기", on_click=set_page, args=('store',))
         
     st.divider()
     col_d1, col_d2 = st.columns([1, 1])
@@ -780,9 +766,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
 # 6. 관리자 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
-    if st.button("⬅ 메인으로 돌아가기"):
-        st.session_state['page'] = 'about'
-        st.rerun()
+    st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
         
     st.divider()
     st.markdown("## ⚙️ EXERCISE 관리자 페이지")
@@ -802,6 +786,8 @@ elif st.session_state['page'] == 'admin':
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
             st.bar_chart(df_counts.set_index('상품명'))
+        else:
+            st.info("아직 누적된 주문 데이터가 없습니다.")
 
 # -------------------------------------------------------------------
 # 푸터
