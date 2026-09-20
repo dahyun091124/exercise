@@ -9,97 +9,86 @@ st.set_page_config(
     page_title="EXERCISE 브랜드몰",
     page_icon="💪🏼",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (좌측 상단 '메뉴' 버튼 & 탭 검정색 글씨 완벽 강제 적용)
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 노출 보장)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* 전체 백그라운드 & 기본 폰트 설정 */
+    /* 전체 백그라운드 & 폰트 설정 */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 1. 상단 기본 헤더 배경 투명화 및 높이 지정 */
+    /* 1. 상단 헤더 및 아이콘 표시 공간 확보 */
     header[data-testid="stHeader"] {
         background: transparent !important;
+        z-index: 99999 !important;
         height: 60px !important;
     }
 
-    /* ================================================================
-       화면 좌측 상단 메뉴 버튼
-       Streamlit 내부 사이드바 버튼에 의존하지 않고
-       st.popover('☰ 메뉴')를 사용하므로 홈 화면에서도 항상 표시됨
-       ================================================================ */
-
-    div[data-testid="stPopover"] {
-        position: fixed !important;
-        top: 14px !important;
-        left: 15px !important;
-        z-index: 99999999 !important;
-    }
-
-    div[data-testid="stPopover"] > button {
+    /* 2. 사이드바 열기/닫기 컨트롤 버튼 스타일 정밀 교정 */
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarExpandButton"],
+    button[data-testid="baseButton-headerNoPadding"] {
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
-
-        min-width: 88px !important;
-        height: 38px !important;
-
-        padding: 6px 13px !important;
-
-        background: #ffffff !important;
-        color: #000000 !important;
-
-        border: 2px solid #000000 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 15px !important;
+        z-index: 100000 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #dddddd !important;
         border-radius: 6px !important;
+        padding: 4px 12px 4px 8px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        cursor: pointer !important;
+    }
 
+    /* 3. 화살표 아이콘(SVG, 내부 원소)을 선명한 검정색으로 강제 지정 */
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="stSidebarExpandButton"] svg,
+    button[data-testid="baseButton-headerNoPadding"] svg {
+        fill: #000000 !important;
+        color: #000000 !important;
+        stroke: #000000 !important;
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 (검정색, 두껍게) */
+    [data-testid="stSidebarCollapsedControl"]::after,
+    [data-testid="stSidebarCollapseButton"]::after,
+    [data-testid="stSidebarExpandButton"]::after,
+    button[data-testid="baseButton-headerNoPadding"]::after {
+        content: "메뉴" !important;
+        margin-left: 6px !important;
         font-size: 15px !important;
         font-weight: 800 !important;
-
-        opacity: 1 !important;
-        visibility: visible !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important;
-    }
-
-    div[data-testid="stPopover"] > button:hover,
-    div[data-testid="stPopover"] > button:focus,
-    div[data-testid="stPopover"] > button:active {
-        background: #ffffff !important;
         color: #000000 !important;
-        border-color: #000000 !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
     }
 
-    div[data-testid="stPopover"] > button svg {
-        color: #000000 !important;
-        fill: #000000 !important;
-        stroke: #000000 !important;
-    }
-
-    /* 5. 스마트스토어 [전체 상품], [구매자 창작 마켓] 탭 글씨 검정색 강제 지정 */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #ffffff !important;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent !important;
-    }
+    /* 스토어 탭 글씨 검정색 설정 */
     .stTabs [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] span,
-    .stTabs [data-baseweb="tab"] div {
-        color: #000000 !important;
-        font-size: 17px !important;
-        font-weight: 800 !important;
-        opacity: 1 !important;
+    .stTabs [data-baseweb="tab"] div,
+    .stTabs [data-baseweb="tab"] {
+        color: #111111 !important;
+        font-weight: 700 !important;
     }
     .stTabs [aria-selected="true"] p,
-    .stTabs [aria-selected="true"] span,
-    .stTabs [aria-selected="true"] div {
-        color: #03C75A !important; /* 선택된 탭 강조색 */
+    .stTabs [aria-selected="true"] div,
+    .stTabs [aria-selected="true"] {
+        color: #000000 !important;
         font-weight: 900 !important;
     }
 
@@ -145,7 +134,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 중앙 EXERCISE 로고 */
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px) */
     .lush-logo-center {
         font-size: 52px;
         font-weight: 950;
@@ -180,7 +169,7 @@ st.markdown("""
         word-break: keep-all;
     }
 
-    /* 원형 카드 스타일 */
+    /* 러쉬 원형 아이콘 그리드 스타일 */
     .circle-card {
         background-color: #111111;
         width: 170px;
@@ -225,6 +214,7 @@ st.markdown("""
         word-break: keep-all;
     }
     
+    /* 초록색 태그 강조 (#03C75A) */
     .lush-tag {
         font-size: 13px;
         font-weight: 800;
@@ -234,6 +224,7 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
+    /* 가격 및 랭킹 태그 */
     .price-text {
         font-size: 20px;
         font-weight: 800;
@@ -251,6 +242,7 @@ st.markdown("""
         z-index: 10;
     }
 
+    /* 푸터 스타일 */
     .footer-container {
         margin-top: 80px;
         padding: 40px 0 20px 0;
@@ -259,37 +251,6 @@ st.markdown("""
         font-size: 13px;
         line-height: 1.7;
     }
-
-    /* ================================================================
-       스마트스토어 메뉴 글씨
-       '전체 상품' / '구매자 창작 마켓'은 항상 검정색으로 표시
-       ================================================================ */
-
-    div[data-testid="stRadio"] label {
-        color: #000000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        font-size: 17px !important;
-        font-weight: 800 !important;
-    }
-
-    div[data-testid="stRadio"] label p,
-    div[data-testid="stRadio"] label span,
-    div[data-testid="stRadio"] label div {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-
-    div[data-testid="stRadio"] [role="radiogroup"] {
-        gap: 10px !important;
-    }
-
-    div[data-testid="stRadio"] [role="radio"] {
-        border-color: #000000 !important;
-    }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -397,30 +358,25 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 좌측 상단 메뉴
+# 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
-with st.popover("☰ 메뉴"):
-
-    st.markdown(
-        "<h3 style='color:#111111; margin-top:0;'>MENU</h3>",
-        unsafe_allow_html=True
-    )
-
+with st.sidebar:
+    st.markdown("### 🧭 NAVIGATION")
     st.write("---")
-
-    if st.button("🏢 기업소개", key="menu_about", use_container_width=True):
+    
+    if st.button("🏢 기업소개", use_container_width=True):
         st.session_state['page'] = 'about'
         st.rerun()
 
-    if st.button("🛍️ 스마트스토어", key="menu_store", use_container_width=True):
+    if st.button("🛍️ 스마트스토어", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-    if st.button("🔑 로그인 / 회원가입", key="menu_login", use_container_width=True):
+    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
         st.session_state['page'] = 'login'
         st.rerun()
 
-    if st.button("⚙️ 관리자 페이지", key="menu_admin", use_container_width=True):
+    if st.button("⚙️ 관리자 페이지", use_container_width=True):
         st.session_state['page'] = 'admin'
         st.rerun()
 
@@ -667,129 +623,46 @@ elif st.session_state['page'] == 'store':
             st.session_state['page'] = 'cart'
             st.rerun()
 
-    # 탭 대신 가로형 라디오를 사용합니다.
-    # 두 항목이 클릭하지 않아도 항상 화면에 표시됩니다.
-    store_menu = st.radio(
-        "스마트스토어 메뉴",
-        ["전체 상품", "구매자 창작 마켓"],
-        horizontal=True,
-        label_visibility="collapsed",
-        key="store_menu"
-    )
-
-    # ================================================================
-    # 전체 상품
-    # ================================================================
-    if store_menu == "전체 상품":
-
-        st.markdown(
-            "<h3 style='margin-bottom:20px; color:#111111;'>전체 상품 목록</h3>",
-            unsafe_allow_html=True
-        )
-
+    tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
+    
+    with tab1:
+        st.markdown("<h3 style='margin-bottom:20px;'>전체 상품 목록</h3>", unsafe_allow_html=True)
         cols = st.columns(3)
-
         for idx, kit in enumerate(kits):
-
             with cols[idx % 3]:
-
                 with st.container(border=True):
-
-                    st.markdown(
-                        f"<span class='rank-badge'>{idx + 1}</span>",
-                        unsafe_allow_html=True
-                    )
-
+                    st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
                     safe_image(kit["img"])
-
                     st.markdown(f"**{kit['name']}**")
-
                     st.caption(kit['comment'])
-
-                    st.markdown(
-                        f"<p class='price-text'>{kit['price']:,} 원</p>",
-                        unsafe_allow_html=True
-                    )
-
+                    st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
+                    
                     col_b1, col_b2 = st.columns(2)
-
                     with col_b1:
-
-                        if st.button(
-                            "상세보기",
-                            key=f"detail_{kit['id']}",
-                            use_container_width=True
-                        ):
+                        if st.button("상세보기", key=f"detail_{kit['id']}", use_container_width=True):
                             st.session_state['selected_product'] = kit
                             st.session_state['page'] = 'detail'
                             st.rerun()
-
                     with col_b2:
-
-                        if st.button(
-                            "담기",
-                            key=f"home_cart_{kit['id']}",
-                            type="primary",
-                            use_container_width=True
-                        ):
-                            add_to_cart(
-                                kit['name'],
-                                kit['price']
-                            )
+                        if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
+                            add_to_cart(kit['name'], kit['price'])
                             st.rerun()
 
-
-    # ================================================================
-    # 구매자 창작 마켓
-    # ================================================================
-    else:
-
-        st.markdown(
-            "<h3 style='color:#111111;'>구매자 창작 물품 거래소</h3>",
-            unsafe_allow_html=True
-        )
-
-        st.caption(
-            "구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다."
-        )
-
-        with st.expander(
-            "➕ 내 창작물 직접 판매 등록하기",
-            expanded=False
-        ):
-
+    with tab2:
+        st.markdown("### 구매자 창작 물품 거래소")
+        st.caption("구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다.")
+        
+        with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
             with st.form("c2c_add_form"):
-
                 c_title = st.text_input("상품명")
-
                 c_seller = st.text_input("판매자 닉네임")
-
-                c_price = st.number_input(
-                    "판매 가격 (원)",
-                    min_value=0,
-                    step=1000,
-                    value=10000
-                )
-
-                c_img_file = st.file_uploader(
-                    "대표 이미지 선택",
-                    type=["jpg", "jpeg", "png"]
-                )
-
+                c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
+                c_img_file = st.file_uploader("대표 이미지 선택", type=["jpg", "jpeg", "png"])
                 c_desc_title = st.text_input("한 줄 개요")
-
-                c_desc_detail = st.text_area(
-                    "상세설명 및 제작 노하우"
-                )
-
-                c_submit = st.form_submit_button(
-                    "등록하기",
-                    type="primary",
-                    use_container_width=True
-                )
-
+                c_desc_detail = st.text_area("상세설명 및 제작 노하우")
+                
+                c_submit = st.form_submit_button("등록하기", type="primary", use_container_width=True)
                 if c_submit and c_title and c_seller:
-
                     new_c2c = {
                         "id": len(st.session_state['c2c_products']) + 200,
                         "name": f"[C2C] {c_title}",
@@ -801,65 +674,30 @@ elif st.session_state['page'] == 'store':
                         "components": "커스텀 조합",
                         "feature": "맞춤형 그립"
                     }
-
                     st.session_state['c2c_products'].append(new_c2c)
-
                     st.success("등록되었습니다!")
-
                     st.rerun()
 
         st.divider()
-
         cols_c2c = st.columns(2)
-
-        for idx, c_item in enumerate(
-            st.session_state['c2c_products']
-        ):
-
+        for idx, c_item in enumerate(st.session_state['c2c_products']):
             with cols_c2c[idx % 2]:
-
                 with st.container(border=True):
-
                     safe_image(c_item['img'])
-
-                    st.markdown(
-                        f"**{c_item['name']}**"
-                    )
-
+                    st.markdown(f"**{c_item['name']}**")
                     st.caption(c_item['comment'])
-
-                    st.markdown(
-                        f"<p class='price-text'>{c_item['price']:,} 원</p>",
-                        unsafe_allow_html=True
-                    )
-
+                    st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
+                    
                     col_cb1, col_cb2 = st.columns(2)
-
                     with col_cb1:
-
-                        if st.button(
-                            "상세보기",
-                            key=f"c2c_detail_{c_item['id']}_{idx}",
-                            use_container_width=True
-                        ):
+                        if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
                             st.session_state['selected_product'] = c_item
                             st.session_state['page'] = 'detail'
                             st.rerun()
-
                     with col_cb2:
-
-                        if st.button(
-                            "담기",
-                            key=f"c2c_cart_{c_item['id']}_{idx}",
-                            type="primary",
-                            use_container_width=True
-                        ):
-                            add_to_cart(
-                                c_item['name'],
-                                c_item['price']
-                            )
+                        if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
+                            add_to_cart(c_item['name'], c_item['price'])
                             st.rerun()
-
 
 # -------------------------------------------------------------------
 # 4. 장바구니 페이지
