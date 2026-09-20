@@ -570,7 +570,7 @@ if st.session_state['page'] == 'about':
     col_txt6, col_img6 = st.columns([1, 1], gap="large")
     with col_txt6:
         st.write("")
-        st.markdown('<div class="lush-tag">06. [MOVE] CITY RUNNER</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">06. CITY RUNNER</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             늘 똑같은 장소에서 벗어나,<br>
