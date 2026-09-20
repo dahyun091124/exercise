@@ -612,7 +612,7 @@ elif st.session_state['page'] == 'login':
                 if submit_login:
                     if user_id and user_pw:
                         if user_id not in st.session_state['users_db']:
-                            st.error("등록된 회원 정보가 없습니다. 회원가입을 먼저 진행해 주세요.")
+                            st.warning("등록된 회원 정보가 없습니다. 회원가입을 먼저 진행해 주세요.")
                         elif st.session_state['users_db'][user_id] != user_pw:
                             st.error("비밀번호가 올바르지 않습니다.")
                         else:
@@ -800,7 +800,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             st.rerun()
 
 # -------------------------------------------------------------------
-# 6. 관리자 페이지 (수정 반영)
+# 6. 관리자 페이지 (주문 정보 깔끔하게 수정 반영)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
     st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
@@ -838,37 +838,18 @@ elif st.session_state['page'] == 'admin':
             st.divider()
             st.subheader("📋 전체 주문 정보")
             
-            # 주문 정보 테이블 및 카드 형식 출력
-            order_data_list = []
-            for order in st.session_state['orders']:
-                items_str = ", ".join(order['items'])
-                order_data_list.append({
-                    "주문 번호": f"ORD-{order['id']:04d}",
-                    "이름": order.get('name', '-'),
-                    "연락처": order.get('phone', '-'),
-                    "주소": order.get('address', '-'),
-                    "주문 내역": items_str,
-                    "결제 금액": f"{order.get('total_price', 0):,} 원"
-                })
-            
-            df_orders = pd.DataFrame(order_data_list)
-            st.dataframe(df_orders, use_container_width=True, hide_index=True)
-
-            # 상세 카드 보기
-            st.write("#### 상세 주문 목록")
+            # 표(table) 제거, 이모티콘 제거 후 깔끔한 카드 스타일 형식 출력
             for o in st.session_state['orders']:
+                items_str = ", ".join(o['items'])
                 with st.container(border=True):
-                    col_o1, col_o2 = st.columns([1, 2])
-                    with col_o1:
-                        st.markdown(f"**👤 주문자:** {o.get('name', '-')}")
-                        st.markdown(f"**📞 연락처:** {o.get('phone', '-')}")
-                        st.markdown(f"**🏠 주소:** {o.get('address', '-')}")
-                    with col_o2:
-                        st.markdown(f"**📦 주문 내역:** {', '.join(o['items'])}")
-                        st.markdown(f"**💰 총 결제 금액:** <span class='price-text'>{o.get('total_price', 0):,} 원</span>", unsafe_allow_html=True)
-
+                    st.markdown(f"**주문 번호:** ORD-{o['id']:04d}")
+                    st.markdown(f"**이름:** {o.get('name', '-')}")
+                    st.markdown(f"**연락처:** {o.get('phone', '-')}")
+                    st.markdown(f"**주소:** {o.get('address', '-')}")
+                    st.markdown(f"**주문 내역:** {items_str}")
+                    st.markdown(f"**결제 금액:** {o.get('total_price', 0):,} 원")
         else:
-            st.info("아직 누적된 주문 데이터가 없습니다.")
+            st.info("등록된 주문 내역이 없습니다.")
 
 # -------------------------------------------------------------------
 # 푸터
