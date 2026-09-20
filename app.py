@@ -378,7 +378,7 @@ def add_to_cart(item_name, item_price):
 # 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### MENU")
+    st.markdown("### EXERCISE")
     st.write("---")
     
     st.button("기업소개", use_container_width=True, on_click=set_page, args=('about',))
