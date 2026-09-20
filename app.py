@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import pandas as pd
+import altair as alt
 
 # -------------------------------------------------------------------
 # 페이지 기본 설정
@@ -26,6 +27,10 @@ if 'orders' not in st.session_state:
 
 if 'user' not in st.session_state:
     st.session_state['user'] = None
+
+# 회원 데이터 저장소 초기화 (아이디: 비밀번호)
+if 'users_db' not in st.session_state:
+    st.session_state['users_db'] = {}
 
 if 'show_modal' not in st.session_state:
     st.session_state['show_modal'] = False
@@ -304,11 +309,11 @@ def safe_image(img_src):
     else:
         st.image(img_src, use_container_width=True)
 
-# 감성 이미지 리스트 (02번: balance.jpg, 03번: water.jpg 반영 완료)
+# 감성 이미지 리스트
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
-    "balance.jpg", # 02번 이미지 반영
-    "water.jpg",   # 03번 이미지 반영
+    "balance.jpg",
+    "water.jpg",
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
@@ -486,7 +491,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 02. AIR-CELL BALANCING (balance.jpg 적용 완료)
+    # 02. AIR-CELL BALANCING
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
@@ -506,7 +511,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 03. LOCAL RECOVERY DRINK (water.jpg 적용 완료)
+    # 03. LOCAL RECOVERY DRINK
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
     with col_img3:
         safe_image(about_images[2])
@@ -606,10 +611,15 @@ elif st.session_state['page'] == 'login':
                 
                 if submit_login:
                     if user_id and user_pw:
-                        st.session_state['user'] = user_id.split('@')[0]
-                        st.session_state['page'] = 'store'
-                        st.success(f"{st.session_state['user']}님, 환영합니다!")
-                        st.rerun()
+                        if user_id not in st.session_state['users_db']:
+                            st.error("등록된 회원 정보가 없습니다. 회원가입을 먼저 진행해 주세요.")
+                        elif st.session_state['users_db'][user_id] != user_pw:
+                            st.error("비밀번호가 올바르지 않습니다.")
+                        else:
+                            st.session_state['user'] = user_id.split('@')[0]
+                            st.session_state['page'] = 'store'
+                            st.success(f"{st.session_state['user']}님, 환영합니다!")
+                            st.rerun()
                     else:
                         st.error("아이디와 비밀번호를 모두 입력해 주세요.")
                         
@@ -622,6 +632,7 @@ elif st.session_state['page'] == 'login':
                 
                 if submit_signup:
                     if new_name and new_id and new_pw:
+                        st.session_state['users_db'][new_id] = new_pw
                         st.success("회원가입이 완료되었습니다! 로그인해 주세요.")
                     else:
                         st.error("모든 항목을 입력해야 합니다.")
@@ -760,6 +771,8 @@ elif st.session_state['page'] == 'cart':
                         new_order = {
                             "id": len(st.session_state['orders']) + 1,
                             "name": name,
+                            "phone": phone,
+                            "address": address,
                             "items": [item['name'] for item in st.session_state['cart']],
                             "total_price": total_price
                         }
@@ -787,7 +800,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             st.rerun()
 
 # -------------------------------------------------------------------
-# 6. 관리자 페이지
+# 6. 관리자 페이지 (수정 반영)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
     st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
@@ -806,10 +819,54 @@ elif st.session_state['page'] == 'admin':
     else:
         st.subheader("📊 구매 통계")
         if st.session_state['orders']:
+            # 구매 내역 데이터 집계
             all_items = [item for o in st.session_state['orders'] for item in o['items']]
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
-            st.bar_chart(df_counts.set_index('상품명'))
+
+            # 초록색(#03C75A) 가로 막대그래프 생성
+            chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
+                x=alt.X('수량:Q', title='판매 수량'),
+                y=alt.Y('상품명:N', title='상품명', sort='-x'),
+                tooltip=['상품명', '수량']
+            ).properties(
+                height=max(150, len(df_counts) * 40)
+            )
+            
+            st.altair_chart(chart, use_container_width=True)
+
+            st.divider()
+            st.subheader("📋 전체 주문 정보")
+            
+            # 주문 정보 테이블 및 카드 형식 출력
+            order_data_list = []
+            for order in st.session_state['orders']:
+                items_str = ", ".join(order['items'])
+                order_data_list.append({
+                    "주문 번호": f"ORD-{order['id']:04d}",
+                    "이름": order.get('name', '-'),
+                    "연락처": order.get('phone', '-'),
+                    "주소": order.get('address', '-'),
+                    "주문 내역": items_str,
+                    "결제 금액": f"{order.get('total_price', 0):,} 원"
+                })
+            
+            df_orders = pd.DataFrame(order_data_list)
+            st.dataframe(df_orders, use_container_width=True, hide_index=True)
+
+            # 상세 카드 보기
+            st.write("#### 상세 주문 목록")
+            for o in st.session_state['orders']:
+                with st.container(border=True):
+                    col_o1, col_o2 = st.columns([1, 2])
+                    with col_o1:
+                        st.markdown(f"**👤 주문자:** {o.get('name', '-')}")
+                        st.markdown(f"**📞 연락처:** {o.get('phone', '-')}")
+                        st.markdown(f"**🏠 주소:** {o.get('address', '-')}")
+                    with col_o2:
+                        st.markdown(f"**📦 주문 내역:** {', '.join(o['items'])}")
+                        st.markdown(f"**💰 총 결제 금액:** <span class='price-text'>{o.get('total_price', 0):,} 원</span>", unsafe_allow_html=True)
+
         else:
             st.info("아직 누적된 주문 데이터가 없습니다.")
 
