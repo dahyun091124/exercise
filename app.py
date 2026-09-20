@@ -9,7 +9,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 커스텀 CSS (깔끔한 백그라운드 & 러쉬 감성 폰트)
+# 커스텀 CSS (백그라운드 & 러쉬 감성 폰트)
 st.markdown("""
 <style>
     .stApp, body, html {
@@ -110,7 +110,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 안전한 이미지 처리 함수 (URL 또는 파일 지원)
+# 안전한 이미지 처리 함수
 def safe_image(img_src):
     if isinstance(img_src, str):
         if img_src.startswith("http") or os.path.exists(img_src):
@@ -123,9 +123,6 @@ def safe_image(img_src):
 # 1. 세션 상태 초기화 (첫 화면: 브랜드 소개 'about')
 if 'page' not in st.session_state:
     st.session_state['page'] = 'about'
-
-if 'menu_open' not in st.session_state:
-    st.session_state['menu_open'] = False
 
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
@@ -148,13 +145,13 @@ if 'selected_product' not in st.session_state:
 if 'admin_authenticated' not in st.session_state:
     st.session_state['admin_authenticated'] = False
 
-# 고품질 Unsplash 고화질 이미지 5개 섹션 세팅
+# 5개 섹션 이미지 URL (5번째는 회의하는 이미지)
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80", # 1. DIY 키트
     "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80", # 2. 에어셀 쿠션
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80", # 3. 이온음료
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80", # 4. 폴리모프 악력기
-    "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1000&auto=format&fit=crop&q=80"  # 5. 커뮤니티/상생
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. SHARED COMMUNITY (회의하는 이미지)
 ]
 
 # 원본 C2C 상품 목록
@@ -216,56 +213,48 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 최상단 헤더 (기업 소개 화면에서는 장바구니 비노출)
+# 왼쪽 사이드바 (스크린샷처럼 세로로 펼쳐지는 드로어 메뉴)
 # -------------------------------------------------------------------
-col_hdr1, col_hdr2, col_hdr3 = st.columns([1, 4, 1])
+with st.sidebar:
+    st.markdown("## 🧭 EXERCISE")
+    st.caption("메뉴를 클릭하면 해당 페이지로 이동합니다.")
+    st.divider()
+    
+    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+        st.session_state['page'] = 'login'
+        st.rerun()
+        
+    if st.button("🛍️ 스마트스토어", use_container_width=True):
+        st.session_state['page'] = 'store'
+        st.rerun()
+        
+    if st.button("🏢 기업/브랜드 소개", use_container_width=True):
+        st.session_state['page'] = 'about'
+        st.rerun()
+        
+    if st.button("⚙️ 관리자 페이지", use_container_width=True):
+        st.session_state['page'] = 'admin'
+        st.rerun()
+
+# -------------------------------------------------------------------
+# 메인 헤더 (기업 소개일 때는 장바구니 버튼 숨김)
+# -------------------------------------------------------------------
+col_hdr1, col_hdr2 = st.columns([5, 1])
 
 with col_hdr1:
-    if st.button("≡ 메뉴", key="toggle_menu_btn", use_container_width=True):
-        st.session_state['menu_open'] = not st.session_state['menu_open']
-
-with col_hdr2:
     st.markdown("""
     <div class="brand-header">
         <div class="brand-title">EXERCISE</div>
     </div>
     """, unsafe_allow_html=True)
 
-with col_hdr3:
-    # 기업 소개('about') 화면이 아닐 때만 장바구니 노출
+with col_hdr2:
+    # 기업 소개('about') 페이지가 아닐 때만 장바구니 버튼 노출
     if st.session_state['page'] != 'about':
         cart_cnt = len(st.session_state['cart'])
         btn_text = f"🛒 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
         if st.button(btn_text, type="primary", use_container_width=True):
             st.session_state['page'] = 'cart'
-            st.rerun()
-
-# -------------------------------------------------------------------
-# 햄버거 메뉴 세로(Vertical) 정렬 레이아웃
-# -------------------------------------------------------------------
-if st.session_state['menu_open']:
-    with st.container(border=True):
-        st.markdown("### 🧭 메뉴 탐색")
-        
-        # 세로 형태로 메뉴 정렬
-        if st.button("🔑 로그인 / 회원가입", use_container_width=True):
-            st.session_state['page'] = 'login'
-            st.session_state['menu_open'] = False
-            st.rerun()
-            
-        if st.button("🛍️ 스마트스토어", use_container_width=True):
-            st.session_state['page'] = 'store'
-            st.session_state['menu_open'] = False
-            st.rerun()
-            
-        if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True):
-            st.session_state['page'] = 'about'
-            st.session_state['menu_open'] = False
-            st.rerun()
-            
-        if st.button("⚙️ 관리자 페이지", use_container_width=True):
-            st.session_state['page'] = 'admin'
-            st.session_state['menu_open'] = False
             st.rerun()
 
 # 장바구니 모달
@@ -284,13 +273,13 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 1. 기업/브랜드 소개 페이지 (5개 이미지 및 스토리 구성)
+# 1. 기업/브랜드 소개 페이지 (첫 화면)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.markdown("<p style='text-align:center; color:#666; font-size:18px; font-weight:500;'>“운동에는 하나의 정답이 없다”</p>", unsafe_allow_html=True)
     st.divider()
 
-    # [섹션 1] DIY 키트
+    # [섹션 1]
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
     with col_img1:
         safe_image(about_images[0])
@@ -310,7 +299,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 2] 에어셀 쿠션
+    # [섹션 2]
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
@@ -330,7 +319,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 3] 지역 특산물 이온음료
+    # [섹션 3]
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
     with col_img3:
         safe_image(about_images[2])
@@ -350,7 +339,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 4] 폴리모프 성형 기술
+    # [섹션 4]
     col_txt4, col_img4 = st.columns([1, 1], gap="large")
     with col_txt4:
         st.write("")
@@ -370,7 +359,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [섹션 5] C2C 마켓 및 지역 상생
+    # [섹션 5] SHARED COMMUNITY (회의하는 이미지)
     col_img5, col_txt5 = st.columns([1, 1], gap="large")
     with col_img5:
         safe_image(about_images[4])
@@ -384,7 +373,7 @@ if st.session_state['page'] == 'about':
         </div>
         <div class="lush-section-desc">
             사용자가 직접 제작한 커스텀 운동 기구를 서로 공유하고 판매할 수 있는 
-            선순환 웰니스 생태계를 만들어갑니다.
+            선순환 웰니스 생태계를 함께 고민하고 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
 
@@ -414,7 +403,7 @@ elif st.session_state['page'] == 'login':
                 if submit_login:
                     if user_id and user_pw:
                         st.session_state['user'] = user_id.split('@')[0]
-                        st.success(f"{st.session_state['user']}님, 성공적으로 로그인되었습니다!")
+                        st.success(f"{st.session_state['user']}님, 로그인되었습니다!")
                         st.session_state['page'] = 'store'
                         st.rerun()
                     else:
