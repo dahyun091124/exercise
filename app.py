@@ -127,14 +127,14 @@ st.markdown("""
         fill: #111111 !important;
     }
 
-    /* 러쉬 스타일 좌/우 레이아웃 전용 CSS */
+    /* 러쉬 스타일 타이포그래피 */
     .lush-section-title {
-        font-size: clamp(28px, 3.2vw, 42px);
+        font-size: clamp(26px, 3.2vw, 40px);
         font-weight: 900;
         line-height: 1.25;
         letter-spacing: -1.5px;
         color: #111111 !important;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         word-break: keep-all;
     }
     .lush-section-desc {
@@ -142,6 +142,14 @@ st.markdown("""
         line-height: 1.75;
         color: #444444 !important;
         word-break: keep-all;
+    }
+    .lush-tag {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #03C75A !important;
+        margin-bottom: 10px;
     }
 
     /* 푸터 스타일 */
@@ -307,21 +315,18 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 왼쪽 이미지, 오른쪽 텍스트)
+# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 풍성한 5개 스토리 지그재그 섹션)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.write("")
-    st.write("")
     
-    # [섹션 1] 왼쪽: 이미지 / 오른쪽: 핵심 메시지 및 텍스트
+    # [섹션 1] 왼쪽: 이미지 / 오른쪽: 혁신
     col_img1, col_txt1 = st.columns([1.1, 1], gap="large")
-    
     with col_img1:
         st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
-        
     with col_txt1:
         st.write("")
-        st.write("")
+        st.markdown('<div class="lush-tag">01. INNOVATION</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             EXERCISE는 커스텀 DIY 키트,<br>
@@ -330,24 +335,20 @@ if st.session_state['page'] == 'about':
             운동 솔루션을 선보입니다.
         </div>
         <div class="lush-section-desc">
-            특히 정형화된 운동 기구의 틀을 깨고 개인의 신체 조건에 완벽히 피팅되는 
-            다양한 '커스터마이징(Customizing)' 키트를 개발하며 
-            헬스 케어 및 웰니스 시장에 새로운 바람을 일으켜 왔습니다.
+            정형화된 공장형 기구의 틀을 깨고, 개인의 독특한 손 모양과 체형에 완벽히 피팅되는 
+            다양한 '커스터마이징(Customizing)' 키트를 개발하여 헬스 케어 및 웰니스 시장에 혁명을 일으킵니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.write("")
-    st.write("")
     st.divider()
     st.write("")
-    st.write("")
 
-    # [섹션 2] 왼쪽: 가치 설명 텍스트 / 오른쪽: 이미지 (지속가능성 & 커뮤니티)
+    # [섹션 2] 왼쪽: 커뮤니티 텍스트 / 오른쪽: 이미지
     col_txt2, col_img2 = st.columns([1, 1.1], gap="large")
-    
     with col_txt2:
         st.write("")
-        st.write("")
+        st.markdown('<div class="lush-tag">02. COMMUNITY & ECO</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             나만의 기구를 직접 만들고,<br>
@@ -355,23 +356,89 @@ if st.session_state['page'] == 'about':
             가치를 함께 공유합니다.
         </div>
         <div class="lush-section-desc">
-            지방 소멸 위기 지역의 대표 특산물을 활용한 건강 이온음료부터,<br>
-            구매자들이 직접 제작한 아이디어를 서로 나누고 거래하는 C2C 창작 마켓까지.<br><br>
-            EXERCISE는 단순한 운동 제품 판매를 넘어, 지속 가능한 건강 생태계와 
-            상생의 커뮤니티 가치를 실천하고 있습니다.
+            지방 소멸 위기 지역의 특산물을 활용한 건강 이온음료부터, 
+            구매자들이 직접 제작한 아이디어를 서로 거래하는 C2C 마켓까지. 
+            EXERCISE는 지속 가능한 건강 생태계와 지역 상생의 가치를 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
-        
     with col_img2:
         st.image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+
+    st.write("")
+    st.divider()
+    st.write("")
+
+    # [섹션 3] 왼쪽: 이미지 / 오른쪽: 100% 맞춤 피팅
+    col_img3, col_txt3 = st.columns([1.1, 1], gap="large")
+    with col_img3:
+        st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+    with col_txt3:
+        st.write("")
+        st.markdown('<div class="lush-tag">03. PERFECT FITTING</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            표준화된 규격에 몸을 맞추지 마세요.<br>
+            당신의 몸에 기구를 맞추세요.
+        </div>
+        <div class="lush-section-desc">
+            사람마다 손가락의 길이, 관절의 유연성, 발바닥 아치의 높이는 모두 다릅니다.<br>
+            체온에 맞춰 자율 변경되는 폴리모프 성형 기술을 통해 오직 단 한 사람만을 위한 
+            인체공학적 그립감을 제공합니다.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("")
+    st.divider()
+    st.write("")
+
+    # [섹션 4] 왼쪽: 에어셀 쿠션 텍스트 / 오른쪽: 이미지
+    col_txt4, col_img4 = st.columns([1, 1.1], gap="large")
+    with col_txt4:
+        st.write("")
+        st.markdown('<div class="lush-tag">04. BALANCE & POSTURE</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            장시간 앉아있는 현대인을 위한<br>
+            스마트 에어셀 밸런스 케어.
+        </div>
+        <div class="lush-section-desc">
+            잘못된 자세로 무너지는 골반과 척추를 위해 공기량을 자유롭게 조절할 수 있는 
+            독립 에어셀 주머니 기술을 적용했습니다.<br>
+            체중을 균일하게 분산시켜 하루 종일 지치지 않는 최상의 착석감을 선물합니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img4:
+        st.image("https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+
+    st.write("")
+    st.divider()
+    st.write("")
+
+    # [섹션 5] 왼쪽: 이미지 / 오른쪽: C2C 크리에이터 마켓
+    col_img5, col_txt5 = st.columns([1.1, 1], gap="large")
+    with col_img5:
+        st.image("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+    with col_txt5:
+        st.write("")
+        st.markdown('<div class="lush-tag">05. CREATOR MARKET</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            당신의 아이디어가<br>
+            누군가의 운동 루틴이 됩니다.
+        </div>
+        <div class="lush-section-desc">
+            DIY 키트로 완성한 나만의 독창적인 기구를 C2C 오픈 마켓에 직접 올려 판매해보세요.<br>
+            소비자가 곧 창작자가 되는 선순환 플랫폼으로 새로운 웰니스 문화를 선도합니다.
+        </div>
+        """, unsafe_allow_html=True)
 
     st.write("")
     st.write("")
     st.divider()
     st.write("")
 
-    # 하단 행동 유도 버튼
-    if st.button("EXERCISE 상품 둘러보기", type="primary", use_container_width=True):
+    # 하단 행동 유도 대형 버튼
+    if st.button("EXERCISE 전체 상품 라인업 둘러보기 ➔", type="primary", use_container_width=True):
         st.session_state['page'] = 'home'
         st.rerun()
 
