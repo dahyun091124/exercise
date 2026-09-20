@@ -13,18 +13,15 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 러쉬(LUSH) 스타일 커스텀 CSS
+# 러쉬(LUSH) 스타일 커스텀 CSS (아이콘 폰트 깨짐 방지 수정 완료)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* 전체 백그라운드 & 폰트 설정 */
+    /* 전체 백그라운드 & 폰트 설정 (아이콘 폰트 덮어쓰기 방지) */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
-    }
-    
-    * {
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
     /* 사이드바(메뉴창) 스타일 */
@@ -49,7 +46,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 글씨 크기 키움) */
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px 크기 적용) */
     .lush-logo-center {
         font-size: 52px;
         font-weight: 950;
