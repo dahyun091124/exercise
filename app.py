@@ -127,6 +127,38 @@ st.markdown("""
         fill: #111111 !important;
     }
 
+    /* 러쉬 스타일 히어로 섹션 */
+    .lush-hero-title {
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 900;
+        text-align: center;
+        line-height: 1.3;
+        margin: 20px 0 10px 0;
+        letter-spacing: -1px;
+    }
+    .lush-hero-sub {
+        font-size: 18px;
+        text-align: center;
+        color: #555555 !important;
+        margin-bottom: 30px;
+        word-break: keep-all;
+    }
+
+    /* 러쉬 스타일 가치 카드 */
+    .lush-card-title {
+        font-size: 22px;
+        font-weight: 800;
+        margin-top: 15px;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+    .lush-card-desc {
+        font-size: 15px;
+        color: #444444 !important;
+        line-height: 1.6;
+        word-break: keep-all;
+    }
+
     /* 푸터 스타일 */
     .footer-container {
         margin-top: 50px;
@@ -292,36 +324,47 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (첫 화면)
+# 화면 0: 기업/브랜드 소개 페이지 (러쉬 감성 비주얼 화)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
+    # 메인 히어로 비주얼 섹션
+    st.markdown('<div class="lush-hero-title">WE ARE EXERCISE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="lush-hero-sub">“운동에는 하나의 정답이 없다”</div>', unsafe_allow_html=True)
+    
+    st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&auto=format&fit=crop&q=80", use_container_width=True)
+    
+    st.write("")
+    st.markdown("""
+    <div style="text-align: center; max-width: 800px; margin: 30px auto; font-size: 19px; line-height: 1.8; word-break: keep-all; font-weight: 500;">
+        EXERCISE는 기성 운동기구의 정형화된 틀을 깨고, 모든 사람이 <strong>자신의 신체와 목적에 맞는 최적의 운동 솔루션</strong>을 직접 만들어가는 DIY 웰니스 브랜드입니다.<br><br>
+        우리는 표준화된 규격에 몸을 맞추는 것이 아니라, <strong>나의 몸에 기구를 맞추는 가치</strong>를 선물합니다.
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.divider()
-    st.markdown("## WE ARE EXERCISE")
-    st.markdown("### **“운동에는 하나의 정답이 없다”**")
     
-    st.write("""
-    EXERCISE는 기성 운동기구의 정형화된 틀을 깨고 모든 사람이 **자신의 신체와 목적에 맞는 최적의 운동 솔루션**을 직접 만들어가는 DIY 웰니스 브랜드입니다.
-    
-    우리는 표준화된 규격에 몸을 맞추는 것이 아니라, **나의 몸에 기구를 맞추는 가치**를 선물합니다.
-    """)
-    
-    st.divider()
-    
+    # 러쉬 스타일의 3컬럼 가치 영역 (대형 이미지 + 직관적 문구)
     col_a1, col_a2, col_a3 = st.columns(3)
+    
     with col_a1:
-        with st.container(border=True):
-            st.markdown("#### 🔧 Customization")
-            st.write("폴리모프와 맞춤 소재를 이용하여 손목, 발목, 체형에 완벽히 피팅되는 기구를 직접 제작합니다.")
+        st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80", use_container_width=True)
+        st.markdown('<div class="lush-card-title">🔧 Customization</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-card-desc">폴리모프와 맞춤 소재를 이용하여 손목, 발목, 체형에 완벽히 피팅되는 기구를 직접 제작합니다.</div>', unsafe_allow_html=True)
+        
     with col_a2:
-        with st.container(border=True):
-            st.markdown("#### ♻️ Eco & Local")
-            st.write("지방 소멸 위기 지역의 특산물을 활용한 건강한 보충 음료 등 지역 상생과 지속 가능성을 지향합니다.")
+        st.image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=80", use_container_width=True)
+        st.markdown('<div class="lush-card-title">♻️ Eco & Local</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-card-desc">지방 소멸 위기 지역의 특산물을 활용한 건강한 보충 음료 등 지역 상생과 지속 가능성을 지향합니다.</div>', unsafe_allow_html=True)
+        
     with col_a3:
-        with st.container(border=True):
-            st.markdown("#### 🫵🏼 Creator Market")
-            st.write("내가 만든 운동 아이디어를 다른 사람들과 공유하고 거래하는 커뮤니티 기반 C2C 에코시스템입니다.")
-            
+        st.image("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80", use_container_width=True)
+        st.markdown('<div class="lush-card-title">🫵🏼 Creator Market</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-card-desc">내가 만든 운동 아이디어를 다른 사람들과 공유하고 거래하는 커뮤니티 기반 C2C 에코시스템입니다.</div>', unsafe_allow_html=True)
+        
+    st.write("")
+    st.write("")
     st.divider()
+    
     if st.button("EXERCISE 제품 둘러보기", type="primary", use_container_width=True):
         st.session_state['page'] = 'home'
         st.rerun()
