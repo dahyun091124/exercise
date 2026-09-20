@@ -177,7 +177,7 @@ st.markdown("""
 
     /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 확대) */
     .lush-logo-center {
-        font-size: 68px;
+        font-size: 75px;
         font-weight: 950;
         letter-spacing: -1.5px;
         color: #000000;
@@ -796,7 +796,7 @@ elif st.session_state['page'] == 'admin':
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
-    <div style="font-weight: bold; color: #111111; font-size: 14px; margin-bottom: 8px;">EXERCISE 공식 스토어</div>
+    <div style="font-weight: bold; color: #111111; font-size: 14px; margin-bottom: 8px;">EXERCISE 공식 사이트</div>
     <p>
         상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 000-00-00000<br>
         Copyright © EXERCISE Inc. All rights reserved.
