@@ -304,11 +304,11 @@ def safe_image(img_src):
     else:
         st.image(img_src, use_container_width=True)
 
-# 감성 이미지 리스트 (03번 이미지 경로: water.jpg 로 반영)
+# 감성 이미지 리스트 (02번: balance.jpg, 03번: water.jpg 반영 완료)
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80",
-    "water.jpg", # 03번 이미지 반영
+    "balance.jpg", # 02번 이미지 반영
+    "water.jpg",   # 03번 이미지 반영
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80",
     "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
@@ -486,7 +486,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 02. AIR-CELL BALANCING
+    # 02. AIR-CELL BALANCING (balance.jpg 적용 완료)
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
@@ -512,7 +512,7 @@ if st.session_state['page'] == 'about':
         safe_image(about_images[2])
     with col_txt3:
         st.write("")
-        st.markdown('<div class="lush-tag">03. LOCAL RECOVERY DRINK</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">03. SHAPE YOUR OWN DRINK</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
             소멸 위기 지역 특산물로<br>
