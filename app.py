@@ -11,6 +11,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+# 기존 st.set_page_config(...) 바로 아랫줄에 붙여넣으세요!
+st.markdown("""
+    <div style="position: fixed; top: 14px; left: 58px; z-index: 999999; font-size: 16px; font-weight: 800; color: #000000; pointer-events: none;">
+        메뉴
+    </div>
+""", unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
 # 커스텀 CSS
