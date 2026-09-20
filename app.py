@@ -110,15 +110,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 안전한 이미지 처리 함수
-def safe_image(img_path):
-    if img_path and os.path.exists(img_path):
-        st.image(img_path, use_container_width=True)
+# 안전한 이미지 처리 함수 (URL 또는 파일 지원)
+def safe_image(img_src):
+    if isinstance(img_src, str):
+        if img_src.startswith("http") or os.path.exists(img_src):
+            st.image(img_src, use_container_width=True)
+        else:
+            st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80", use_container_width=True)
     else:
-        # 파일이 없을 경우 깨지지 않도록 플레이스홀더 출력
-        st.image("https://via.placeholder.com/600x400?text=EXERCISE+IMAGE", use_container_width=True)
+        st.image(img_src, use_container_width=True)
 
-# 1. 세션 상태 초기화 (첫 화면을 브랜드 소개 'about'으로 설정)
+# 1. 세션 상태 초기화 (첫 화면: 브랜드 소개 'about')
 if 'page' not in st.session_state:
     st.session_state['page'] = 'about'
 
@@ -146,6 +148,15 @@ if 'selected_product' not in st.session_state:
 if 'admin_authenticated' not in st.session_state:
     st.session_state['admin_authenticated'] = False
 
+# 고품질 Unsplash 고화질 이미지 5개 섹션 세팅
+about_images = [
+    "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80", # 1. DIY 키트
+    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80", # 2. 에어셀 쿠션
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80", # 3. 이온음료
+    "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80", # 4. 폴리모프 악력기
+    "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1000&auto=format&fit=crop&q=80"  # 5. 커뮤니티/상생
+]
+
 # 원본 C2C 상품 목록
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
@@ -154,7 +165,7 @@ if 'c2c_products' not in st.session_state:
             "name": "폴리모프 커스텀 지압 악력기", 
             "price": 12000, 
             "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
-            "img": "ganadi.jpg",
+            "img": about_images[3],
             "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
             "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다.",
             "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
@@ -162,14 +173,14 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-# 원본 공식 키트 데이터
+# 공식 키트 데이터
 kits = [
     {
         "id": 1,
         "name": "EXERCISE 커스텀 DIY 운동 키트", 
         "price": 15000, 
         "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
-        "img": "ganadi.jpg",
+        "img": about_images[0],
         "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
         "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다.",
         "components": "라텍스밴드, 지압판, 폴리모프 왁스",
@@ -180,7 +191,7 @@ kits = [
         "name": "맞춤형 공기방석 에어셀 제작 키트", 
         "price": 18500, 
         "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
-        "img": "usagi.jpg",
+        "img": about_images[1],
         "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
         "desc_detail": "공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다.",
         "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
@@ -191,7 +202,7 @@ kits = [
         "name": "소멸위기 지역 특산물 이온음료 DIY 키트", 
         "price": 9800, 
         "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
-        "img": "hachiware.jpg",
+        "img": about_images[2],
         "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
         "desc_detail": "지역 상생의 의미를 담아 건강하고 맛있게 수분과 전해질을 보충하는 이온음료 키트입니다.",
         "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
@@ -205,7 +216,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 최상단 헤더 (≡ 햄버거 메뉴 토글 버튼 + 브랜드 로고 + 장바구니)
+# 최상단 헤더 (기업 소개 화면에서는 장바구니 비노출)
 # -------------------------------------------------------------------
 col_hdr1, col_hdr2, col_hdr3 = st.columns([1, 4, 1])
 
@@ -221,42 +232,43 @@ with col_hdr2:
     """, unsafe_allow_html=True)
 
 with col_hdr3:
-    cart_cnt = len(st.session_state['cart'])
-    btn_text = f"🛒 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
-    if st.button(btn_text, type="primary", use_container_width=True):
-        st.session_state['page'] = 'cart'
-        st.rerun()
+    # 기업 소개('about') 화면이 아닐 때만 장바구니 노출
+    if st.session_state['page'] != 'about':
+        cart_cnt = len(st.session_state['cart'])
+        btn_text = f"🛒 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
+        if st.button(btn_text, type="primary", use_container_width=True):
+            st.session_state['page'] = 'cart'
+            st.rerun()
 
 # -------------------------------------------------------------------
-# 햄버거 메뉴 누르면 열리는 슬라이드/네비게이션 창
+# 햄버거 메뉴 세로(Vertical) 정렬 레이아웃
 # -------------------------------------------------------------------
 if st.session_state['menu_open']:
     with st.container(border=True):
-        st.markdown("### 🧭 전체 메뉴")
-        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+        st.markdown("### 🧭 메뉴 탐색")
         
-        with m_col1:
-            if st.button("🏢 기업/브랜드 소개", use_container_width=True):
-                st.session_state['page'] = 'about'
-                st.session_state['menu_open'] = False
-                st.rerun()
-        with m_col2:
-            if st.button("🛍️ 스마트스토어", use_container_width=True):
-                st.session_state['page'] = 'store'
-                st.session_state['menu_open'] = False
-                st.rerun()
-        with m_col3:
-            if st.button("🔐 로그인 / 회원가입", use_container_width=True):
-                st.session_state['page'] = 'login'
-                st.session_state['menu_open'] = False
-                st.rerun()
-        with m_col4:
-            if st.button("⚙️ 관리자", use_container_width=True):
-                st.session_state['page'] = 'admin'
-                st.session_state['menu_open'] = False
-                st.rerun()
+        # 세로 형태로 메뉴 정렬
+        if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+            st.session_state['page'] = 'login'
+            st.session_state['menu_open'] = False
+            st.rerun()
+            
+        if st.button("🛍️ 스마트스토어", use_container_width=True):
+            st.session_state['page'] = 'store'
+            st.session_state['menu_open'] = False
+            st.rerun()
+            
+        if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True):
+            st.session_state['page'] = 'about'
+            st.session_state['menu_open'] = False
+            st.rerun()
+            
+        if st.button("⚙️ 관리자 페이지", use_container_width=True):
+            st.session_state['page'] = 'admin'
+            st.session_state['menu_open'] = False
+            st.rerun()
 
-# 장바구니 알림 모달
+# 장바구니 모달
 if st.session_state['show_modal']:
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
@@ -272,74 +284,112 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 1. 기업/브랜드 소개 페이지 (접속 시 첫 화면)
+# 1. 기업/브랜드 소개 페이지 (5개 이미지 및 스토리 구성)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.markdown("<p style='text-align:center; color:#666; font-size:18px; font-weight:500;'>“운동에는 하나의 정답이 없다”</p>", unsafe_allow_html=True)
     st.divider()
 
-    # [섹션 1]
+    # [섹션 1] DIY 키트
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
     with col_img1:
-        safe_image("ganadi.jpg")
+        safe_image(about_images[0])
     with col_txt1:
         st.write("")
-        st.markdown('<div class="lush-tag">01. INNOVATION</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">01. CUSTOM DIY KIT</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
-            EXERCISE는 커스텀 DIY 키트,<br>
-            맞춤형 에어셀 쿠션과 같은<br>
-            혁신적인 운동 솔루션을 선보입니다.
+            자신의 신체 조건과 목적에<br>
+            완벽하게 맞추는 커스텀 키트
         </div>
         <div class="lush-section-desc">
-            정형화된 공장형 기구의 틀을 깨고, 개인의 독특한 손 모양과 체형에 완벽히 피팅되는 
-            다양한 '커스터마이징' 키트를 개발합니다.
+            정형화된 공장형 기구의 틀을 깨고, 개인의 독특한 손 모양과 체형에 피팅되는 
+            다양한 '커스터마이징' 키트를 제시하여 나만의 움직임을 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
 
-    # [섹션 2]
+    # [섹션 2] 에어셀 쿠션
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
-        st.markdown('<div class="lush-tag">02. COMMUNITY & ECO</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">02. AIR-CELL BALANCING</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
-            나만의 기구를 직접 만들고,<br>
-            지역 특산물로 수분을 채우며,<br>
-            가치를 함께 공유합니다.
+            장시간 앉아있는 현대인을 위한<br>
+            골반 및 척추 균형 솔루션
         </div>
         <div class="lush-section-desc">
-            지방 소멸 위기 지역 특산물을 활용한 건강 이온음료부터 C2C 마켓까지,
-            EXERCISE는 지속 가능한 건강 생태계와 지역 상생의 가치를 만들어갑니다.
+            공기량을 자율 조절할 수 있는 에어셀 구조를 통해 바른 자세 유지와 
+            체중 분산 효과를 극대화한 인체공학적 방석을 선사합니다.
         </div>
         """, unsafe_allow_html=True)
     with col_img2:
-        safe_image("usagi.jpg")
+        safe_image(about_images[1])
 
     st.divider()
 
-    # [섹션 3]
+    # [섹션 3] 지역 특산물 이온음료
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
     with col_img3:
-        safe_image("hachiware.jpg")
+        safe_image(about_images[2])
     with col_txt3:
         st.write("")
-        st.markdown('<div class="lush-tag">03. PERFECT FITTING</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">03. LOCAL RECOVERY DRINK</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
-            표준화된 규격에 몸을 맞추지 마세요.<br>
-            당신의 몸에 기구를 맞추세요.
+            소멸 위기 지역 특산물로<br>
+            건강하게 채우는 수분과 전해질
         </div>
         <div class="lush-section-desc">
-            체온에 맞춰 자율 변경되는 폴리모프 성형 기술을 통해 오직 단 한 사람만을 위한 
-            인체공학적 그립감을 제공합니다.
+            꿀유자, 오미자 등 지방 소멸 위기 지역의 대표 특산물을 활용하여 
+            운동 후 필요한 수분과 에너지를 건강하고 빠르게 충전합니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
-    if st.button("🛍️ 스마트스토어로 이동하여 상품 보기 ➔", type="primary", use_container_width=True):
+
+    # [섹션 4] 폴리모프 성형 기술
+    col_txt4, col_img4 = st.columns([1, 1], gap="large")
+    with col_txt4:
+        st.write("")
+        st.markdown('<div class="lush-tag">04. POLYMORPH ERGONOMICS</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            내 손바닥 곡선에 딱 맞게<br>
+            변형되는 맞춤형 지압 구조
+        </div>
+        <div class="lush-section-desc">
+            체온에 반응해 형태를 자유롭게 잡을 수 있는 폴리모프 성형 기술로 
+            단 하나뿐인 그립감과 운동 효율을 선사합니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img4:
+        safe_image(about_images[3])
+
+    st.divider()
+
+    # [섹션 5] C2C 마켓 및 지역 상생
+    col_img5, col_txt5 = st.columns([1, 1], gap="large")
+    with col_img5:
+        safe_image(about_images[4])
+    with col_txt5:
+        st.write("")
+        st.markdown('<div class="lush-tag">05. SHARED COMMUNITY</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            구매자의 아이디어가 상품이 되는<br>
+            C2C 가치 공유 커뮤니티
+        </div>
+        <div class="lush-section-desc">
+            사용자가 직접 제작한 커스텀 운동 기구를 서로 공유하고 판매할 수 있는 
+            선순환 웰니스 생태계를 만들어갑니다.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+    if st.button("🛍️ 스마트스토어로 이동하여 상품 둘러보기 ➔", type="primary", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
@@ -364,7 +414,7 @@ elif st.session_state['page'] == 'login':
                 if submit_login:
                     if user_id and user_pw:
                         st.session_state['user'] = user_id.split('@')[0]
-                        st.success(f"{st.session_state['user']}님, 로그인되었습니다!")
+                        st.success(f"{st.session_state['user']}님, 성공적으로 로그인되었습니다!")
                         st.session_state['page'] = 'store'
                         st.rerun()
                     else:
@@ -432,7 +482,7 @@ elif st.session_state['page'] == 'store':
                         "name": f"[C2C] {c_title}",
                         "price": c_price,
                         "comment": f"판매자: {c_seller} | {c_desc_title}",
-                        "img": c_img_file if c_img_file else "ganadi.jpg",
+                        "img": c_img_file if c_img_file else about_images[3],
                         "desc_title": c_desc_title,
                         "desc_detail": c_desc_detail,
                         "components": "커스텀 조합",
