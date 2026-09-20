@@ -800,7 +800,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             st.rerun()
 
 # -------------------------------------------------------------------
-# 6. 관리자 페이지 (주문 정보 깔끔하게 수정 반영)
+# 6. 관리자 페이지 (요청하신 레이아웃 & 눈금 정수 단위 반영)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
     st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
@@ -824,9 +824,9 @@ elif st.session_state['page'] == 'admin':
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
 
-            # 초록색(#03C75A) 가로 막대그래프 생성
+            # 눈금을 1 단위로 고정한 가로 막대그래프
             chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
-                x=alt.X('수량:Q', title='판매 수량'),
+                x=alt.X('수량:Q', title='판매 수량', axis=alt.Axis(tickMinStep=1, dtick=1)),
                 y=alt.Y('상품명:N', title='상품명', sort='-x'),
                 tooltip=['상품명', '수량']
             ).properties(
@@ -838,16 +838,22 @@ elif st.session_state['page'] == 'admin':
             st.divider()
             st.subheader("📋 전체 주문 정보")
             
-            # 표(table) 제거, 이모티콘 제거 후 깔끔한 카드 스타일 형식 출력
+            # 박스 없이 '줄(선)'구분 + [좌: 주문정보 / 우: 주문내역&금액] 레이아웃 적용
             for o in st.session_state['orders']:
-                items_str = ", ".join(o['items'])
-                with st.container(border=True):
-                    st.markdown(f"**주문 번호:** ORD-{o['id']:04d}")
+                st.write("---")
+                col_left, col_right = st.columns([1, 1])
+                
+                with col_left:
+                    st.markdown(f"**주문번호:** ORD-{o['id']:04d}")
                     st.markdown(f"**이름:** {o.get('name', '-')}")
                     st.markdown(f"**연락처:** {o.get('phone', '-')}")
                     st.markdown(f"**주소:** {o.get('address', '-')}")
+                    
+                with col_right:
+                    items_str = ", ".join(o['items'])
                     st.markdown(f"**주문 내역:** {items_str}")
                     st.markdown(f"**결제 금액:** {o.get('total_price', 0):,} 원")
+            st.write("---")
         else:
             st.info("등록된 주문 내역이 없습니다.")
 
