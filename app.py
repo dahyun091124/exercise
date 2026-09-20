@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 러쉬(LUSH) 스타일 커스텀 CSS (사이드바 >> 화살표 옆 '메뉴' 텍스트 표시)
+# 러쉬(LUSH) 스타일 커스텀 CSS (좌측 상단 >> 아이콘 옆 '메뉴' 글씨 강제 렌더링)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -24,26 +24,37 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 🔥 [수정] 왼쪽 상단 '>>' 및 '<<' 버튼 아이콘 바로 옆에 '메뉴' 글씨 추가 */
+    /* 🔥 [핵심 수정] 좌측 상단 사이드바 토글 버튼(>>) 옆에 '메뉴' 텍스트 강제 표시 */
     [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] button,
-    [data-testid="stSidebarExpandButton"] button {
-        display: flex !important;
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarExpandButton"] {
+        display: inline-flex !important;
         align-items: center !important;
-        gap: 4px !important;
         width: auto !important;
+        overflow: visible !important;
     }
 
-    /* 접혀 있을 때 (>>) 및 펼쳐져 있을 때 (<<) 버튼 옆에 '메뉴' 텍스트 고정 표시 */
+    /* 토글 버튼 내부 요소 바로 옆에 '메뉴' 글씨 렌더링 */
     [data-testid="stSidebarCollapsedControl"]::after,
     [data-testid="stSidebarCollapseButton"] button::after,
-    [data-testid="stSidebarExpandButton"] button::after {
-        content: "메뉴";
-        font-size: 14px;
-        font-weight: 700;
+    [data-testid="stSidebarExpandButton"] button::after,
+    [data-testid="stSidebarCollapsedControl"] button::after {
+        content: "메뉴" !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
         color: #111111 !important;
-        white-space: nowrap;
-        margin-left: 2px;
+        margin-left: 8px !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+    }
+
+    /* 버튼 영역 크기가 커져서 글자가 잘리지 않도록 클릭 영역 확장 */
+    [data-testid="stSidebarCollapsedControl"] button,
+    [data-testid="stSidebarCollapseButton"] button,
+    [data-testid="stSidebarExpandButton"] button {
+        width: auto !important;
+        padding-right: 12px !important;
     }
 
     /* 헤더 스페이스 영역 확보 */
