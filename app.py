@@ -183,7 +183,7 @@ def safe_image(img):
     else:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=60", use_container_width=True)
 
-# 1. 세션 상태 초기화 (처음 접속 시 브랜드 소개 페이지 진입)
+# 1. 세션 상태 초기화
 if 'cart' not in st.session_state:
     st.session_state['cart'] = []
 
@@ -264,7 +264,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['added_item'] = item_name
     st.session_state['show_modal'] = True
 
-# --- 2-1. 최상단 브랜드 네비게이션 바 ---
+# --- 최상단 브랜드 네비게이션 바 ---
 if st.session_state['page'] == 'about':
     nav_col1, nav_col2 = st.columns(2)
     with nav_col1:
@@ -315,7 +315,7 @@ if st.session_state['show_modal'] and st.session_state['page'] != 'about':
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 풍성한 5개 스토리 지그재그 섹션)
+# 화면 0: 기업/브랜드 소개 페이지 (러쉬 공식몰 스타일: 샐러드 이미지를 피트니스 기구 이미지로 대체)
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     st.write("")
@@ -344,7 +344,7 @@ if st.session_state['page'] == 'about':
     st.divider()
     st.write("")
 
-    # [섹션 2] 왼쪽: 커뮤니티 텍스트 / 오른쪽: 이미지
+    # [섹션 2] 왼쪽: 커뮤니티 텍스트 / 오른쪽: 피트니스 상생 모티브 이미지 (샐러드 대체)
     col_txt2, col_img2 = st.columns([1, 1.1], gap="large")
     with col_txt2:
         st.write("")
@@ -362,13 +362,14 @@ if st.session_state['page'] == 'about':
         </div>
         """, unsafe_allow_html=True)
     with col_img2:
-        st.image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
+        # 기존 샐러드 사진 대신 크기가 딱 맞춰지는 운동/건강 피트니스 컨셉 이미지 적용
+        st.image("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
 
     st.write("")
     st.divider()
     st.write("")
 
-    # [섹션 3] 왼쪽: 이미지 / 오른쪽: 100% 맞춤 피팅
+    # [섹션 3] 왼쪽: 덤벨/운동기구 이미지 / 오른쪽: 100% 맞춤 피팅
     col_img3, col_txt3 = st.columns([1.1, 1], gap="large")
     with col_img3:
         st.image("https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1200&auto=format&fit=crop&q=80", use_container_width=True)
