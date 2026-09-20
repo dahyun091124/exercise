@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 # -------------------------------------------------------------------
-# 페이지 기본 설정 (사이드바 완전 숨김)
+# 페이지 기본 설정 (사이드바 기본 닫힘 상태: collapsed)
 # -------------------------------------------------------------------
 st.set_page_config(
     page_title="EXERCISE 브랜드몰",
@@ -12,16 +12,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# 세션 상태로 사이드바 열림/닫힘 제어
+if 'sidebar_state' not in st.session_state:
+    st.session_state['sidebar_state'] = 'collapsed'
+
 # -------------------------------------------------------------------
-# 러쉬(LUSH) 스타일 커스텀 CSS 및 메뉴 팝업 스타일
+# 러쉬(LUSH) 스타일 커스텀 CSS
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Streamlit 기본 사이드바 숨기기 (버튼 클릭 팝업으로 대체) */
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    
     /* 전체 백그라운드 & 폰트 설정 */
     .stApp, body, html {
         background-color: #ffffff !important;
@@ -32,13 +31,37 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
 
-    /* 러쉬 헤더 레이아웃 */
-    .lush-logo {
+    /* 사이드바(메뉴창) 내 메뉴 버튼 스타일 */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+        border-right: 1px solid #eeeeee !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #111111 !important;
+    }
+    [data-testid="stSidebar"] .stButton > button {
+        background-color: #f8f9fa !important;
+        color: #111111 !important;
+        border: 1px solid #e9ecef !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px;
+        text-align: left !important;
+        padding-left: 15px !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background-color: #111111 !important;
+        color: #ffffff !important;
+    }
+
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고) */
+    .lush-logo-center {
         font-size: 32px;
         font-weight: 950;
         letter-spacing: -1.5px;
         color: #000000;
         text-transform: uppercase;
+        text-align: center;
+        width: 100%;
     }
 
     /* 러쉬 브랜드 메인 서두 스타일 */
@@ -109,7 +132,7 @@ st.markdown("""
         word-break: keep-all;
     }
     
-    /* 태그 강조 초록색 (#03C75A) */
+    /* 초록색 태그 강조 (#03C75A) */
     .lush-tag {
         font-size: 13px;
         font-weight: 800;
@@ -200,11 +223,11 @@ if 'admin_authenticated' not in st.session_state:
 
 # 감성 이미지 리스트
 about_images = [
-    "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80", # 1. DIY 키트
-    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80", # 2. 에어셀 쿠션
-    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80", # 3. 이온음료
-    "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80", # 4. 폴리모프 악력기
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. SHARED COMMUNITY
+    "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"
 ]
 
 # 스마트스토어 상품 목록
@@ -265,60 +288,52 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 러쉬 스타일 상단 네비게이션 헤더 및 클릭 메뉴버튼
+# 왼쪽에 세로로 뜨는 사이드바 메뉴 (≡ 메뉴 클릭 시 토글형으로 열림)
 # -------------------------------------------------------------------
-head_c1, head_c2, head_c3, head_c4, head_c5, head_c6, head_c7 = st.columns([2.5, 1, 1, 1, 1, 1, 1.2])
-
-with head_c1:
-    st.markdown("<div class='lush-logo'>EXERCISE</div>", unsafe_allow_html=True)
-
-with head_c2:
-    if st.button("기업소개", use_container_width=True):
+with st.sidebar:
+    st.markdown("### 🧭 NAVIGATION")
+    st.write("---")
+    
+    if st.button("🏢 기업소개", use_container_width=True):
         st.session_state['page'] = 'about'
         st.rerun()
 
-with head_c3:
-    if st.button("스마트스토어", use_container_width=True):
+    if st.button("🛍️ 스마트스토어", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-with head_c4:
-    if st.button("로그인", use_container_width=True):
+    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
         st.session_state['page'] = 'login'
         st.rerun()
 
-with head_c5:
-    if st.button("관리자", use_container_width=True):
+    if st.button("⚙️ 관리자 페이지", use_container_width=True):
         st.session_state['page'] = 'admin'
         st.rerun()
 
-with head_c6:
     cart_cnt = len(st.session_state['cart'])
-    cart_label = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒 장바구니"
-    if st.button(cart_label, type="primary", use_container_width=True):
+    cart_label = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
+    if st.button(cart_label, use_container_width=True):
         st.session_state['page'] = 'cart'
         st.rerun()
 
-# 누르면 뜨는 전체 메뉴버튼
-with head_c7:
-    if st.button("☰ 메뉴", use_container_width=True):
-        @st.dialog("🧭 EXERCISE 전체 메뉴")
-        def open_menu_dialog():
-            st.write("원하시는 페이지를 선택해 주세요.")
-            st.divider()
-            if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True):
-                st.session_state['page'] = 'about'
-                st.rerun()
-            if st.button("🛍️ 스마트스토어", use_container_width=True):
-                st.session_state['page'] = 'store'
-                st.rerun()
-            if st.button("🔑 로그인 / 회원가입", use_container_width=True):
-                st.session_state['page'] = 'login'
-                st.rerun()
-            if st.button("⚙️ 관리자 페이지", use_container_width=True):
-                st.session_state['page'] = 'admin'
-                st.rerun()
-        open_menu_dialog()
+# -------------------------------------------------------------------
+# [요청사항 반영] 맨 왼쪽: ≡ 메뉴 / 가운데: EXERCISE 로고 헤더
+# -------------------------------------------------------------------
+col_left_btn, col_center_logo, col_right_empty = st.columns([1, 4, 1])
+
+with col_left_btn:
+    # 클릭하면 왼쪽 사이드바가 열리거나 닫히는 토글 동작
+    if st.button("≡ 메뉴", use_container_width=True):
+        st.session_state['sidebar_state'] = 'expanded' if st.session_state['sidebar_state'] == 'collapsed' else 'collapsed'
+        # Streamlit 사이드바 열림 제어
+        st.set_page_config(initial_sidebar_state=st.session_state['sidebar_state'])
+        st.rerun()
+
+with col_center_logo:
+    st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
+
+with col_right_empty:
+    st.write("") # 우측 대칭용 여백
 
 st.write("---")
 
@@ -488,7 +503,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 05. SHARED COMMUNITY (요청하신 초록색 태그 적용)
+    # 05. SHARED COMMUNITY
     col_img5, col_txt5 = st.columns([1, 1], gap="large")
     with col_img5:
         safe_image(about_images[4])
