@@ -166,14 +166,18 @@ st.markdown("""
         text-align: left !important;
         padding-left: 15px !important;
     }
-    [data-testid="stSidebar"] .stButton > button:hover {
-        background-color: #111111 !important;
-        color: #ffffff !important;
+    /* 사이드바 버튼 클릭/마우스오버 시 연한 회색으로 변경 */
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] .stButton > button:focus,
+    [data-testid="stSidebar"] .stButton > button:active {
+        background-color: #e9ecef !important;
+        color: #111111 !important;
+        border-color: #ced4da !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 52px) */
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 확대) */
     .lush-logo-center {
-        font-size: 52px;
+        font-size: 68px;
         font-weight: 950;
         letter-spacing: -1.5px;
         color: #000000;
