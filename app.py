@@ -3,13 +3,13 @@ import os
 import pandas as pd
 
 # -------------------------------------------------------------------
-# 페이지 기본 설정 (사이드바 기본 열림/닫힘 설정 가능)
+# 페이지 기본 설정
 # -------------------------------------------------------------------
 st.set_page_config(
     page_title="EXERCISE 브랜드몰",
     page_icon="💪🏼",
     layout="wide",
-    initial_sidebar_state="collapsed"  # 접힌 상태로 시작 (좌측 상단 > 눌러서 펼침)
+    initial_sidebar_state="expanded"  # 사이드바가 펼쳐진 상태로 시작
 )
 
 # -------------------------------------------------------------------
@@ -27,7 +27,7 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
 
-    /* 사이드바(메뉴창) 내 메뉴 버튼 스타일 */
+    /* 사이드바(메뉴창) 스타일 */
     [data-testid="stSidebar"] {
         background-color: #ffffff !important;
         border-right: 1px solid #eeeeee !important;
@@ -285,7 +285,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 왼쪽에 세로로 뜨는 사이드바 메뉴 (Streamlit 사이드바 전용 메뉴)
+# 사이드바 내비게이션 메뉴 (Streamlit 순정 사이드바)
 # -------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🧭 NAVIGATION")
