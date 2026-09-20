@@ -204,9 +204,10 @@ st.markdown("""
         word-break: keep-all;
     }
     .lush-quote-desc {
-        font-size: 15px;
-        line-height: 1.8;
-        color: #666666;
+        font-size: 16px;
+        line-height: 1.9;
+        letter-spacing: -0.2px;
+        color: #444444;
         word-break: keep-all;
     }
 
@@ -238,20 +239,22 @@ st.markdown("""
         font-size: 28px;
     }
 
-    /* 상세 섹션 스타일 */
+    /* 상세 섹션 스타일 (수정: 가독성 개선) */
     .lush-section-title {
         font-size: clamp(22px, 2.8vw, 34px);
         font-weight: 900;
         line-height: 1.35;
         letter-spacing: -1.5px;
         color: #111111 !important;
-        margin-bottom: 15px;
+        margin-bottom: 18px;
         word-break: keep-all;
     }
     .lush-section-desc {
-        font-size: 15px;
-        line-height: 1.75;
-        color: #555555 !important;
+        font-size: 17px !important;
+        line-height: 1.95 !important;
+        letter-spacing: -0.3px !important;
+        font-weight: 500 !important;
+        color: #333333 !important;
         word-break: keep-all;
     }
     
@@ -479,7 +482,7 @@ if st.session_state['page'] == 'about':
             완벽하게 맞추는 커스텀 키트
         </div>
         <div class="lush-section-desc">
-            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춤 피팅되는 
+            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춰지는<br>
             커스터마이징 키트를 통해 나만의 효율적인 움직임을 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
@@ -497,8 +500,8 @@ if st.session_state['page'] == 'about':
             골반 및 척추 균형 솔루션
         </div>
         <div class="lush-section-desc">
-            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여 바른 자세 유지와 
-            체중 분산 효과를 극대화한 인체공학적 방석을 제작합니다.
+            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여<br>
+            바른 자세 유지와 체중 분산 효과를 극대화한 인체공학적 방석을 제작합니다.
         </div>
         """, unsafe_allow_html=True)
     with col_img2:
@@ -519,7 +522,7 @@ if st.session_state['page'] == 'about':
             건강하게 채우는 수분과 전해질
         </div>
         <div class="lush-section-desc">
-            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여 
+            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여<br>
             운동 후 필요한 수분과 에너지를 건강하게 충전하는 상생형 음료입니다.
         </div>
         """, unsafe_allow_html=True)
@@ -537,7 +540,7 @@ if st.session_state['page'] == 'about':
             변형되는 맞춤형 지압 구조
         </div>
         <div class="lush-section-desc">
-            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여 
+            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여<br>
             세상에 단 하나뿐인 최고의 그립감과 자극을 제공합니다.
         </div>
         """, unsafe_allow_html=True)
@@ -559,7 +562,7 @@ if st.session_state['page'] == 'about':
             C2C 가치 공유 커뮤니티
         </div>
         <div class="lush-section-desc">
-            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는 
+            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는<br>
             선순환 C2C 마켓플레이스를 지향합니다.
         </div>
         """, unsafe_allow_html=True)
