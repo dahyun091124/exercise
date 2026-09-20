@@ -113,7 +113,7 @@ st.markdown("""
         display: inline-block !important;
     }
 
-    /* 5. 스마트스토어 탭(전체 상품 / 구매자 창작 마켓) 글씨 색상 검정색 고정 */
+    /* 5. 스마트스토어 탭 글씨 색상 검정색 고정 */
     .stTabs [data-baseweb="tab"] p,
     .stTabs [data-baseweb="tab"] div,
     .stTabs [data-baseweb="tab"] {
@@ -149,7 +149,7 @@ st.markdown("""
         color: #111111 !important;
     }
 
-    /* 사이드바(메뉴창) 내부 스타일 */
+    /* 사이드바 스타일 */
     [data-testid="stSidebar"] {
         background-color: #ffffff !important;
         border-right: 1px solid #eeeeee !important;
@@ -166,7 +166,6 @@ st.markdown("""
         text-align: left !important;
         padding-left: 15px !important;
     }
-    /* 사이드바 버튼 클릭/마우스오버 시 연한 회색으로 변경 */
     [data-testid="stSidebar"] .stButton > button:hover,
     [data-testid="stSidebar"] .stButton > button:focus,
     [data-testid="stSidebar"] .stButton > button:active {
@@ -175,7 +174,7 @@ st.markdown("""
         border-color: #ced4da !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 확대) */
+    /* 브랜드 헤더 레이아웃 */
     .lush-logo-center {
         font-size: 75px;
         font-weight: 950;
@@ -187,7 +186,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* 러쉬 브랜드 메인 서두 스타일 */
+    /* 서두 박스 */
     .lush-quote-box {
         text-align: center;
         padding: 50px 20px 40px 20px;
@@ -211,7 +210,7 @@ st.markdown("""
         word-break: keep-all;
     }
 
-    /* 러쉬 원형 아이콘 그리드 스타일 */
+    /* 원형 카드 스타일 */
     .circle-card {
         background-color: #111111;
         width: 170px;
@@ -239,7 +238,7 @@ st.markdown("""
         font-size: 28px;
     }
 
-    /* 상세 섹션 스타일 (수정: 가독성 개선) */
+    /* 상세 섹션 스타일 */
     .lush-section-title {
         font-size: clamp(22px, 2.8vw, 34px);
         font-weight: 900;
@@ -258,7 +257,6 @@ st.markdown("""
         word-break: keep-all;
     }
     
-    /* 초록색 태그 강조 (#03C75A) */
     .lush-tag {
         font-size: 13px;
         font-weight: 800;
@@ -268,7 +266,6 @@ st.markdown("""
         margin-bottom: 8px;
     }
 
-    /* 가격 및 랭킹 태그 */
     .price-text {
         font-size: 20px;
         font-weight: 800;
@@ -286,7 +283,6 @@ st.markdown("""
         z-index: 10;
     }
 
-    /* 푸터 스타일 */
     .footer-container {
         margin-top: 80px;
         padding: 40px 0 20px 0;
@@ -416,7 +412,7 @@ if st.session_state['page'] == 'about':
         </div>
         <div class="lush-quote-desc">
             획일화된 공장형 기구의 틀에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 케어,<br>
-            시공간 제약을 넘어서는 VR 피트니스 및 C2C 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
+            원하는 세계 도시를 어디서나 경험하는 VR 러닝 및 C2C 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -462,8 +458,8 @@ if st.session_state['page'] == 'about':
     with col_g6:
         st.markdown("""
         <div class="circle-card">
-            <div class="circle-card-icon">🥽</div>
-            <div class="circle-card-title">VR FITNESS</div>
+            <div class="circle-card-icon">🏃</div>
+            <div class="circle-card-title">CITY RUNNER</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -570,19 +566,20 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 06. VIRTUAL REALITY FIT
+    # 06. [MOVE] CITY RUNNER (기획서 의도 정확 반영)
     col_txt6, col_img6 = st.columns([1, 1], gap="large")
     with col_txt6:
         st.write("")
-        st.markdown('<div class="lush-tag">06. VIRTUAL REALITY FIT</div>', unsafe_allow_html=True)
+        st.markdown('<div class="lush-tag">06. [MOVE] CITY RUNNER</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="lush-section-title">
-            시공간의 한계를 뛰어넘는<br>
-            몰입형 VR 메타버스 트레이닝
+            늘 똑같은 장소에서 벗어나,<br>
+            세계 도시를 달리는 VR 러닝
         </div>
         <div class="lush-section-desc">
-            가상현실(VR) 기술을 결합하여 어디서나 생동감 있는 맞춤형 운동 공간을 체험하고,<br>
-            실시간 데이터 코칭을 통해 더 몰입감 넘치는 헬스케어 루틴을 제안합니다.
+            매일 반복되는 지루한 공간을 벗어나 보세요!<br>
+            원하는 세계 주요 도시와 다양한 테마를 직접 선택하고,<br>
+            나만의 코스를 자유롭게 달리며 몰입감 넘치고 신나는 VR 러닝을 경험할 수 있습니다.
         </div>
         """, unsafe_allow_html=True)
     with col_img6:
