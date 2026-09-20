@@ -49,9 +49,9 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고) */
+    /* 러쉬 헤더 레이아웃 (중앙 정렬 로고 - 글씨 크기 키움) */
     .lush-logo-center {
-        font-size: 32px;
+        font-size: 52px;
         font-weight: 950;
         letter-spacing: -1.5px;
         color: #000000;
