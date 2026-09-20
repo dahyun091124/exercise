@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------
-# 러쉬(LUSH) 스타일 커스텀 CSS 및 메뉴 라벨 강제 적용
+# 러쉬(LUSH) 스타일 커스텀 CSS (사이드바 >> 화살표 옆 '메뉴' 텍스트 표시)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -24,50 +24,31 @@ st.markdown("""
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
-    /* 🔥 [핵심 수정] 사이드바 버튼 영역에 "메뉴" 글씨 추가 */
-    [data-testid="stSidebarCollapseButton"], 
-    [data-testid="stSidebarExpandButton"],
-    [data-testid="stSidebarCollapsedControl"] {
-        background-color: #111111 !important;
-        color: #ffffff !important;
-        border-radius: 6px !important;
-        padding: 6px 12px !important;
-        display: inline-flex !important;
+    /* 🔥 [수정] 왼쪽 상단 '>>' 및 '<<' 버튼 아이콘 바로 옆에 '메뉴' 글씨 추가 */
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"] button,
+    [data-testid="stSidebarExpandButton"] button {
+        display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
+        gap: 4px !important;
+        width: auto !important;
     }
 
-    [data-testid="stSidebarCollapseButton"]::after, 
-    [data-testid="stSidebarExpandButton"]::after,
-    [data-testid="stSidebarCollapsedControl"]::after {
-        content: " 메뉴" !important;
-        font-size: 15px !important;
-        font-weight: 800 !important;
-        color: #ffffff !important;
-        margin-left: 4px !important;
+    /* 접혀 있을 때 (>>) 및 펼쳐져 있을 때 (<<) 버튼 옆에 '메뉴' 텍스트 고정 표시 */
+    [data-testid="stSidebarCollapsedControl"]::after,
+    [data-testid="stSidebarCollapseButton"] button::after,
+    [data-testid="stSidebarExpandButton"] button::after {
+        content: "메뉴";
+        font-size: 14px;
+        font-weight: 700;
+        color: #111111 !important;
+        white-space: nowrap;
+        margin-left: 2px;
     }
 
-    [data-testid="stSidebarCollapseButton"] span, 
-    [data-testid="stSidebarExpandButton"] span,
-    [data-testid="stSidebarCollapsedControl"] span {
-        color: #ffffff !important;
-    }
-
-    /* 상단 커스텀 메뉴 내비게이션 바 */
-    .top-menu-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #111111;
-        color: #ffffff;
-        padding: 10px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .top-menu-title {
-        font-weight: 900;
-        font-size: 16px;
-        letter-spacing: 1px;
+    /* 헤더 스페이스 영역 확보 */
+    [data-testid="stHeader"] {
+        background-color: transparent !important;
     }
 
     /* 사이드바(메뉴창) 스타일 */
@@ -328,64 +309,36 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 상단 퀵 메뉴바 (화면 상단 직접 메뉴 버튼)
-# -------------------------------------------------------------------
-st.markdown('<div class="top-menu-bar"><span class="top-menu-title">☰ 메뉴 (NAVIGATION)</span></div>', unsafe_allow_html=True)
-top_col1, top_col2, top_col3, top_col4, top_col5 = st.columns(5)
-with top_col1:
-    if st.button("🏢 기업소개", key="top_m1", use_container_width=True):
-        st.session_state['page'] = 'about'
-        st.rerun()
-with top_col2:
-    if st.button("🛍️ 스마트스토어", key="top_m2", use_container_width=True):
-        st.session_state['page'] = 'store'
-        st.rerun()
-with top_col3:
-    if st.button("🔑 로그인/가입", key="top_m3", use_container_width=True):
-        st.session_state['page'] = 'login'
-        st.rerun()
-with top_col4:
-    if st.button("⚙️ 관리자", key="top_m4", use_container_width=True):
-        st.session_state['page'] = 'admin'
-        st.rerun()
-with top_col5:
-    c_cnt = len(st.session_state['cart'])
-    c_lbl = f"🛒 장바구니({c_cnt})" if c_cnt > 0 else "🛒 장바구니"
-    if st.button(c_lbl, key="top_m5", use_container_width=True):
-        st.session_state['page'] = 'cart'
-        st.rerun()
-
-# -------------------------------------------------------------------
-# 사이드바 내비게이션 메뉴 (좌측 메뉴창)
+# 사이드바 내비게이션 메뉴
 # -------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🧭 메뉴 (MENU)")
+    st.markdown("### 🧭 NAVIGATION")
     st.write("---")
     
-    if st.button("🏢 기업소개", key="side_m1", use_container_width=True):
+    if st.button("🏢 기업소개", use_container_width=True):
         st.session_state['page'] = 'about'
         st.rerun()
 
-    if st.button("🛍️ 스마트스토어", key="side_m2", use_container_width=True):
+    if st.button("🛍️ 스마트스토어", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-    if st.button("🔑 로그인 / 회원가입", key="side_m3", use_container_width=True):
+    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
         st.session_state['page'] = 'login'
         st.rerun()
 
-    if st.button("⚙️ 관리자 페이지", key="side_m4", use_container_width=True):
+    if st.button("⚙️ 관리자 페이지", use_container_width=True):
         st.session_state['page'] = 'admin'
         st.rerun()
 
     cart_cnt = len(st.session_state['cart'])
     cart_label = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
-    if st.button(cart_label, key="side_m5", use_container_width=True):
+    if st.button(cart_label, use_container_width=True):
         st.session_state['page'] = 'cart'
         st.rerun()
 
 # -------------------------------------------------------------------
-# 메인 헤더: 중앙 EXERCISE 로고 (52px)
+# 메인 헤더: 중앙 EXERCISE 로고
 # -------------------------------------------------------------------
 st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
 st.write("---")
