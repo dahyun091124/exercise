@@ -2,65 +2,129 @@ import streamlit as st
 import os
 import pandas as pd
 
-# 페이지 기본 설정
+# -------------------------------------------------------------------
+# 페이지 기본 설정 (사이드바 완전 숨김)
+# -------------------------------------------------------------------
 st.set_page_config(
     page_title="EXERCISE 브랜드몰",
     page_icon="💪🏼",
     layout="wide",
-    initial_sidebar_state="expanded" # 기본 사이드바 열림
+    initial_sidebar_state="collapsed"
 )
 
-# 커스텀 CSS
+# -------------------------------------------------------------------
+# 러쉬(LUSH) 스타일 커스텀 CSS 및 메뉴 팝업 스타일
+# -------------------------------------------------------------------
 st.markdown("""
 <style>
+    /* Streamlit 기본 사이드바 숨기기 (버튼 클릭 팝업으로 대체) */
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    /* 전체 백그라운드 & 폰트 설정 */
     .stApp, body, html {
         background-color: #ffffff !important;
         color: #111111 !important;
     }
     
-    h1, h2, h3, h4, h5, h6, p, div, span, label, strong {
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    * {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
 
-    .stApp p, .stApp div, .stApp span, .stApp h1, .stApp h2, .stApp h3 {
-        color: #111111 !important;
-    }
-
-    /* 사이드바(왼쪽 메뉴) 스타일 */
-    [data-testid="stSidebar"] {
-        background-color: #1e1e1e !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: #ffffff !important;
-    }
-    [data-testid="stSidebar"] .stButton > button {
-        background-color: #2b2b2b !important;
-        color: #ffffff !important;
-        border: 1px solid #444444 !important;
-        font-weight: 600 !important;
-        margin-bottom: 5px;
-    }
-    [data-testid="stSidebar"] .stButton > button:hover {
-        background-color: #03C75A !important;
-        color: #ffffff !important;
-        border-color: #03C75A !important;
-    }
-
-    /* 브랜드 타이틀 스타일 */
-    .brand-header {
-        text-align: center;
-        padding: 0px 0 10px 0;
-        width: 100%;
-    }
-    .brand-title {
-        font-size: clamp(50px, 8vw, 100px);
+    /* 러쉬 헤더 레이아웃 */
+    .lush-logo {
+        font-size: 32px;
         font-weight: 950;
-        letter-spacing: -2px;
-        line-height: 1.0;
-        color: #111111 !important;
+        letter-spacing: -1.5px;
+        color: #000000;
         text-transform: uppercase;
     }
 
+    /* 러쉬 브랜드 메인 서두 스타일 */
+    .lush-quote-box {
+        text-align: center;
+        padding: 50px 20px 40px 20px;
+        max-width: 900px;
+        margin: 0 auto 30px auto;
+    }
+    .lush-quote-title {
+        font-size: clamp(22px, 3.2vw, 34px);
+        font-weight: 900;
+        line-height: 1.45;
+        letter-spacing: -1.5px;
+        color: #111111;
+        margin-bottom: 20px;
+        word-break: keep-all;
+    }
+    .lush-quote-desc {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #666666;
+        word-break: keep-all;
+    }
+
+    /* 러쉬 원형 아이콘 그리드 스타일 */
+    .circle-card {
+        background-color: #111111;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 15px auto;
+        color: #ffffff !important;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .circle-card-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #ffffff !important;
+        margin-top: 6px;
+    }
+    .circle-card-icon {
+        font-size: 28px;
+    }
+
+    /* 상세 섹션 스타일 */
+    .lush-section-title {
+        font-size: clamp(22px, 2.8vw, 34px);
+        font-weight: 900;
+        line-height: 1.35;
+        letter-spacing: -1.5px;
+        color: #111111 !important;
+        margin-bottom: 15px;
+        word-break: keep-all;
+    }
+    .lush-section-desc {
+        font-size: 15px;
+        line-height: 1.75;
+        color: #555555 !important;
+        word-break: keep-all;
+    }
+    
+    /* 태그 강조 초록색 (#03C75A) */
+    .lush-tag {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #03C75A !important;
+        margin-bottom: 8px;
+    }
+
+    /* 가격 및 버튼 스타일 */
+    .price-text {
+        font-size: 20px;
+        font-weight: 800;
+        color: #03C75A !important;
+    }
     .rank-badge {
         position: absolute;
         top: 10px;
@@ -73,87 +137,26 @@ st.markdown("""
         z-index: 10;
     }
     
-    .price-text {
-        font-size: 20px;
-        font-weight: 800;
-        color: #03C75A !important;
-    }
-    
     .stButton > button {
-        border-radius: 6px !important;
-        border: 1px solid #e0e0e0 !important;
+        border-radius: 4px !important;
+        border: 1px solid #dddddd !important;
         background-color: #ffffff !important;
         color: #111111 !important;
     }
     .stButton > button[kind="primary"] {
-        background-color: #03C75A !important;
-        color: white !important;
+        background-color: #111111 !important;
+        color: #ffffff !important;
         border: none !important;
-    }
-
-    /* 기업 브랜드 소개 헤더 영역 */
-    .company-intro-box {
-        background-color: #f8f9fa;
-        border-radius: 12px;
-        padding: 40px 20px;
-        text-align: center;
-        margin-bottom: 40px;
-        border: 1px solid #eee;
-    }
-    .company-intro-title {
-        font-size: 28px;
-        font-weight: 900;
-        color: #111111;
-        margin-bottom: 15px;
-    }
-    .company-intro-desc {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #555555;
-        max-width: 800px;
-        margin: 0 auto;
-        word-break: keep-all;
-    }
-
-    /* 러쉬 스타일 타이포그래피 */
-    .lush-section-title {
-        font-size: clamp(22px, 2.5vw, 32px);
-        font-weight: 900;
-        line-height: 1.3;
-        letter-spacing: -1.5px;
-        color: #111111 !important;
-        margin-bottom: 15px;
-        word-break: keep-all;
-    }
-    .lush-section-desc {
-        font-size: 15px;
-        line-height: 1.7;
-        color: #444444 !important;
-        word-break: keep-all;
-    }
-    .lush-tag {
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: #03C75A !important;
-        margin-bottom: 8px;
     }
 
     /* 푸터 스타일 */
     .footer-container {
-        margin-top: 50px;
-        padding: 30px 0 10px 0;
+        margin-top: 80px;
+        padding: 40px 0 20px 0;
         border-top: 1px solid #eeeeee;
         color: #888888;
         font-size: 13px;
-        line-height: 1.6;
-    }
-    .footer-title {
-        font-weight: bold;
-        color: #333333 !important;
-        font-size: 14px;
-        margin-bottom: 8px;
+        line-height: 1.7;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -168,7 +171,9 @@ def safe_image(img_src):
     else:
         st.image(img_src, use_container_width=True)
 
-# 1. 접속 시 기업소개('about') 페이지 고정
+# -------------------------------------------------------------------
+# 세션 상태 초기화
+# -------------------------------------------------------------------
 if 'page' not in st.session_state:
     st.session_state['page'] = 'about'
 
@@ -193,16 +198,16 @@ if 'selected_product' not in st.session_state:
 if 'admin_authenticated' not in st.session_state:
     st.session_state['admin_authenticated'] = False
 
-# 기업 소개용 감성 이미지 (5번째: 회의 이미지)
+# 감성 이미지 리스트
 about_images = [
     "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80", # 1. DIY 키트
     "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80", # 2. 에어셀 쿠션
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1000&auto=format&fit=crop&q=80", # 3. 이온음료
     "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80", # 4. 폴리모프 악력기
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. SHARED COMMUNITY (회의)
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80"  # 5. SHARED COMMUNITY
 ]
 
-# 스마트스토어 상품 목록 (ganadi, usagi, hachiware)
+# 스마트스토어 상품 목록
 kits = [
     {
         "id": 1,
@@ -239,7 +244,6 @@ kits = [
     }
 ]
 
-# 원본 C2C 상품 목록
 if 'c2c_products' not in st.session_state:
     st.session_state['c2c_products'] = [
         {
@@ -261,49 +265,64 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 왼쪽 사이드바 (메뉴창)
+# 러쉬 스타일 상단 네비게이션 헤더 및 클릭 메뉴버튼
 # -------------------------------------------------------------------
-with st.sidebar:
-    st.markdown("## 🧭 메뉴 목록")
-    st.write("---")
-    
-    if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True):
+head_c1, head_c2, head_c3, head_c4, head_c5, head_c6, head_c7 = st.columns([2.5, 1, 1, 1, 1, 1, 1.2])
+
+with head_c1:
+    st.markdown("<div class='lush-logo'>EXERCISE</div>", unsafe_allow_html=True)
+
+with head_c2:
+    if st.button("기업소개", use_container_width=True):
         st.session_state['page'] = 'about'
         st.rerun()
 
-    if st.button("🛍️ 스마트스토어", use_container_width=True):
+with head_c3:
+    if st.button("스마트스토어", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
-    if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+with head_c4:
+    if st.button("로그인", use_container_width=True):
         st.session_state['page'] = 'login'
         st.rerun()
-        
-    if st.button("⚙️ 관리자 페이지", use_container_width=True):
+
+with head_c5:
+    if st.button("관리자", use_container_width=True):
         st.session_state['page'] = 'admin'
         st.rerun()
 
-# -------------------------------------------------------------------
-# 메인 상단 헤더
-# -------------------------------------------------------------------
-col_hdr1, col_hdr2 = st.columns([5, 1])
+with head_c6:
+    cart_cnt = len(st.session_state['cart'])
+    cart_label = f"🛒 {cart_cnt}" if cart_cnt > 0 else "🛒 장바구니"
+    if st.button(cart_label, type="primary", use_container_width=True):
+        st.session_state['page'] = 'cart'
+        st.rerun()
 
-with col_hdr1:
-    st.markdown("""
-    <div class="brand-header">
-        <div class="brand-title">EXERCISE</div>
-    </div>
-    """, unsafe_allow_html=True)
+# 누르면 뜨는 전체 메뉴버튼
+with head_c7:
+    if st.button("☰ 메뉴", use_container_width=True):
+        @st.dialog("🧭 EXERCISE 전체 메뉴")
+        def open_menu_dialog():
+            st.write("원하시는 페이지를 선택해 주세요.")
+            st.divider()
+            if st.button("🏢 EXERCISE 기업/브랜드 소개", use_container_width=True):
+                st.session_state['page'] = 'about'
+                st.rerun()
+            if st.button("🛍️ 스마트스토어", use_container_width=True):
+                st.session_state['page'] = 'store'
+                st.rerun()
+            if st.button("🔑 로그인 / 회원가입", use_container_width=True):
+                st.session_state['page'] = 'login'
+                st.rerun()
+            if st.button("⚙️ 관리자 페이지", use_container_width=True):
+                st.session_state['page'] = 'admin'
+                st.rerun()
+        open_menu_dialog()
 
-with col_hdr2:
-    if st.session_state['page'] != 'about':
-        cart_cnt = len(st.session_state['cart'])
-        btn_text = f"🛒 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
-        if st.button(btn_text, type="primary", use_container_width=True):
-            st.session_state['page'] = 'cart'
-            st.rerun()
+st.write("---")
 
-# 장바구니 모달
+# 장바구니 알림 모달
 if st.session_state['show_modal']:
     with st.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
@@ -319,25 +338,77 @@ if st.session_state['show_modal']:
                 st.rerun()
 
 # -------------------------------------------------------------------
-# 1. 기업/브랜드 소개 페이지 (개요 + 5가지 특징)
+# 1. 기업/브랜드 소개 페이지
 # -------------------------------------------------------------------
 if st.session_state['page'] == 'about':
     
-    # [상단 서두] EXERCISE 기업 소개 박스
+    # [러쉬 서두] 메인 브랜드 선언문
     st.markdown("""
-    <div class="company-intro-box">
-        <div class="company-intro-title">ABOUT EXERCISE</div>
-        <div class="company-intro-desc">
-            <b>EXERCISE</b>는 "운동에는 하나의 정답이 없다"는 슬로건 아래, 
-            모든 사람이 자신만의 몸과 체형에 딱 맞는 운동 방식을 찾을 수 있도록 돕는 <b>맞춤형 헬스케어 & 웰니스 솔루션 기업</b>입니다.<br><br>
-            획일화된 공장형 기구에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 음료, 그리고 구매자 간의 아이디어를 나누는 C2C 공유 플랫폼까지, 지속 가능한 건강한 라이프스타일을 디자인합니다.
+    <div class="lush-quote-box">
+        <div class="lush-quote-title">
+            “ EXERCISE는 모든 신체가 가진 고유한 가능성을 믿으며,<br>
+            자신의 몸에 완벽하게 맞춰진 정직한 운동 경험을 손으로 만듭니다. ”
+        </div>
+        <div class="lush-quote-desc">
+            획일화된 공장형 기구의 틀에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 케어,<br>
+            그리고 구매자의 아이디어가 상품이 되는 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h3 style='text-align:center; margin-bottom:30px;'>EXERCISE가 제공하는 5가지 핵심 가치</h3>", unsafe_allow_html=True)
+    # [러쉬 6개 원형 아이콘 그리드 (3열 x 2행)]
+    col_g1, col_g2, col_g3 = st.columns(3)
+    with col_g1:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🧩</div>
+            <div class="circle-card-title">CUSTOM DIY</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g2:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">💨</div>
+            <div class="circle-card-title">AIR-CELL CUSHION</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g3:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🍊</div>
+            <div class="circle-card-title">LOCAL RECOVERY</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # [특징 1] CUSTOM DIY KIT
+    col_g4, col_g5, col_g6 = st.columns(3)
+    with col_g4:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🖐️</div>
+            <div class="circle-card-title">POLYMORPH</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g5:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🤝</div>
+            <div class="circle-card-title">ETHICAL C2C</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g6:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🌱</div>
+            <div class="circle-card-title">SUSTAINABLE</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("<br><br>", unsafe_allow_html=True)
+    st.divider()
+
+    # [상세 특징 5가지 (지그재그 감성 이미지/텍스트)]
+    
+    # 01. CUSTOM DIY KIT
     col_img1, col_txt1 = st.columns([1, 1], gap="large")
     with col_img1:
         safe_image(about_images[0])
@@ -350,14 +421,14 @@ if st.session_state['page'] == 'about':
             완벽하게 맞추는 커스텀 키트
         </div>
         <div class="lush-section-desc">
-            정형화된 공장형 기구의 틀을 깨고, 개인의 독특한 손 모양과 체형에 피팅되는 
-            다양한 '커스터마이징' 키트를 제시하여 나만의 움직임을 만들어갑니다.
+            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춤 피팅되는 
+            커스터마이징 키트를 통해 나만의 효율적인 움직임을 만들어갑니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
 
-    # [특징 2] AIR-CELL BALANCING
+    # 02. AIR-CELL BALANCING
     col_txt2, col_img2 = st.columns([1, 1], gap="large")
     with col_txt2:
         st.write("")
@@ -368,8 +439,8 @@ if st.session_state['page'] == 'about':
             골반 및 척추 균형 솔루션
         </div>
         <div class="lush-section-desc">
-            공기량을 자율 조절할 수 있는 에어셀 구조를 통해 바른 자세 유지와 
-            체중 분산 효과를 극대화한 인체공학적 방석을 선사합니다.
+            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여 바른 자세 유지와 
+            체중 분산 효과를 극대화한 인체공학적 방석을 제작합니다.
         </div>
         """, unsafe_allow_html=True)
     with col_img2:
@@ -377,7 +448,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [특징 3] LOCAL RECOVERY DRINK
+    # 03. LOCAL RECOVERY DRINK
     col_img3, col_txt3 = st.columns([1, 1], gap="large")
     with col_img3:
         safe_image(about_images[2])
@@ -390,14 +461,14 @@ if st.session_state['page'] == 'about':
             건강하게 채우는 수분과 전해질
         </div>
         <div class="lush-section-desc">
-            꿀유자, 오미자 등 지방 소멸 위기 지역의 대표 특산물을 활용하여 
-            운동 후 필요한 수분과 에너지를 건강하고 빠르게 충전합니다.
+            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여 
+            운동 후 필요한 수분과 에너지를 건강하게 충전하는 상생형 음료입니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
 
-    # [특징 4] POLYMORPH ERGONOMICS
+    # 04. POLYMORPH ERGONOMICS
     col_txt4, col_img4 = st.columns([1, 1], gap="large")
     with col_txt4:
         st.write("")
@@ -408,8 +479,8 @@ if st.session_state['page'] == 'about':
             변형되는 맞춤형 지압 구조
         </div>
         <div class="lush-section-desc">
-            체온에 반응해 형태를 자유롭게 잡을 수 있는 폴리모프 성형 기술로 
-            단 하나뿐인 그립감과 운동 효율을 선사합니다.
+            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여 
+            세상에 단 하나뿐인 최고의 그립감과 자극을 제공합니다.
         </div>
         """, unsafe_allow_html=True)
     with col_img4:
@@ -417,7 +488,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # [특징 5] SHARED COMMUNITY (회의 이미지)
+    # 05. SHARED COMMUNITY (요청하신 초록색 태그 적용)
     col_img5, col_txt5 = st.columns([1, 1], gap="large")
     with col_img5:
         safe_image(about_images[4])
@@ -430,13 +501,13 @@ if st.session_state['page'] == 'about':
             C2C 가치 공유 커뮤니티
         </div>
         <div class="lush-section-desc">
-            사용자가 직접 제작한 커스텀 운동 기구를 서로 공유하고 판매할 수 있는 
-            선순환 웰니스 생태계를 함께 고민하고 만들어갑니다.
+            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는 
+            선순환 C2C 마켓플레이스를 지향합니다.
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
-    if st.button("🛍️ 스마트스토어로 이동하여 상품 둘러보기 ➔", type="primary", use_container_width=True):
+    if st.button("🛍️ EXERCISE 스마트스토어 바로가기 ➔", type="primary", use_container_width=True):
         st.session_state['page'] = 'store'
         st.rerun()
 
@@ -444,7 +515,6 @@ if st.session_state['page'] == 'about':
 # 2. 로그인 / 회원가입 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'login':
-    st.divider()
     col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
     with col_l2:
         st.markdown("<h2 style='text-align: center;'>🔐 회원 로그인 / 회원가입</h2>", unsafe_allow_html=True)
@@ -461,7 +531,7 @@ elif st.session_state['page'] == 'login':
                 if submit_login:
                     if user_id and user_pw:
                         st.session_state['user'] = user_id.split('@')[0]
-                        st.success(f"{st.session_state['user']}님, 로그인되었습니다!")
+                        st.success(f"{st.session_state['user']}님, 환영합니다!")
                         st.session_state['page'] = 'store'
                         st.rerun()
                     else:
@@ -665,11 +735,11 @@ elif st.session_state['page'] == 'admin':
             st.bar_chart(df_counts.set_index('상품명'))
 
 # -------------------------------------------------------------------
-# 푸터
+# 러쉬 스타일 푸터
 # -------------------------------------------------------------------
 st.markdown("""
 <div class="footer-container">
-    <div class="footer-title">EXERCISE 스마트스토어</div>
+    <div style="font-weight: bold; color: #111111; font-size: 14px; margin-bottom: 8px;">EXERCISE 공식 스토어</div>
     <p>
         상호명: EXERCISE | 대표: 정예나 | 사업자등록번호: 000-00-00000<br>
         Copyright © EXERCISE Inc. All rights reserved.
