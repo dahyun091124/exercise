@@ -3,18 +3,14 @@ import os
 import pandas as pd
 
 # -------------------------------------------------------------------
-# 페이지 기본 설정 (사이드바 기본 닫힘 상태: collapsed)
+# 페이지 기본 설정 (사이드바 기본 열림/닫힘 설정 가능)
 # -------------------------------------------------------------------
 st.set_page_config(
     page_title="EXERCISE 브랜드몰",
     page_icon="💪🏼",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed"  # 접힌 상태로 시작 (좌측 상단 > 눌러서 펼침)
 )
-
-# 세션 상태로 사이드바 열림/닫힘 제어
-if 'sidebar_state' not in st.session_state:
-    st.session_state['sidebar_state'] = 'collapsed'
 
 # -------------------------------------------------------------------
 # 러쉬(LUSH) 스타일 커스텀 CSS
@@ -62,6 +58,7 @@ st.markdown("""
         text-transform: uppercase;
         text-align: center;
         width: 100%;
+        margin-bottom: 20px;
     }
 
     /* 러쉬 브랜드 메인 서두 스타일 */
@@ -288,7 +285,7 @@ def add_to_cart(item_name, item_price):
     st.session_state['show_modal'] = True
 
 # -------------------------------------------------------------------
-# 왼쪽에 세로로 뜨는 사이드바 메뉴 (≡ 메뉴 클릭 시 토글형으로 열림)
+# 왼쪽에 세로로 뜨는 사이드바 메뉴 (Streamlit 사이드바 전용 메뉴)
 # -------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🧭 NAVIGATION")
@@ -317,24 +314,9 @@ with st.sidebar:
         st.rerun()
 
 # -------------------------------------------------------------------
-# [요청사항 반영] 맨 왼쪽: ≡ 메뉴 / 가운데: EXERCISE 로고 헤더
+# 메인 헤더: 중앙 EXERCISE 로고
 # -------------------------------------------------------------------
-col_left_btn, col_center_logo, col_right_empty = st.columns([1, 4, 1])
-
-with col_left_btn:
-    # 클릭하면 왼쪽 사이드바가 열리거나 닫히는 토글 동작
-    if st.button("≡ 메뉴", use_container_width=True):
-        st.session_state['sidebar_state'] = 'expanded' if st.session_state['sidebar_state'] == 'collapsed' else 'collapsed'
-        # Streamlit 사이드바 열림 제어
-        st.set_page_config(initial_sidebar_state=st.session_state['sidebar_state'])
-        st.rerun()
-
-with col_center_logo:
-    st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
-
-with col_right_empty:
-    st.write("") # 우측 대칭용 여백
-
+st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
 st.write("---")
 
 # 장바구니 알림 모달
