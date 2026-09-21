@@ -794,7 +794,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     st.write("<br><br>", unsafe_allow_html=True)
     st.divider()
 
-    # 수정된 상품 상세 설명 구획 (📌 이모티콘 제거)
+    # 상품 상세 설명 구획
     st.markdown("### 상품 상세 설명")
     
     # [0.05, 0.95] 비율로 살짝 오른쪽 들여쓰기 효과 유지
@@ -862,9 +862,29 @@ elif st.session_state['page'] == 'admin':
                     st.markdown(f"**주소:** {o.get('address', '-')}")
                     
                 with col_right:
-                    items_str = ", ".join(o['items'])
-                    st.markdown(f"**주문 내역:** {items_str}")
-                    st.markdown(f"**결제 금액:** {o.get('total_price', 0):,} 원")
+                    # 1. 주문 내역 처리 (2개 이상일 경우 세로 정렬)
+                    order_items = o.get('items', [])
+                    if len(order_items) >= 2:
+                        items_formatted = "<br>".join([f"&nbsp;&nbsp;{i+1}. {item}" for i, item in enumerate(order_items)])
+                        items_html = f"<div style='margin-top: 4px;'>{items_formatted}</div>"
+                    elif len(order_items) == 1:
+                        items_html = f" {order_items[0]}"
+                    else:
+                        items_html = " -"
+
+                    # 2. 주문 내역 및 결제 금액 글씨 크기 확대 출력
+                    st.markdown(
+                        f"<div style='font-size: 18px; font-weight: bold; margin-bottom: 8px; line-height: 1.5;'>"
+                        f"주문 내역:{items_html}"
+                        f"</div>", 
+                        unsafe_allow_html=True
+                    )
+                    st.markdown(
+                        f"<div style='font-size: 18px; font-weight: bold; color: #03C75A;'>"
+                        f"결제 금액: {o.get('total_price', 0):,} 원"
+                        f"</div>", 
+                        unsafe_allow_html=True
+                    )
             st.write("---")
         else:
             st.info("등록된 주문 내역이 없습니다.")
