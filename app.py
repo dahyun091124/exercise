@@ -827,7 +827,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     st.divider()
 
     # 수정된 상품 상세 설명 구획
-    st.markdown("### 📌 상품 상세 설명")
+    st.markdown("### 상품 상세 설명")
     
     # [0.05, 0.95] 비율로 살짝 오른쪽 들여쓰기 효과 적용
     indent_space, content_col = st.columns([0.05, 0.95])
