@@ -827,7 +827,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     st.divider()
 
     # 요청하신 형태의 상품 상세 설명 구획
-    st.markdown("### 상품 상세 설명")
+    st.markdown("### 📌 상품 상세 설명")
     st.caption("EXERCISE 제작 가이드")
     
     col_center = st.columns([1, 2, 1])[1]
@@ -841,7 +841,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         st.markdown("#### 📦 구성 품목")
         st.write(p.get('components', ''))
         
-        st.markdown("#### 💥 핵심 가치")
+        st.markdown("#### ⭐ 핵심 가치")
         st.write(p.get('feature', ''))
 
 # -------------------------------------------------------------------
