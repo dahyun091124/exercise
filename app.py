@@ -295,6 +295,59 @@ st.markdown("""
         z-index: 10;
     }
 
+    /* 스마트스토어 형태 상세페이지 CSS 스타일 */
+    .notice-warning-box {
+        background-color: #FFF5F5;
+        border: 1px solid #FFE0E0;
+        padding: 12px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333333;
+        margin-bottom: 25px;
+    }
+    .notice-warning-box strong {
+        color: #E53935;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+    .info-table th {
+        width: 150px;
+        background-color: #F9F9F9;
+        padding: 10px 14px;
+        text-align: left;
+        color: #666666;
+        border-bottom: 1px solid #EEEEEE;
+        font-weight: 600;
+    }
+    .info-table td {
+        padding: 10px 14px;
+        color: #111111;
+        border-bottom: 1px solid #EEEEEE;
+    }
+
+    .notice-highlight {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111111;
+        margin: 20px 0 15px 0;
+    }
+
+    .detail-brand-logo {
+        text-align: center;
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: 4px;
+        color: #000000;
+        margin: 40px 0 30px 0;
+        border-top: 1px solid #EEEEEE;
+        padding-top: 40px;
+    }
+
     .footer-container {
         margin-top: 80px;
         padding: 40px 0 20px 0;
@@ -306,7 +359,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 안전한 이미지 로딩 함수 (모든 이미지를 일관된 너비 규격으로 출력)
+# 안전한 이미지 로딩 함수
 def safe_image(img_src):
     if isinstance(img_src, str):
         if os.path.exists(img_src) or img_src.startswith("http"):
@@ -326,7 +379,7 @@ about_images = [
     "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
 ]
 
-# 스마트스토어 상품 목록 (구글 문서 기획안 내용 반영)
+# 스마트스토어 상품 목록
 kits = [
     {
         "id": 1,
@@ -800,13 +853,15 @@ elif st.session_state['page'] == 'cart':
                         st.session_state['cart'] = []
 
 # -------------------------------------------------------------------
-# 5. 상품 상세 페이지
+# 5. 상품 상세 페이지 (요청하신 이미지 스마트스토어 UI 반영)
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
     p = st.session_state['selected_product']
     st.button("⬅ 목록으로 돌아가기", on_click=set_page, args=('store',))
         
     st.divider()
+    
+    # 상단 상품 기본 정보 레이아웃
     col_d1, col_d2 = st.columns([1, 1], gap="large")
     with col_d1:
         safe_image(p['img'])
@@ -816,9 +871,6 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         st.markdown(f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>", unsafe_allow_html=True)
         
         st.write("---")
-        st.markdown(f"### {p.get('desc_title', '')}")
-        st.markdown(p.get('desc_detail', ''))
-        st.write("")
         st.markdown(f"**구성품:** {p.get('components', '-')}")
         st.markdown(f"**핵심 특징:** {p.get('feature', '-')}")
         st.write("---")
@@ -826,6 +878,77 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
             add_to_cart(p['name'], p['price'])
             st.rerun()
+
+    st.write("<br><br>", unsafe_allow_html=True)
+
+    # 이미지에 있던 상세 탭 구현 (상세정보 | 사이즈 | 코디 | 리뷰 | Q&A | 판매자정보 | 추천)
+    detail_tabs = st.tabs(["상세정보", "사이즈", "코디", "리뷰 17", "Q&A 3", "판매자정보", "추천"])
+    
+    with detail_tabs[0]:
+        st.write("<br>", unsafe_allow_html=True)
+        
+        # 1. 빨간색 경고 박스 (스마트스토어 안전 주의사항)
+        st.markdown("""
+        <div class="notice-warning-box">
+            <strong>❗ 판매자가 타 사이트 안내 및 현금 결제, 개인정보 유도 시 결제/입력하지 마시고 즉시 고객센터로 신고해주세요.</strong>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 2. 상품정보 테이블
+        st.markdown("### 상품정보")
+        prod_id_num = f"133882456{p['id']}"
+        st.markdown(f"""
+        <table class="info-table">
+            <tr>
+                <th>상품번호</th>
+                <td>{prod_id_num}</td>
+            </tr>
+            <tr>
+                <th>원산지</th>
+                <td>국산 (대한민국)</td>
+            </tr>
+        </table>
+        """, unsafe_allow_html=True)
+        
+        # 3. 공지사항 필독 문구
+        st.markdown('<div class="notice-highlight">구매 전 해당 공지사항 필독 부탁드립니다 🌸</div>', unsafe_allow_html=True)
+        st.write("👇")
+        
+        # 4. 중앙 브랜드 로고 및 상품 설명
+        st.markdown("<div class='detail-brand-logo'>EXERCISE</div>", unsafe_allow_html=True)
+        
+        # 상품별 맞춤 설명 출력
+        col_detail_center1, col_detail_center2, col_detail_center3 = st.columns([1, 8, 1])
+        with col_detail_center2:
+            st.markdown(f"<h2 style='text-align: center; margin-bottom:20px;'>{p.get('desc_title', '')}</h2>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:17px; line-height:1.9; text-align:center; color:#333333;'>{p.get('desc_detail', '')}</p>", unsafe_allow_html=True)
+            st.write("<br>", unsafe_allow_html=True)
+            safe_image(p['img'])
+
+    with detail_tabs[1]:
+        st.markdown("#### 📐 사이즈 안내")
+        st.write("본 상품은 개별 맞춤 성형 및 커스텀 조절이 가능한 Free Size 규격입니다.")
+
+    with detail_tabs[2]:
+        st.markdown("#### 👕 추천 스타일링 / 코디")
+        st.write("편안한 트레이닝 웨어 및 홈루틴 운동 기구들과 함께 배치해보세요.")
+
+    with detail_tabs[3]:
+        st.markdown("#### ⭐ 구매 리뷰 (17)")
+        st.write("★ 5 | 손에 딱 맞아 그립감이 최고예요!")
+        st.write("★ 5 | 공기압 조절이 자유로워서 허리가 한결 편합니다.")
+
+    with detail_tabs[4]:
+        st.markdown("#### ❓ Q&A 문의 (3)")
+        st.write("Q. 폴리모프 재가열이 가능한가요? -> A. 네, 70도 이상의 온수에 넣으시면 언제든 재성형이 가능합니다.")
+
+    with detail_tabs[5]:
+        st.markdown("#### 🏬 판매자 정보")
+        st.write("상호명: EXERCISE | 대표자: 정예나 | 고객센터: 1588-0000")
+
+    with detail_tabs[6]:
+        st.markdown("#### 💡 함께 보면 좋은 추천 상품")
+        st.write("EXERCISE 브랜드의 다양한 커스텀 웰니스 라인업을 스토어에서 확인해보세요.")
 
 # -------------------------------------------------------------------
 # 6. 관리자 페이지
@@ -847,12 +970,10 @@ elif st.session_state['page'] == 'admin':
     else:
         st.subheader("📊 구매 통계")
         if st.session_state['orders']:
-            # 구매 내역 데이터 집계
             all_items = [item for o in st.session_state['orders'] for item in o['items']]
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
 
-            # Altair 호환성을 고려한 정수 축 간격 설정
             max_val = int(df_counts['수량'].max()) if not df_counts.empty else 1
             
             chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
