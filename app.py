@@ -826,22 +826,21 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     st.write("<br><br>", unsafe_allow_html=True)
     st.divider()
 
-    # 요청하신 형태의 상품 상세 설명 구획
+    # 수정된 상품 상세 설명 구획
     st.markdown("### 📌 상품 상세 설명")
-    st.caption("EXERCISE 제작 가이드")
     
-    col_center = st.columns([1, 2, 1])[1]
-    with col_center:
+    col_left, col_empty = st.columns([3, 1])
+    with col_left:
         st.markdown("#### 📌 개요")
         st.write(p.get('desc_title', ''))
         
-        st.markdown("#### 💡 상품 특징 및 노하우")
+        st.markdown("#### 💡 상품 특징")
         st.write(p.get('desc_detail', ''))
         
         st.markdown("#### 📦 구성 품목")
         st.write(p.get('components', ''))
         
-        st.markdown("#### ⭐ 핵심 가치")
+        st.markdown("#### 💥 핵심 가치")
         st.write(p.get('feature', ''))
 
 # -------------------------------------------------------------------
