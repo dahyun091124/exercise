@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import pandas as pd
 import altair as alt
+import time
 
 # -------------------------------------------------------------------
 # 페이지 기본 설정
@@ -325,7 +326,7 @@ about_images = [
     "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
 ]
 
-# 스마트스토어 상품 목록
+# 스마트스토어 상품 목록 (구글 문서 기획안 내용 반영)
 kits = [
     {
         "id": 1,
@@ -333,10 +334,10 @@ kits = [
         "price": 15000, 
         "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
         "img": "ganadi.jpg",
-        "desc_title": "사용자의 신체와 취향에 딱 맞게 제작하는 DIY 키트",
-        "desc_detail": "자신의 신체 조건과 운동 목적에 맞게 직접 형태를 변형할 수 있는 커스텀 운동 키트입니다.",
-        "components": "라텍스밴드, 지압판, 폴리모프 왁스",
-        "feature": "손 모양이나 발 모양에 맞춰 자유롭게 성형 가능한 커스텀 구조"
+        "desc_title": "내 신체 조건에 완벽하게 성형하는 나만의 커스텀 운동 키트",
+        "desc_detail": "획일화된 기존 운동 기구에서 벗어나 사용자의 손 모양과 사용 목적에 맞게 직접 형태를 변형할 수 있는 저온 열가소성 폴리모프 기반의 커스텀 운동 키트입니다. 라텍스 밴드의 저항과 지압판의 미세 자극을 조합해 나만의 마사지/근력 기구를 손쉽게 만듭니다.",
+        "components": "라텍스 밴드, 지압판, 폴리모프 왁스 페렛",
+        "feature": "온수에 가열 시 자율적으로 형태 몰딩이 가능한 맞춤형 인체공학 구조"
     },
     {
         "id": 2,
@@ -344,10 +345,10 @@ kits = [
         "price": 18500, 
         "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
         "img": "usagi.jpg",
-        "desc_title": "장시간 앉아있는 현대인을 위한 골반 및 척추 균형 방석",
-        "desc_detail": "공기량을 자유롭게 조절할 수 있는 에어셀 주머니 2개로 구성된 맞춤형 방석 키트입니다.",
-        "components": "상부 쿠션층 스펀지, 하부 지지층 스펀지, 에어셀 주머니 2개, 외부 커버",
-        "feature": "공기압 조절을 통한 맞춤형 자세 교정 및 체중 분산 기능"
+        "desc_title": "장시간 앉아있는 현대인을 위한 자율 공기압 체체중 분산 쿠션",
+        "desc_detail": "독립된 2개의 에어셀 주머니로 착석 자세 및 체형에 맞게 내부 공기량을 정밀하게 조절합니다. 골반 기울어짐을 방지하고 척추 균형을 잡아주어 오랜 시간 앉아있어도 허리와 둔부의 부담을 효과적으로 완화해 줍니다.",
+        "components": "에어셀 주머니 2개, 상부 쿠션 스펀지, 하부 지지층, 프리미엄 외부 커버",
+        "feature": "좌우 독립형 에어셀 조절을 통한 골반 자세 교정 및 체중 분산 기능"
     },
     {
         "id": 3,
@@ -355,10 +356,10 @@ kits = [
         "price": 9800, 
         "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
         "img": "hachiware.jpg",
-        "desc_title": "소멸 위기 지역 특산물로 만드는 건강 수분 보충 음료",
-        "desc_detail": "지역 상생의 의미를 담아 건강하고 맛있게 수분과 전해질을 보충하는 이온음료 키트입니다.",
-        "components": "꿀유자믹스 스틱, 오미자 스틱, 전용 소주잔 세트",
-        "feature": "100% 지역 특산물 활용 / 빠른 수분 및 에너지 충전 효과"
+        "desc_title": "지방 소멸 위기 지역 상생과 신선한 수분·전해질 보충의 만남",
+        "desc_detail": "지방 소멸 위기 지역에서 엄선한 꿀유자와 오미자 원료를 그대로 담아낸 건강 이온음료 키트입니다. 운동 전후 체내에서 빠르게 소모되는 수분과 전해질, 에너지를 맛있고 청량하게 채워줍니다.",
+        "components": "고흥 꿀유자 스틱, 문경 오미자 스틱, 마이보틀 전용 용기",
+        "feature": "100% 국산 지역 특산물 활용 / 빠른 수분 Absorption & 지역 상생"
     }
 ]
 
@@ -400,15 +401,27 @@ with st.sidebar:
 st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
 st.write("---")
 
-# 장바구니 알림 모달
+# 장바구니 알림 모달 (3초 후 자동으로 사라짐)
 if st.session_state['show_modal']:
-    with st.container(border=True):
+    modal_placeholder = st.empty()
+    with modal_placeholder.container(border=True):
         st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
         col_m1, col_m2 = st.columns(2)
-        with col_m1:
-            st.button("🛍️ 계속 둘러보기", use_container_width=True, on_click=lambda: st.session_state.update({'show_modal': False}))
-        with col_m2:
-            st.button("🛒 장바구니로 이동", type="primary", use_container_width=True, on_click=lambda: st.session_state.update({'show_modal': False, 'page': 'cart'}))
+        btn_continue = col_m1.button("🛍️ 계속 둘러보기", use_container_width=True)
+        btn_cart = col_m2.button("🛒 장바구니로 이동", type="primary", use_container_width=True)
+
+        if btn_continue:
+            st.session_state['show_modal'] = False
+            st.rerun()
+        elif btn_cart:
+            st.session_state['show_modal'] = False
+            st.session_state['page'] = 'cart'
+            st.rerun()
+
+    time.sleep(3)
+    if st.session_state['show_modal']:
+        st.session_state['show_modal'] = False
+        st.rerun()
 
 # -------------------------------------------------------------------
 # 1. 기업/브랜드 소개 페이지
@@ -794,13 +807,22 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     st.button("⬅ 목록으로 돌아가기", on_click=set_page, args=('store',))
         
     st.divider()
-    col_d1, col_d2 = st.columns([1, 1])
+    col_d1, col_d2 = st.columns([1, 1], gap="large")
     with col_d1:
         safe_image(p['img'])
     with col_d2:
         st.markdown(f"## {p['name']}")
         st.caption(p.get('comment', ''))
         st.markdown(f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>", unsafe_allow_html=True)
+        
+        st.write("---")
+        st.markdown(f"### {p.get('desc_title', '')}")
+        st.markdown(p.get('desc_detail', ''))
+        st.write("")
+        st.markdown(f"**구성품:** {p.get('components', '-')}")
+        st.markdown(f"**핵심 특징:** {p.get('feature', '-')}")
+        st.write("---")
+        
         if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
             add_to_cart(p['name'], p['price'])
             st.rerun()
