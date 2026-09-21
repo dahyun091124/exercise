@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import pandas as pd
 import altair as alt
-import time
 
 # -------------------------------------------------------------------
 # 페이지 기본 설정
@@ -32,12 +31,6 @@ if 'user' not in st.session_state:
 # 회원 데이터 저장소 초기화 (아이디: 비밀번호)
 if 'users_db' not in st.session_state:
     st.session_state['users_db'] = {}
-
-if 'show_modal' not in st.session_state:
-    st.session_state['show_modal'] = False
-
-if 'added_item' not in st.session_state:
-    st.session_state['added_item'] = ""
 
 if 'selected_product' not in st.session_state:
     st.session_state['selected_product'] = None
@@ -378,10 +371,10 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
+# 페이지 흐려짐 없이 오른쪽 아래에 3초간 깔끔하게 알림을 띄우는 함수
 def add_to_cart(item_name, item_price):
     st.session_state['cart'].append({"name": item_name, "price": item_price})
-    st.session_state['added_item'] = item_name
-    st.session_state['show_modal'] = True
+    st.toast(f"🛒 '{item_name}' 상품이 장바구니에 담겼습니다.", icon="✅")
 
 # -------------------------------------------------------------------
 # 사이드바 내비게이션 메뉴
@@ -400,28 +393,6 @@ with st.sidebar:
 # -------------------------------------------------------------------
 st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
 st.write("---")
-
-# 장바구니 알림 모달 (3초 후 자동으로 사라짐)
-if st.session_state['show_modal']:
-    modal_placeholder = st.empty()
-    with modal_placeholder.container(border=True):
-        st.success(f"🛒 **'{st.session_state['added_item']}'** 상품이 장바구니에 담겼습니다.")
-        col_m1, col_m2 = st.columns(2)
-        btn_continue = col_m1.button("🛍️ 계속 둘러보기", use_container_width=True)
-        btn_cart = col_m2.button("🛒 장바구니로 이동", type="primary", use_container_width=True)
-
-        if btn_continue:
-            st.session_state['show_modal'] = False
-            st.rerun()
-        elif btn_cart:
-            st.session_state['show_modal'] = False
-            st.session_state['page'] = 'cart'
-            st.rerun()
-
-    time.sleep(3)
-    if st.session_state['show_modal']:
-        st.session_state['show_modal'] = False
-        st.rerun()
 
 # -------------------------------------------------------------------
 # 1. 기업/브랜드 소개 페이지
@@ -690,7 +661,6 @@ elif st.session_state['page'] == 'store':
                     with col_b2:
                         if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
                             add_to_cart(kit['name'], kit['price'])
-                            st.rerun()
 
     with tab2:
         st.markdown("### 구매자 창작 마켓")
@@ -741,7 +711,6 @@ elif st.session_state['page'] == 'store':
                     with col_cb2:
                         if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
                             add_to_cart(c_item['name'], c_item['price'])
-                            st.rerun()
 
 # -------------------------------------------------------------------
 # 4. 장바구니 페이지
@@ -821,15 +790,14 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
         
         if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
             add_to_cart(p['name'], p['price'])
-            st.rerun()
 
     st.write("<br><br>", unsafe_allow_html=True)
     st.divider()
 
-    # 수정된 상품 상세 설명 구획
+    # 수정된 상품 상세 설명 구획 (📌 이모티콘 제거)
     st.markdown("### 상품 상세 설명")
     
-    # [0.05, 0.95] 비율로 살짝 오른쪽 들여쓰기 효과 적용
+    # [0.05, 0.95] 비율로 살짝 오른쪽 들여쓰기 효과 유지
     indent_space, content_col = st.columns([0.05, 0.95])
     with content_col:
         st.markdown("#### 📌 개요")
