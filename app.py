@@ -49,7 +49,7 @@ def set_page(page_name):
     st.session_state['page'] = page_name
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 탭 글씨 시인성 개선)
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 버튼/탭 글씨 시인성 개선)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -134,14 +134,20 @@ st.markdown("""
         font-size: 16px !important;
     }
 
-    /* '담기' 버튼 색상 초록색(#03C75A) 설정 */
-    .stButton > button[kind="primary"] {
+    /* Primary 버튼 (담기, 등록하기, 결제하기 등) 전체 초록색(#03C75A) 설정 */
+    .stButton > button[kind="primary"],
+    .stFormSubmitButton > button,
+    button[data-testid="stBaseButton-primary"],
+    button[kind="primaryFormSubmit"] {
         background-color: #03C75A !important;
         color: #ffffff !important;
         border: none !important;
         font-weight: bold !important;
     }
-    .stButton > button[kind="primary"]:hover {
+    .stButton > button[kind="primary"]:hover,
+    .stFormSubmitButton > button:hover,
+    button[data-testid="stBaseButton-primary"]:hover,
+    button[kind="primaryFormSubmit"]:hover {
         background-color: #02b150 !important;
         color: #ffffff !important;
     }
@@ -800,7 +806,7 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
             st.rerun()
 
 # -------------------------------------------------------------------
-# 6. 관리자 페이지 (요청하신 레이아웃 & 눈금 정수 단위 반영)
+# 6. 관리자 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
     st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
@@ -824,9 +830,11 @@ elif st.session_state['page'] == 'admin':
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
 
-            # 눈금을 1 단위로 고정한 가로 막대그래프
+            # Altair 호환성을 고려한 정수 축 간격 설정
+            max_val = int(df_counts['수량'].max()) if not df_counts.empty else 1
+            
             chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
-                x=alt.X('수량:Q', title='판매 수량', axis=alt.Axis(tickMinStep=1, dtick=1)),
+                x=alt.X('수량:Q', title='판매 수량', axis=alt.Axis(values=list(range(0, max_val + 2)), format='d')),
                 y=alt.Y('상품명:N', title='상품명', sort='-x'),
                 tooltip=['상품명', '수량']
             ).properties(
@@ -838,7 +846,6 @@ elif st.session_state['page'] == 'admin':
             st.divider()
             st.subheader("📋 전체 주문 정보")
             
-            # 박스 없이 '줄(선)'구분 + [좌: 주문정보 / 우: 주문내역&금액] 레이아웃 적용
             for o in st.session_state['orders']:
                 st.write("---")
                 col_left, col_right = st.columns([1, 1])
