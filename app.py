@@ -1,3 +1,806 @@
+
+import streamlit as st
+import os
+import pandas as pd
+import altair as alt
+
+# -------------------------------------------------------------------
+# 페이지 기본 설정
+# -------------------------------------------------------------------
+st.set_page_config(
+    page_title="EXERCISE 브랜드몰",
+    page_icon="💪🏼",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# -------------------------------------------------------------------
+# 세션 상태 초기화
+# -------------------------------------------------------------------
+if 'page' not in st.session_state:
+    st.session_state['page'] = 'about'
+
+if 'cart' not in st.session_state:
+    st.session_state['cart'] = []
+
+if 'orders' not in st.session_state:
+    st.session_state['orders'] = []
+
+if 'user' not in st.session_state:
+    st.session_state['user'] = None
+
+# 회원 데이터 저장소 초기화 (아이디: 비밀번호)
+if 'users_db' not in st.session_state:
+    st.session_state['users_db'] = {}
+
+if 'selected_product' not in st.session_state:
+    st.session_state['selected_product'] = None
+
+if 'admin_authenticated' not in st.session_state:
+    st.session_state['admin_authenticated'] = False
+
+# 페이지 이동 콜백 함수
+def set_page(page_name):
+    st.session_state['page'] = page_name
+
+# -------------------------------------------------------------------
+# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 버튼/탭 글씨 시인성 개선)
+# -------------------------------------------------------------------
+st.markdown("""
+<style>
+    /* 전체 백그라운드 & 폰트 설정 */
+    .stApp, body, html {
+        background-color: #ffffff !important;
+        color: #111111 !important;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* 1. 상단 헤더 및 아이콘 표시 공간 확보 */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        z-index: 99999 !important;
+        height: 60px !important;
+    }
+
+    /* 2. 사이드바 열기/닫기 컨트롤 버튼 스타일 정밀 교정 */
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarExpandButton"],
+    button[data-testid="baseButton-headerNoPadding"],
+    button[aria-label="Toggle sidebar"],
+    [data-testid="stSidebarNavSeparator"] {
+        display: flex !important;
+        align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 15px !important;
+        z-index: 100000 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #dddddd !important;
+        border-radius: 6px !important;
+        padding: 4px 12px 4px 8px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        cursor: pointer !important;
+    }
+
+    /* 3. 화살표 아이콘(SVG, 내부 원소)을 선명한 검정색으로 강제 지정 */
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="stSidebarExpandButton"] svg,
+    button[data-testid="baseButton-headerNoPadding"] svg,
+    button[aria-label="Toggle sidebar"] svg {
+        fill: #000000 !important;
+        color: #000000 !important;
+        stroke: #000000 !important;
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 (검정색, 두껍게) */
+    [data-testid="stSidebarCollapsedControl"]::after,
+    [data-testid="stSidebarCollapseButton"]::after,
+    [data-testid="stSidebarExpandButton"]::after,
+    button[data-testid="baseButton-headerNoPadding"]::after,
+    button[aria-label="Toggle sidebar"]::after {
+        content: "메뉴" !important;
+        margin-left: 6px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        color: #000000 !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+    }
+
+    /* 5. 스마트스토어 탭 글씨 색상 검정색 고정 */
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] div,
+    .stTabs [data-baseweb="tab"] {
+        color: #333333 !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+    }
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] div,
+    .stTabs [aria-selected="true"] {
+        color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+    }
+
+    /* Primary 버튼 (담기, 등록하기, 결제하기 등) 전체 초록색(#03C75A) 설정 */
+    .stButton > button[kind="primary"],
+    .stFormSubmitButton > button,
+    button[data-testid="stBaseButton-primary"],
+    button[kind="primaryFormSubmit"] {
+        background-color: #03C75A !important;
+        color: #ffffff !important;
+        border: none !important;
+        font-weight: bold !important;
+    }
+    .stButton > button[kind="primary"]:hover,
+    .stFormSubmitButton > button:hover,
+    button[data-testid="stBaseButton-primary"]:hover,
+    button[kind="primaryFormSubmit"]:hover {
+        background-color: #02b150 !important;
+        color: #ffffff !important;
+    }
+
+    /* 일반 버튼 스타일 */
+    .stButton > button {
+        border-radius: 4px !important;
+        border: 1px solid #dddddd !important;
+        background-color: #ffffff !important;
+        color: #111111 !important;
+    }
+
+    /* 사이드바 스타일 */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+        border-right: 1px solid #eeeeee !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #111111 !important;
+    }
+    [data-testid="stSidebar"] .stButton > button {
+        background-color: #f8f9fa !important;
+        color: #111111 !important;
+        border: 1px solid #e9ecef !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px;
+        text-align: left !important;
+        padding-left: 15px !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] .stButton > button:focus,
+    [data-testid="stSidebar"] .stButton > button:active {
+        background-color: #e9ecef !important;
+        color: #111111 !important;
+        border-color: #ced4da !important;
+    }
+
+    /* 브랜드 헤더 레이아웃 */
+    .lush-logo-center {
+        font-size: 75px;
+        font-weight: 950;
+        letter-spacing: -1.5px;
+        color: #000000;
+        text-transform: uppercase;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    /* 서두 박스 */
+    .lush-quote-box {
+        text-align: center;
+        padding: 50px 20px 40px 20px;
+        max-width: 900px;
+        margin: 0 auto 30px auto;
+    }
+    .lush-quote-title {
+        font-size: clamp(22px, 3.2vw, 34px);
+        font-weight: 900;
+        line-height: 1.45;
+        letter-spacing: -1.5px;
+        color: #111111;
+        margin-bottom: 20px;
+        word-break: keep-all;
+    }
+    .lush-quote-desc {
+        font-size: 16px;
+        line-height: 1.9;
+        letter-spacing: -0.2px;
+        color: #444444;
+        word-break: keep-all;
+    }
+
+    /* 원형 카드 스타일 */
+    .circle-card {
+        background-color: #111111;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 15px auto;
+        color: #ffffff !important;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .circle-card-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #ffffff !important;
+        margin-top: 6px;
+    }
+    .circle-card-icon {
+        font-size: 28px;
+    }
+
+    /* 상세 섹션 스타일 */
+    .lush-section-title {
+        font-size: clamp(22px, 2.8vw, 34px);
+        font-weight: 900;
+        line-height: 1.35;
+        letter-spacing: -1.5px;
+        color: #111111 !important;
+        margin-bottom: 18px;
+        word-break: keep-all;
+    }
+    .lush-section-desc {
+        font-size: 17px !important;
+        line-height: 1.95 !important;
+        letter-spacing: -0.3px !important;
+        font-weight: 500 !important;
+        color: #333333 !important;
+        word-break: keep-all;
+    }
+
+    .lush-tag {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #03C75A !important;
+        margin-bottom: 8px;
+    }
+
+    .price-text {
+        font-size: 20px;
+        font-weight: 800;
+        color: #03C75A !important;
+    }
+    .rank-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #000000;
+        color: #ffffff !important;
+        font-weight: bold;
+        padding: 4px 10px;
+        font-size: 14px;
+        z-index: 10;
+    }
+
+    .footer-container {
+        margin-top: 80px;
+        padding: 40px 0 20px 0;
+        border-top: 1px solid #eeeeee;
+        color: #888888;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 안전한 이미지 로딩 함수
+def safe_image(img_src):
+    if isinstance(img_src, str):
+        if os.path.exists(img_src) or img_src.startswith("http"):
+            st.image(img_src, use_container_width=True)
+        else:
+            st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80", use_container_width=True)
+    else:
+        st.image(img_src, use_container_width=True)
+
+# 감성 이미지 리스트
+about_images = [
+    "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80",
+    "balance.jpg",
+    "water.jpg",
+    "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
+]
+
+# 스마트스토어 상품 목록
+kits = [
+    {
+        "id": 1,
+        "name": "EXERCISE 커스텀 DIY 운동 키트",
+        "price": 15000,
+        "comment": "라텍스밴드 + 지압판 + 폴리모프 구성 / 나만의 맞춤형 운동 기구",
+        "img": "ganadi.jpg",
+        "desc_title": "내 신체 조건에 완벽하게 성형하는 나만의 커스텀 운동 키트",
+        "desc_detail": "획일화된 기존 운동 기구에서 벗어나 사용자의 손 모양과 사용 목적에 맞게 직접 형태를 변형할 수 있는 저온 열가소성 폴리모프 기반의 커스텀 운동 키트입니다. 라텍스 밴드의 저항과 지압판의 미세 자극을 조합해 나만의 마사지/근력 기구를 손쉽게 만듭니다.",
+        "components": "라텍스 밴드, 지압판, 폴리모프 왁스 페렛",
+        "feature": "온수에 가열 시 자율적으로 형태 몰딩이 가능한 맞춤형 인체공학 구조"
+    },
+    {
+        "id": 2,
+        "name": "맞춤형 공기방석 에어셀 제작 키트",
+        "price": 18500,
+        "comment": "에어셀 주머니(2개) + 상부 쿠션 스펀지 + 외부 커버 구성",
+        "img": "usagi.jpg",
+        "desc_title": "장시간 앉아있는 현대인을 위한 자율 공기압 체체중 분산 쿠션",
+        "desc_detail": "독립된 2개의 에어셀 주머니로 착석 자세 및 체형에 맞게 내부 공기량을 정밀하게 조절합니다. 골반 기울어짐을 방지하고 척추 균형을 잡아주어 오랜 시간 앉아있어도 허리와 둔부의 부담을 효과적으로 완화해 줍니다.",
+        "components": "에어셀 주머니 2개, 상부 쿠션 스펀지, 하부 지지층, 프리미엄 외부 커버",
+        "feature": "좌우 독립형 에어셀 조절을 통한 골반 자세 교정 및 체중 분산 기능"
+    },
+    {
+        "id": 3,
+        "name": "소멸위기 지역 특산물 이온음료 DIY 키트",
+        "price": 9800,
+        "comment": "지방 소멸 위기 지역 대표 특산물(꿀유자, 오미자) 활용 음료",
+        "img": "hachiware.jpg",
+        "desc_title": "지방 소멸 위기 지역 상생과 신선한 수분·전해질 보충의 만남",
+        "desc_detail": "지방 소멸 위기 지역에서 엄선한 꿀유자와 오미자 원료를 그대로 담아낸 건강 이온음료 키트입니다. 운동 전후 체내에서 빠르게 소모되는 수분과 전해질, 에너지를 맛있고 청량하게 채워줍니다.",
+        "components": "고흥 꿀유자 스틱, 문경 오미자 스틱, 마이보틀 전용 용기",
+        "feature": "100% 국산 지역 특산물 활용 / 빠른 수분 Absorption & 지역 상생"
+    },
+    # ---------------------------------------------------------------
+    # 추가된 VR 상품
+    # ---------------------------------------------------------------
+    {
+        "id": 4,
+        "name": "EXERCISE CITY RUNNER VR 러닝",
+        "price": 0,
+        "comment": "세계 주요 도시 및 다양한 테마 선택 / 몰입형 VR 러닝 경험",
+        "img": "vr.jpg",
+        "desc_title": "늘 똑같은 장소에서 벗어나, 세계 도시를 달리는 VR 러닝",
+        "desc_detail": "매일 반복되는 지루한 공간을 벗어나 보세요! 원하는 세계 주요 도시와 다양한 테마를 직접 선택하고, 나만의 코스를 자유롭게 달리며 몰입감 넘치고 신나는 VR 러닝을 경험할 수 있습니다.",
+        "components": "Google Docs의 VR 상품 구성 내용 입력",
+        "feature": "세계 주요 도시 및 다양한 테마 선택을 통한 몰입형 VR 러닝"
+    }
+]
+
+if 'c2c_products' not in st.session_state:
+    st.session_state['c2c_products'] = [
+        {
+            "id": 101,
+            "name": "폴리모프 커스텀 지압 악력기",
+            "price": 12000,
+            "comment": "판매자: 정예나 | 손 모양 맞춤 지압 구조",
+            "img": about_images[3],
+            "desc_title": "구매자 정예나 님이 제작한 custom 지압 악력기",
+            "desc_detail": "EXERCISE DIY 키트의 폴리모프와 지압판 재료를 활용하여 손바닥 곡선에 딱 맞게 제작한 수제 악력기입니다.",
+            "components": "폴리모프 커스텀 성형 악력 프레임, 결합형 지압 돌기",
+            "feature": "제작자 맞춤형 손 그립감 구현"
+        }
+    ]
+
+# 페이지 흐려짐 없이 오른쪽 아래에 3초간 깔끔하게 알림을 띄우는 함수
+def add_to_cart(item_name, item_price):
+    st.session_state['cart'].append({"name": item_name, "price": item_price})
+    st.toast(f"🛒 '{item_name}' 상품이 장바구니에 담겼습니다.", icon="✅")
+
+# -------------------------------------------------------------------
+# 사이드바 내비게이션 메뉴
+# -------------------------------------------------------------------
+with st.sidebar:
+    st.markdown("### EXERCISE")
+    st.write("---")
+
+    st.button("기업소개", use_container_width=True, on_click=set_page, args=('about',))
+    st.button("스토어", use_container_width=True, on_click=set_page, args=('store',))
+    st.button("로그인 / 회원가입", use_container_width=True, on_click=set_page, args=('login',))
+    st.button("관리자 페이지", use_container_width=True, on_click=set_page, args=('admin',))
+
+# -------------------------------------------------------------------
+# 메인 헤더: 중앙 EXERCISE 로고
+# -------------------------------------------------------------------
+st.markdown("<div class='lush-logo-center'>EXERCISE</div>", unsafe_allow_html=True)
+st.write("---")
+
+# -------------------------------------------------------------------
+# 1. 기업/브랜드 소개 페이지
+# -------------------------------------------------------------------
+if st.session_state['page'] == 'about':
+
+    st.markdown("""
+    <div class="lush-quote-box">
+        <div class="lush-quote-title">
+            “ EXERCISE는 모든 신체가 가진 고유한 가능성을 믿으며,<br>
+            자신의 몸에 완벽하게 맞춰진 정직한 운동 경험을 손으로 만듭니다. ”
+        </div>
+        <div class="lush-quote-desc">
+            획일화된 공장형 기구의 틀에서 벗어나 개인 맞춤형 커스텀 DIY 키트부터 지역 상생 헬스 케어,<br>
+            원하는 세계 도시를 어디서나 경험하는 VR 러닝 및 C2C 가치 공유 플랫폼까지 지속 가능한 웰니스 생태계를 만들어갑니다.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_g1, col_g2, col_g3 = st.columns(3)
+    with col_g1:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🧩</div>
+            <div class="circle-card-title">CUSTOM DIY</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g2:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">💨</div>
+            <div class="circle-card-title">AIR-CELL CUSHION</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g3:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🍊</div>
+            <div class="circle-card-title">LOCAL RECOVERY</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    col_g4, col_g5, col_g6 = st.columns(3)
+    with col_g4:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🖐️</div>
+            <div class="circle-card-title">POLYMORPH</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g5:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🤝</div>
+            <div class="circle-card-title">ETHICAL C2C</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_g6:
+        st.markdown("""
+        <div class="circle-card">
+            <div class="circle-card-icon">🏃</div>
+            <div class="circle-card-title">CITY RUNNER</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("<br><br>", unsafe_allow_html=True)
+    st.divider()
+
+    # 01. CUSTOM DIY KIT
+    col_img1, col_txt1 = st.columns([1, 1], gap="large")
+    with col_img1:
+        safe_image(about_images[0])
+    with col_txt1:
+        st.write("")
+        st.markdown('<div class="lush-tag">01. CUSTOM DIY KIT</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            자신의 신체 조건과 목적에<br>
+            완벽하게 맞추는 커스텀 키트
+        </div>
+        <div class="lush-section-desc">
+            정형화된 기구의 틀을 깨고, 개인의 손 모양과 체형에 정확히 맞춰지는<br>
+            커스터마이징 키트를 통해 나만의 효율적인 움직임을 만들어갑니다.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # 02. AIR-CELL BALANCING
+    col_txt2, col_img2 = st.columns([1, 1], gap="large")
+    with col_txt2:
+        st.write("")
+        st.markdown('<div class="lush-tag">02. AIR-CELL BALANCING</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            장시간 앉아있는 현대인을 위한<br>
+            골반 및 척추 균형 솔루션
+        </div>
+        <div class="lush-section-desc">
+            공기량을 자율 조절할 수 있는 에어셀 구조를 적용하여<br>
+            바른 자세 유지와 체중 분산 효과를 극대화한 인체공학적 방석을 제작합니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img2:
+        safe_image(about_images[1])
+
+    st.divider()
+
+    # 03. LOCAL RECOVERY DRINK
+    col_img3, col_txt3 = st.columns([1, 1], gap="large")
+    with col_img3:
+        safe_image(about_images[2])
+    with col_txt3:
+        st.write("")
+        st.markdown('<div class="lush-tag">03. SHAPE YOUR OWN DRINK</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            소멸 위기 지역 특산물로<br>
+            건강하게 채우는 수분과 전해질
+        </div>
+        <div class="lush-section-desc">
+            꿀유자, 오미자 등 지방 소멸 위기 지역의 특산물을 활용하여<br>
+            운동 후 필요한 수분과 에너지를 건강하게 충전하는 상생형 음료입니다.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # 04. POLYMORPH ERGONOMICS
+    col_txt4, col_img4 = st.columns([1, 1], gap="large")
+    with col_txt4:
+        st.write("")
+        st.markdown('<div class="lush-tag">04. POLYMORPH ERGONOMICS</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            내 손바닥 곡선에 딱 맞게<br>
+            변형되는 맞춤형 구조
+        </div>
+        <div class="lush-section-desc">
+            체온과 열에 반응해 형태를 자유롭게 몰딩하는 폴리모프 기술을 적용하여<br>
+            세상에 단 하나뿐인 최고의 그립감과 자극을 제공합니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img4:
+        safe_image(about_images[3])
+
+    st.divider()
+
+    # 05. SHARED COMMUNITY
+    col_img5, col_txt5 = st.columns([1, 1], gap="large")
+    with col_img5:
+        safe_image(about_images[4])
+    with col_txt5:
+        st.write("")
+        st.markdown('<div class="lush-tag">05. SHARED COMMUNITY</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            구매자의 아이디어가 상품이 되는<br>
+            C2C 가치 공유 커뮤니티
+        </div>
+        <div class="lush-section-desc">
+            사용자가 직접 개발한 창작 운동기구를 등록하고 공유할 수 있는<br>
+            선순환 C2C 마켓플레이스를 지향합니다.
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # 06. [MOVE] CITY RUNNER
+    col_txt6, col_img6 = st.columns([1, 1], gap="large")
+    with col_txt6:
+        st.write("")
+        st.markdown('<div class="lush-tag">06. CITY RUNNER</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="lush-section-title">
+            늘 똑같은 장소에서 벗어나,<br>
+            세계 도시를 달리는 VR 러닝
+        </div>
+        <div class="lush-section-desc">
+            매일 반복되는 지루한 공간을 벗어나 보세요!<br>
+            원하는 세계 주요 도시와 다양한 테마를 직접 선택하고,<br>
+            나만의 코스를 자유롭게 달리며 몰입감 넘치고 신나는 VR 러닝을 경험할 수 있습니다.
+        </div>
+        """, unsafe_allow_html=True)
+    with col_img6:
+        safe_image(about_images[5])
+
+    st.divider()
+
+# -------------------------------------------------------------------
+# 2. 로그인 / 회원가입 페이지
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'login':
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    with col_l2:
+        st.markdown("<h2 style='text-align: center;'>로그인 / 회원가입</h2>", unsafe_allow_html=True)
+        st.write("")
+
+        tab_log1, tab_log2 = st.tabs(["로그인", "회원가입"])
+
+        with tab_log1:
+            with st.form("login_form"):
+                user_id = st.text_input("아이디 또는 이메일", placeholder="example@exercise.com")
+                user_pw = st.text_input("비밀번호", type="password")
+                submit_login = st.form_submit_button("로그인하기", type="primary", use_container_width=True)
+
+                if submit_login:
+                    if user_id and user_pw:
+                        if user_id not in st.session_state['users_db']:
+                            st.warning("등록된 회원 정보가 없습니다. 회원가입을 먼저 진행해 주세요.")
+                        elif st.session_state['users_db'][user_id] != user_pw:
+                            st.error("비밀번호가 올바르지 않습니다.")
+                        else:
+                            st.session_state['user'] = user_id.split('@')[0]
+                            st.session_state['page'] = 'store'
+                            st.success(f"{st.session_state['user']}님, 환영합니다!")
+                            st.rerun()
+                    else:
+                        st.error("아이디와 비밀번호를 모두 입력해 주세요.")
+
+        with tab_log2:
+            with st.form("signup_form"):
+                new_name = st.text_input("이름")
+                new_id = st.text_input("아이디(이메일)")
+                new_pw = st.text_input("비밀번호 설정", type="password")
+                submit_signup = st.form_submit_button("가입완료", type="primary", use_container_width=True)
+
+                if submit_signup:
+                    if new_name and new_id and new_pw:
+                        st.session_state['users_db'][new_id] = new_pw
+                        st.success("회원가입이 완료되었습니다! 로그인해 주세요.")
+                    else:
+                        st.error("모든 항목을 입력해야 합니다.")
+
+# -------------------------------------------------------------------
+# 3. 스마트스토어 메인 페이지
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'store':
+    cart_cnt = len(st.session_state['cart'])
+    cart_btn_text = f"🛒 장바구니 ({cart_cnt})" if cart_cnt > 0 else "🛒 장바구니"
+
+    col_st_header, col_st_cart = st.columns([5, 1])
+    with col_st_cart:
+        st.button(cart_btn_text, use_container_width=True, on_click=set_page, args=('cart',))
+
+    tab1, tab2 = st.tabs(["전체 상품", "구매자 창작 마켓"])
+
+    with tab1:
+        st.markdown("<h3 style='margin-bottom:20px;'>전체 상품 목록</h3>", unsafe_allow_html=True)
+        cols = st.columns(3)
+        for idx, kit in enumerate(kits):
+            with cols[idx % 3]:
+                with st.container(border=True):
+                    st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
+                    safe_image(kit["img"])
+                    st.markdown(f"**{kit['name']}**")
+                    st.caption(kit['comment'])
+                    st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
+
+                    col_b1, col_b2 = st.columns(2)
+                    with col_b1:
+                        if st.button("상세보기", key=f"detail_{kit['id']}", use_container_width=True):
+                            st.session_state['selected_product'] = kit
+                            set_page('detail')
+                            st.rerun()
+                    with col_b2:
+                        if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
+                            add_to_cart(kit['name'], kit['price'])
+
+    with tab2:
+        st.markdown("### 구매자 창작 마켓")
+        st.caption("구매자들이 직접 만든 완성품을 공유하고 거래하는 공간입니다.")
+
+        with st.expander("➕ 내 창작물 직접 판매 등록하기", expanded=False):
+            with st.form("c2c_add_form"):
+                c_title = st.text_input("상품명")
+                c_seller = st.text_input("판매자 닉네임")
+                c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
+                c_img_file = st.file_uploader("대표 이미지 선택", type=["jpg", "jpeg", "png"])
+                c_desc_title = st.text_input("한 줄 개요")
+                c_desc_detail = st.text_area("상세설명 및 제작 노하우")
+
+                c_submit = st.form_submit_button("등록하기", type="primary", use_container_width=True)
+                if c_submit and c_title and c_seller:
+                    new_c2c = {
+                        "id": len(st.session_state['c2c_products']) + 200,
+                        "name": f"[C2C] {c_title}",
+                        "price": c_price,
+                        "comment": f"판매자: {c_seller} | {c_desc_title}",
+                        "img": c_img_file if c_img_file else about_images[3],
+                        "desc_title": c_desc_title,
+                        "desc_detail": c_desc_detail,
+                        "components": "커스텀 조합",
+                        "feature": "맞춤형 그립"
+                    }
+                    st.session_state['c2c_products'].append(new_c2c)
+                    st.success("등록되었습니다!")
+                    st.rerun()
+
+        st.divider()
+        cols_c2c = st.columns(2)
+        for idx, c_item in enumerate(st.session_state['c2c_products']):
+            with cols_c2c[idx % 2]:
+                with st.container(border=True):
+                    safe_image(c_item['img'])
+                    st.markdown(f"**{c_item['name']}**")
+                    st.caption(c_item['comment'])
+                    st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
+
+                    col_cb1, col_cb2 = st.columns(2)
+                    with col_cb1:
+                        if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
+                            st.session_state['selected_product'] = c_item
+                            set_page('detail')
+                            st.rerun()
+                    with col_cb2:
+                        if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
+                            add_to_cart(c_item['name'], c_item['price'])
+
+# -------------------------------------------------------------------
+# 4. 장바구니 페이지
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'cart':
+    st.button("⬅ 이전으로 돌아가기", on_click=set_page, args=('store',))
+
+    st.divider()
+    st.markdown("## 🛒 장바구니 및 주문결제")
+
+    if not st.session_state['cart']:
+        st.info("장바구니가 비어 있습니다.")
+    else:
+        col_c1, col_c2 = st.columns([3, 2])
+        with col_c1:
+            total_price = 0
+            delete_index = None
+            for idx, item in enumerate(st.session_state['cart']):
+                with st.container(border=True):
+                    mc1, mc2, mc3 = st.columns([3, 2, 1])
+                    with mc1:
+                        st.markdown(f"**{item['name']}**")
+                    with mc2:
+                        st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
+                    with mc3:
+                        if st.button("삭제", key=f"cart_del_{idx}"):
+                            delete_index = idx
+                    total_price += item['price']
+
+            if delete_index is not None:
+                st.session_state['cart'].pop(delete_index)
+                st.rerun()
+            st.markdown(f"### 총 결제 예정 금액: **{total_price:,} 원**")
+
+        with col_c2:
+            with st.container(border=True):
+                st.markdown("### 주문 정보 입력")
+                with st.form("checkout_form"):
+                    name = st.text_input("수령인 이름", value=st.session_state['user'] if st.session_state['user'] else "")
+                    phone = st.text_input("연락처")
+                    address = st.text_input("배송지 주소")
+                    pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
+                    pay_submitted = st.form_submit_button("결제하기", type="primary", use_container_width=True)
+
+                    if pay_submitted and name and phone and address:
+                        new_order = {
+                            "id": len(st.session_state['orders']) + 1,
+                            "name": name,
+                            "phone": phone,
+                            "address": address,
+                            "items": [item['name'] for item in st.session_state['cart']],
+                            "total_price": total_price
+                        }
+                        st.session_state['orders'].append(new_order)
+                        st.success("주문 결제가 완료되었습니다!")
+                        st.session_state['cart'] = []
+
+# -------------------------------------------------------------------
+# 5. 상품 상세 페이지
+# -------------------------------------------------------------------
+elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
+    p = st.session_state['selected_product']
+    st.button("⬅ 목록으로 돌아가기", on_click=set_page, args=('store',))
+
+    st.divider()
+
+    # 상단 상품 기본 정보 레이아웃
+    col_d1, col_d2 = st.columns([1, 1], gap="large")
+    with col_d1:
+        safe_image(p['img'])
+    with col_d2:
+        st.markdown(f"## {p['name']}")
+        st.caption(p.get('comment', ''))
+        st.markdown(f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>", unsafe_allow_html=True)
+
         st.write("---")
 
         if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
