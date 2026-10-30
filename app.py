@@ -44,7 +44,7 @@ def set_page(page_name):
     st.session_state['page'] = page_name
 
 # -------------------------------------------------------------------
-# 커스텀 CSS (아이콘 & '메뉴' 텍스트 검정색 고정 및 버튼/탭 글씨 시인성 개선)
+# 커스텀 CSS
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -98,7 +98,7 @@ st.markdown("""
         height: 20px !important;
     }
 
-    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 (검정색, 두껍게) */
+    /* 4. 아이콘 바로 옆에 '메뉴' 글씨 배치 */
     [data-testid="stSidebarCollapsedControl"]::after,
     [data-testid="stSidebarCollapseButton"]::after,
     [data-testid="stSidebarExpandButton"]::after,
@@ -129,7 +129,7 @@ st.markdown("""
         font-size: 16px !important;
     }
 
-    /* Primary 버튼 (담기, 등록하기, 결제하기 등) 전체 초록색(#03C75A) 설정 */
+    /* Primary 버튼 초록색 설정 */
     .stButton > button[kind="primary"],
     .stFormSubmitButton > button,
     button[data-testid="stBaseButton-primary"],
@@ -306,7 +306,10 @@ def safe_image(img_src):
         if os.path.exists(img_src) or img_src.startswith("http"):
             st.image(img_src, use_container_width=True)
         else:
-            st.image("https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80", use_container_width=True)
+            st.image(
+                "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80",
+                use_container_width=True
+            )
     else:
         st.image(img_src, use_container_width=True)
 
@@ -320,7 +323,9 @@ about_images = [
     "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1000&auto=format&fit=crop&q=80"
 ]
 
+# -------------------------------------------------------------------
 # 스마트스토어 상품 목록
+# -------------------------------------------------------------------
 kits = [
     {
         "id": 1,
@@ -355,13 +360,12 @@ kits = [
         "components": "고흥 꿀유자 스틱, 문경 오미자 스틱, 마이보틀 전용 용기",
         "feature": "100% 국산 지역 특산물 활용 / 빠른 수분 Absorption & 지역 상생"
     },
-    # ---------------------------------------------------------------
-    # 추가된 VR 상품
-    # ---------------------------------------------------------------
+
+    # 추가된 VR 상품: 가격 20,000원
     {
         "id": 4,
         "name": "EXERCISE CITY RUNNER VR 러닝",
-        "price": 0,
+        "price": 20000,
         "comment": "세계 주요 도시 및 다양한 테마 선택 / 몰입형 VR 러닝 경험",
         "img": "vr.jpg",
         "desc_title": "늘 똑같은 장소에서 벗어나, 세계 도시를 달리는 VR 러닝",
@@ -386,7 +390,7 @@ if 'c2c_products' not in st.session_state:
         }
     ]
 
-# 페이지 흐려짐 없이 오른쪽 아래에 3초간 깔끔하게 알림을 띄우는 함수
+# 페이지 흐려짐 없이 오른쪽 아래에 알림을 띄우는 함수
 def add_to_cart(item_name, item_price):
     st.session_state['cart'].append({"name": item_name, "price": item_price})
     st.toast(f"🛒 '{item_name}' 상품이 장바구니에 담겼습니다.", icon="✅")
@@ -576,7 +580,7 @@ if st.session_state['page'] == 'about':
 
     st.divider()
 
-    # 06. [MOVE] CITY RUNNER
+    # 06. CITY RUNNER
     col_txt6, col_img6 = st.columns([1, 1], gap="large")
     with col_txt6:
         st.write("")
@@ -764,11 +768,21 @@ elif st.session_state['page'] == 'cart':
             with st.container(border=True):
                 st.markdown("### 주문 정보 입력")
                 with st.form("checkout_form"):
-                    name = st.text_input("수령인 이름", value=st.session_state['user'] if st.session_state['user'] else "")
+                    name = st.text_input(
+                        "수령인 이름",
+                        value=st.session_state['user'] if st.session_state['user'] else ""
+                    )
                     phone = st.text_input("연락처")
                     address = st.text_input("배송지 주소")
-                    pay_method = st.radio("결제 수단", ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"])
-                    pay_submitted = st.form_submit_button("결제하기", type="primary", use_container_width=True)
+                    pay_method = st.radio(
+                        "결제 수단",
+                        ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"]
+                    )
+                    pay_submitted = st.form_submit_button(
+                        "결제하기",
+                        type="primary",
+                        use_container_width=True
+                    )
 
                     if pay_submitted and name and phone and address:
                         new_order = {
@@ -799,7 +813,10 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     with col_d2:
         st.markdown(f"## {p['name']}")
         st.caption(p.get('comment', ''))
-        st.markdown(f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>", unsafe_allow_html=True)
+        st.markdown(
+            f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>",
+            unsafe_allow_html=True
+        )
 
         st.write("---")
 
@@ -847,14 +864,22 @@ elif st.session_state['page'] == 'admin':
     else:
         st.subheader("📊 구매 통계")
         if st.session_state['orders']:
-            all_items = [item for o in st.session_state['orders'] for item in o['items']]
+            all_items = [
+                item
+                for o in st.session_state['orders']
+                for item in o['items']
+            ]
             df_counts = pd.Series(all_items).value_counts().reset_index()
             df_counts.columns = ['상품명', '수량']
 
             max_val = int(df_counts['수량'].max()) if not df_counts.empty else 1
 
             chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
-                x=alt.X('수량:Q', title='판매 수량', axis=alt.Axis(values=list(range(0, max_val + 2)), format='d')),
+                x=alt.X(
+                    '수량:Q',
+                    title='판매 수량',
+                    axis=alt.Axis(values=list(range(0, max_val + 2)), format='d')
+                ),
                 y=alt.Y('상품명:N', title='상품명', sort='-x'),
                 tooltip=['상품명', '수량']
             ).properties(
@@ -877,17 +902,20 @@ elif st.session_state['page'] == 'admin':
                     st.markdown(f"**주소:** {o.get('address', '-')}")
 
                 with col_right:
-                    # 1. 주문 내역 처리 (2개 이상일 경우 세로 정렬)
+                    # 1. 주문 내역 처리
                     order_items = o.get('items', [])
                     if len(order_items) >= 2:
-                        items_formatted = "<br>".join([f"&nbsp;&nbsp;{i+1}. {item}" for i, item in enumerate(order_items)])
+                        items_formatted = "<br>".join([
+                            f"&nbsp;&nbsp;{i+1}. {item}"
+                            for i, item in enumerate(order_items)
+                        ])
                         items_html = f"<div style='margin-top: 4px;'>{items_formatted}</div>"
                     elif len(order_items) == 1:
                         items_html = f" {order_items[0]}"
                     else:
                         items_html = " -"
 
-                    # 2. 주문 내역 및 결제 금액 글씨 크기 확대 출력
+                    # 2. 주문 내역 및 결제 금액 출력
                     st.markdown(
                         f"<div style='font-size: 18px; font-weight: bold; margin-bottom: 8px; line-height: 1.5;'>"
                         f"주문 내역:{items_html}"
@@ -903,6 +931,42 @@ elif st.session_state['page'] == 'admin':
             st.write("---")
         else:
             st.info("등록된 주문 내역이 없습니다.")
+
+# -------------------------------------------------------------------
+# 사이트 첫 방문 시 이미지 팝업
+# 닫으면 기존 기업소개 화면 표시
+# -------------------------------------------------------------------
+@st.dialog("EXERCISE", width="large")
+def show_welcome_popup():
+    popup_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "opening_popup.png"
+    )
+
+    if os.path.exists(popup_path):
+        st.image(popup_path, use_container_width=True)
+    else:
+        st.warning(
+            "opening_popup.png 이미지가 없습니다. "
+            "app.py와 같은 폴더에 넣어 주세요."
+        )
+
+    if st.button(
+        "닫기 ×",
+        use_container_width=True,
+        key="close_welcome_popup"
+    ):
+        st.session_state['page'] = 'about'
+        st.rerun()
+
+
+if 'welcome_popup_shown' not in st.session_state:
+    st.session_state['welcome_popup_shown'] = False
+
+if not st.session_state['welcome_popup_shown']:
+    st.session_state['welcome_popup_shown'] = True
+    st.session_state['page'] = 'about'
+    show_welcome_popup()
 
 # -------------------------------------------------------------------
 # 푸터
