@@ -297,6 +297,14 @@ st.markdown("""
         font-size: 13px;
         line-height: 1.7;
     }
+
+    /* 스토어 전체 상품 목록 이미지 크기만 통일 */
+    .store-product-image [data-testid="stImage"] img {
+        width: 100% !important;
+        height: 280px !important;
+        object-fit: contain !important;
+        background-color: #ffffff !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -311,6 +319,17 @@ def safe_image(img_src):
                 use_container_width=True
             )
     else:
+        st.image(img_src, use_container_width=True)
+
+# 스토어 상품 목록용 이미지 함수
+# 원본 이미지 비율을 유지하면서 동일한 280px 높이로 표시
+def store_product_image(img_src):
+    if isinstance(img_src, str):
+        if not os.path.exists(img_src) and not img_src.startswith("http"):
+            img_src = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80"
+
+    image_container = st.container(key="store-product-image")
+    with image_container:
         st.image(img_src, use_container_width=True)
 
 # 감성 이미지 리스트
@@ -653,7 +672,7 @@ elif st.session_state['page'] == 'store':
             with cols[idx % 3]:
                 with st.container(border=True):
                     st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
-                    safe_image(kit["img"])
+                    store_product_image(kit["img"])
                     st.markdown(f"**{kit['name']}**")
                     st.caption(kit['comment'])
                     st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
