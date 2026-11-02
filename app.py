@@ -298,8 +298,8 @@ st.markdown("""
         line-height: 1.7;
     }
 
-    /* 스토어 전체 상품 목록 이미지 크기만 통일 */
-    .store-product-image [data-testid="stImage"] img {
+    /* 스토어 전체 상품 목록의 이미지 크기만 통일 */
+    [class*="st-key-store-product-image-"] [data-testid="stImage"] img {
         width: 100% !important;
         height: 280px !important;
         object-fit: contain !important;
@@ -321,14 +321,18 @@ def safe_image(img_src):
     else:
         st.image(img_src, use_container_width=True)
 
-# 스토어 상품 목록용 이미지 함수
-# 원본 이미지 비율을 유지하면서 동일한 280px 높이로 표시
-def store_product_image(img_src):
+# -------------------------------------------------------------------
+# 스토어 상품 목록 전용 이미지 함수
+# 상품마다 고유한 key를 지정하여 중복 오류 방지
+# -------------------------------------------------------------------
+def store_product_image(img_src, product_id):
     if isinstance(img_src, str):
         if not os.path.exists(img_src) and not img_src.startswith("http"):
             img_src = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80"
 
-    image_container = st.container(key="store-product-image")
+    image_container = st.container(
+        key=f"store-product-image-{product_id}"
+    )
     with image_container:
         st.image(img_src, use_container_width=True)
 
@@ -668,23 +672,43 @@ elif st.session_state['page'] == 'store':
     with tab1:
         st.markdown("<h3 style='margin-bottom:20px;'>전체 상품 목록</h3>", unsafe_allow_html=True)
         cols = st.columns(3)
+
         for idx, kit in enumerate(kits):
             with cols[idx % 3]:
                 with st.container(border=True):
-                    st.markdown(f"<span class='rank-badge'>{idx + 1}</span>", unsafe_allow_html=True)
-                    store_product_image(kit["img"])
+                    st.markdown(
+                        f"<span class='rank-badge'>{idx + 1}</span>",
+                        unsafe_allow_html=True
+                    )
+
+                    # 상품마다 고유 ID를 사용해 이미지 크기 통일
+                    store_product_image(kit["img"], kit["id"])
+
                     st.markdown(f"**{kit['name']}**")
                     st.caption(kit['comment'])
-                    st.markdown(f"<p class='price-text'>{kit['price']:,} 원</p>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<p class='price-text'>{kit['price']:,} 원</p>",
+                        unsafe_allow_html=True
+                    )
 
                     col_b1, col_b2 = st.columns(2)
                     with col_b1:
-                        if st.button("상세보기", key=f"detail_{kit['id']}", use_container_width=True):
+                        if st.button(
+                            "상세보기",
+                            key=f"detail_{kit['id']}",
+                            use_container_width=True
+                        ):
                             st.session_state['selected_product'] = kit
                             set_page('detail')
                             st.rerun()
+
                     with col_b2:
-                        if st.button("담기", key=f"home_cart_{kit['id']}", type="primary", use_container_width=True):
+                        if st.button(
+                            "담기",
+                            key=f"home_cart_{kit['id']}",
+                            type="primary",
+                            use_container_width=True
+                        ):
                             add_to_cart(kit['name'], kit['price'])
 
     with tab2:
@@ -695,12 +719,25 @@ elif st.session_state['page'] == 'store':
             with st.form("c2c_add_form"):
                 c_title = st.text_input("상품명")
                 c_seller = st.text_input("판매자 닉네임")
-                c_price = st.number_input("판매 가격 (원)", min_value=0, step=1000, value=10000)
-                c_img_file = st.file_uploader("대표 이미지 선택", type=["jpg", "jpeg", "png"])
+                c_price = st.number_input(
+                    "판매 가격 (원)",
+                    min_value=0,
+                    step=1000,
+                    value=10000
+                )
+                c_img_file = st.file_uploader(
+                    "대표 이미지 선택",
+                    type=["jpg", "jpeg", "png"]
+                )
                 c_desc_title = st.text_input("한 줄 개요")
                 c_desc_detail = st.text_area("상세설명 및 제작 노하우")
 
-                c_submit = st.form_submit_button("등록하기", type="primary", use_container_width=True)
+                c_submit = st.form_submit_button(
+                    "등록하기",
+                    type="primary",
+                    use_container_width=True
+                )
+
                 if c_submit and c_title and c_seller:
                     new_c2c = {
                         "id": len(st.session_state['c2c_products']) + 200,
@@ -718,6 +755,7 @@ elif st.session_state['page'] == 'store':
                     st.rerun()
 
         st.divider()
+
         cols_c2c = st.columns(2)
         for idx, c_item in enumerate(st.session_state['c2c_products']):
             with cols_c2c[idx % 2]:
@@ -725,16 +763,30 @@ elif st.session_state['page'] == 'store':
                     safe_image(c_item['img'])
                     st.markdown(f"**{c_item['name']}**")
                     st.caption(c_item['comment'])
-                    st.markdown(f"<p class='price-text'>{c_item['price']:,} 원</p>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<p class='price-text'>{c_item['price']:,} 원</p>",
+                        unsafe_allow_html=True
+                    )
 
                     col_cb1, col_cb2 = st.columns(2)
+
                     with col_cb1:
-                        if st.button("상세보기", key=f"c2c_detail_{c_item['id']}_{idx}", use_container_width=True):
+                        if st.button(
+                            "상세보기",
+                            key=f"c2c_detail_{c_item['id']}_{idx}",
+                            use_container_width=True
+                        ):
                             st.session_state['selected_product'] = c_item
                             set_page('detail')
                             st.rerun()
+
                     with col_cb2:
-                        if st.button("담기", key=f"c2c_cart_{c_item['id']}_{idx}", type="primary", use_container_width=True):
+                        if st.button(
+                            "담기",
+                            key=f"c2c_cart_{c_item['id']}_{idx}",
+                            type="primary",
+                            use_container_width=True
+                        ):
                             add_to_cart(c_item['name'], c_item['price'])
 
 # -------------------------------------------------------------------
@@ -750,29 +802,42 @@ elif st.session_state['page'] == 'cart':
         st.info("장바구니가 비어 있습니다.")
     else:
         col_c1, col_c2 = st.columns([3, 2])
+
         with col_c1:
             total_price = 0
             delete_index = None
+
             for idx, item in enumerate(st.session_state['cart']):
                 with st.container(border=True):
                     mc1, mc2, mc3 = st.columns([3, 2, 1])
+
                     with mc1:
                         st.markdown(f"**{item['name']}**")
+
                     with mc2:
-                        st.markdown(f"<p class='price-text'>{item['price']:,} 원</p>", unsafe_allow_html=True)
+                        st.markdown(
+                            f"<p class='price-text'>{item['price']:,} 원</p>",
+                            unsafe_allow_html=True
+                        )
+
                     with mc3:
                         if st.button("삭제", key=f"cart_del_{idx}"):
                             delete_index = idx
+
                     total_price += item['price']
 
             if delete_index is not None:
                 st.session_state['cart'].pop(delete_index)
                 st.rerun()
-            st.markdown(f"### 총 결제 예정 금액: **{total_price:,} 원**")
+
+            st.markdown(
+                f"### 총 결제 예정 금액: **{total_price:,} 원**"
+            )
 
         with col_c2:
             with st.container(border=True):
                 st.markdown("### 주문 정보 입력")
+
                 with st.form("checkout_form"):
                     name = st.text_input(
                         "수령인 이름",
@@ -780,10 +845,16 @@ elif st.session_state['page'] == 'cart':
                     )
                     phone = st.text_input("연락처")
                     address = st.text_input("배송지 주소")
+
                     pay_method = st.radio(
                         "결제 수단",
-                        ["N Pay (네이버페이)", "신용/체크카드", "계좌이체"]
+                        [
+                            "N Pay (네이버페이)",
+                            "신용/체크카드",
+                            "계좌이체"
+                        ]
                     )
+
                     pay_submitted = st.form_submit_button(
                         "결제하기",
                         type="primary",
@@ -796,9 +867,13 @@ elif st.session_state['page'] == 'cart':
                             "name": name,
                             "phone": phone,
                             "address": address,
-                            "items": [item['name'] for item in st.session_state['cart']],
+                            "items": [
+                                item['name']
+                                for item in st.session_state['cart']
+                            ],
                             "total_price": total_price
                         }
+
                         st.session_state['orders'].append(new_order)
                         st.success("주문 결제가 완료되었습니다!")
                         st.session_state['cart'] = []
@@ -806,27 +881,43 @@ elif st.session_state['page'] == 'cart':
 # -------------------------------------------------------------------
 # 5. 상품 상세 페이지
 # -------------------------------------------------------------------
-elif st.session_state['page'] == 'detail' and st.session_state['selected_product'] is not None:
+elif (
+    st.session_state['page'] == 'detail'
+    and st.session_state['selected_product'] is not None
+):
     p = st.session_state['selected_product']
-    st.button("⬅ 목록으로 돌아가기", on_click=set_page, args=('store',))
+
+    st.button(
+        "⬅ 목록으로 돌아가기",
+        on_click=set_page,
+        args=('store',)
+    )
 
     st.divider()
 
     # 상단 상품 기본 정보 레이아웃
     col_d1, col_d2 = st.columns([1, 1], gap="large")
+
     with col_d1:
         safe_image(p['img'])
+
     with col_d2:
         st.markdown(f"## {p['name']}")
         st.caption(p.get('comment', ''))
+
         st.markdown(
-            f"<p class='price-text' style='font-size:26px;'>{p['price']:,} 원</p>",
+            f"<p class='price-text' style='font-size:26px;'>"
+            f"{p['price']:,} 원</p>",
             unsafe_allow_html=True
         )
 
         st.write("---")
 
-        if st.button("🛒 장바구니 담기", type="primary", use_container_width=True):
+        if st.button(
+            "🛒 장바구니 담기",
+            type="primary",
+            use_container_width=True
+        ):
             add_to_cart(p['name'], p['price'])
 
     st.write("<br><br>", unsafe_allow_html=True)
@@ -835,8 +926,8 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
     # 상품 상세 설명 구획
     st.markdown("### 상품 상세 설명")
 
-    # [0.05, 0.95] 비율로 살짝 오른쪽 들여쓰기 효과 유지
     indent_space, content_col = st.columns([0.05, 0.95])
+
     with content_col:
         st.markdown("#### 📌 개요")
         st.write(p.get('desc_title', ''))
@@ -854,87 +945,143 @@ elif st.session_state['page'] == 'detail' and st.session_state['selected_product
 # 6. 관리자 페이지
 # -------------------------------------------------------------------
 elif st.session_state['page'] == 'admin':
-    st.button("⬅ 메인으로 돌아가기", on_click=set_page, args=('about',))
+    st.button(
+        "⬅ 메인으로 돌아가기",
+        on_click=set_page,
+        args=('about',)
+    )
 
     st.divider()
     st.markdown("## 관리자 페이지")
+
     if not st.session_state['admin_authenticated']:
         with st.form("admin_login"):
-            pw = st.text_input("관리자 비밀번호", type="password")
-            if st.form_submit_button("로그인", type="primary"):
+            pw = st.text_input(
+                "관리자 비밀번호",
+                type="password"
+            )
+
+            if st.form_submit_button(
+                "로그인",
+                type="primary"
+            ):
                 if pw == "1234":
                     st.session_state['admin_authenticated'] = True
                     st.rerun()
                 else:
                     st.error("비밀번호 불일치 (기본값: 1234)")
+
     else:
         st.subheader("📊 구매 통계")
+
         if st.session_state['orders']:
             all_items = [
                 item
                 for o in st.session_state['orders']
                 for item in o['items']
             ]
-            df_counts = pd.Series(all_items).value_counts().reset_index()
+
+            df_counts = (
+                pd.Series(all_items)
+                .value_counts()
+                .reset_index()
+            )
             df_counts.columns = ['상품명', '수량']
 
-            max_val = int(df_counts['수량'].max()) if not df_counts.empty else 1
+            max_val = (
+                int(df_counts['수량'].max())
+                if not df_counts.empty
+                else 1
+            )
 
-            chart = alt.Chart(df_counts).mark_bar(color='#03C75A').encode(
+            chart = alt.Chart(df_counts).mark_bar(
+                color='#03C75A'
+            ).encode(
                 x=alt.X(
                     '수량:Q',
                     title='판매 수량',
-                    axis=alt.Axis(values=list(range(0, max_val + 2)), format='d')
+                    axis=alt.Axis(
+                        values=list(range(0, max_val + 2)),
+                        format='d'
+                    )
                 ),
-                y=alt.Y('상품명:N', title='상품명', sort='-x'),
+                y=alt.Y(
+                    '상품명:N',
+                    title='상품명',
+                    sort='-x'
+                ),
                 tooltip=['상품명', '수량']
             ).properties(
                 height=max(150, len(df_counts) * 40)
             )
 
-            st.altair_chart(chart, use_container_width=True)
+            st.altair_chart(
+                chart,
+                use_container_width=True
+            )
 
             st.divider()
             st.subheader("📋 전체 주문 정보")
 
             for o in st.session_state['orders']:
                 st.write("---")
+
                 col_left, col_right = st.columns([1, 1])
 
                 with col_left:
-                    st.markdown(f"**주문번호:** ORD-{o['id']:04d}")
-                    st.markdown(f"**이름:** {o.get('name', '-')}")
-                    st.markdown(f"**연락처:** {o.get('phone', '-')}")
-                    st.markdown(f"**주소:** {o.get('address', '-')}")
+                    st.markdown(
+                        f"**주문번호:** ORD-{o['id']:04d}"
+                    )
+                    st.markdown(
+                        f"**이름:** {o.get('name', '-')}"
+                    )
+                    st.markdown(
+                        f"**연락처:** {o.get('phone', '-')}"
+                    )
+                    st.markdown(
+                        f"**주소:** {o.get('address', '-')}"
+                    )
 
                 with col_right:
-                    # 1. 주문 내역 처리
+                    # 주문 내역 처리
                     order_items = o.get('items', [])
+
                     if len(order_items) >= 2:
                         items_formatted = "<br>".join([
                             f"&nbsp;&nbsp;{i+1}. {item}"
                             for i, item in enumerate(order_items)
                         ])
-                        items_html = f"<div style='margin-top: 4px;'>{items_formatted}</div>"
+                        items_html = (
+                            f"<div style='margin-top: 4px;'>"
+                            f"{items_formatted}</div>"
+                        )
+
                     elif len(order_items) == 1:
                         items_html = f" {order_items[0]}"
+
                     else:
                         items_html = " -"
 
-                    # 2. 주문 내역 및 결제 금액 출력
+                    # 주문 내역 및 결제 금액 출력
                     st.markdown(
-                        f"<div style='font-size: 18px; font-weight: bold; margin-bottom: 8px; line-height: 1.5;'>"
+                        f"<div style='font-size: 18px; "
+                        f"font-weight: bold; margin-bottom: 8px; "
+                        f"line-height: 1.5;'>"
                         f"주문 내역:{items_html}"
                         f"</div>",
                         unsafe_allow_html=True
                     )
+
                     st.markdown(
-                        f"<div style='font-size: 18px; font-weight: bold; color: #03C75A;'>"
+                        f"<div style='font-size: 18px; "
+                        f"font-weight: bold; color: #03C75A;'>"
                         f"결제 금액: {o.get('total_price', 0):,} 원"
                         f"</div>",
                         unsafe_allow_html=True
                     )
+
             st.write("---")
+
         else:
             st.info("등록된 주문 내역이 없습니다.")
 
@@ -950,7 +1097,10 @@ def show_welcome_popup():
     )
 
     if os.path.exists(popup_path):
-        st.image(popup_path, use_container_width=True)
+        st.image(
+            popup_path,
+            use_container_width=True
+        )
     else:
         st.warning(
             "opening_popup.png 이미지가 없습니다. "
